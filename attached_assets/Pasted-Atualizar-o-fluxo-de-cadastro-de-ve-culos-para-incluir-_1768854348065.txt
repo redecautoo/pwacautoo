@@ -1,0 +1,71 @@
+Atualizar o fluxo de cadastro de veículos para incluir as opções de veículos por assinatura e veículos com seguro ativo, mantendo a experiência simples e dentro do fluxo atual.
+
+1. LOCAL
+- Essa atualização ocorre na tela de cadastro de veículo, após o usuário informar a placa, mas antes de preencher os demais dados.
+
+2. NOVO FLUXO DE CADASTRO
+Após o usuário digitar uma placa válida:
+- Exibir a pergunta:
+  “O veículo é próprio ou de assinatura?”
+  Opções (botões de seleção):
+  - Veículo próprio
+  - Veículo por assinatura
+
+---
+
+3. SE O USUÁRIO ESCOLHER “VEÍCULO POR ASSINATURA”:
+Exibir os seguintes campos adicionais obrigatórios:
+- Nome da empresa de assinatura (campo de texto)
+  Placeholder: “Ex: Flua!, Movida, Kinto, etc.”
+- CNPJ da empresa (campo numérico opcional)
+- Data de término do contrato (campo de data)
+  Placeholder: “Informe a data de encerramento do contrato.”
+
+Esses dados devem ser vinculados ao cadastro da placa como vínculo temporário, exibindo a data final e a empresa.
+
+No perfil do veículo, exibir um pequeno selo/observação discreta:
+> “🔷 Veículo em uso por assinatura até [data].”
+
+---
+
+4. SE O USUÁRIO ESCOLHER “VEÍCULO PRÓPRIO”:
+Após selecionar essa opção, exibir a pergunta:
+  “O veículo possui seguro ativo?”
+  Opções (sim/não).
+
+- Se o usuário selecionar **Sim**, exibir os campos:
+  - Nome da seguradora (campo de texto curto)
+    Placeholder: “Ex: Porto Seguro, Bradesco, Allianz, etc.”
+  - Data de término do seguro (campo de data)
+    Placeholder: “Informe a data de validade do seguro.”
+
+No perfil do veículo, exibir a observação discreta:
+> “🟢 Veículo com seguro ativo até [data].”
+
+- Se o usuário selecionar **Não**, prossegue o cadastro normal sem campos adicionais.
+
+---
+
+5. REGRAS DE EXIBIÇÃO NO PERFIL DO VEÍCULO
+- Exibir um pequeno rótulo (selo ou ícone) ao lado da placa, conforme o caso:
+  - 🔷 “Por Assinatura” (com tooltip: “Veículo em uso temporário por assinatura até [data].”)
+  - 🟢 “Com Seguro” (com tooltip: “Veículo segurado pela [nome da empresa].”)
+- Se o veículo for assinatura e tiver seguro (em casos raros), exibir ambos os ícones lado a lado.
+- Essas observações são apenas informativas e visíveis apenas para o dono do veículo.
+
+---
+
+6. DESIGN E EXPERIÊNCIA
+- Seguir o layout atual do cadastro de veículos.
+- Campos adicionais devem surgir dinamicamente conforme a escolha (sem mudar de tela).
+- Usar botões de seleção no padrão visual da Cautoo.
+- Ícones e selos devem seguir o estilo translúcido usado nas outras seções do app.
+
+---
+
+7. OBJETIVO FINAL
+Permitir que o usuário:
+- Informe se o veículo é próprio ou de assinatura.
+- Registre dados básicos do contrato de assinatura (empresa, CNPJ e validade).
+- Informe se o veículo possui seguro, e em caso afirmativo, a seguradora e data de vencimento.
+- Visualize no perfil do veículo uma marcação clara (“Por Assinatura” ou “Com Seguro”), mantendo o design limpo e padronizado.

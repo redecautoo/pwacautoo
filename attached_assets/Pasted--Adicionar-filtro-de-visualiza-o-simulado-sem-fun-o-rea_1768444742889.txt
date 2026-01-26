@@ -1,0 +1,72 @@
+
+Adicionar filtro de visualização simulado (sem função real):  
+- “Todos”  
+- “Entradas”  
+- “Saídas”  
+- “Cancelamentos”
+
+Botão “Voltar” para retornar à tela principal do CauCash.
+
+---
+
+### 🎨 DETALHES DE INTERFACE E DESIGN
+
+- O botão **CauCash** deve aparecer no menu principal do app, junto às outras funcionalidades (ex: Garagem, Alertas, Ranking etc.).
+- Ícone sugerido: 💰, 🪙 ou qualquer ícone de carteira digital no mesmo estilo dos ícones existentes.
+- O design deve seguir o estilo visual atual da Cautoo — cores, espaçamentos, tipografia e estrutura de botões.
+- O saldo fictício deve ser exibido de forma destacada (caixa ou card visual, em destaque).
+- Mensagens de sucesso e simulação devem usar o mesmo estilo de feedback visual (ex: toast ou alertas padrão do app).
+
+---
+
+### ⚙️ FUNCIONAMENTO (MODO SIMULAÇÃO)
+
+- Nenhum dado real é salvo.
+- Nenhum pagamento PIX é processado.
+- Nenhum backend é chamado.
+- Todos os valores e respostas são simulados localmente.
+- As ações apenas exibem mensagens visuais (ex: “Simulação: Pagamento de R$50 iniciado”).
+
+---
+
+### 💬 TEXTOS PADRÃO SUGERIDOS
+
+**Tela principal:**
+> “Adicione créditos ao seu CauCash e pague tudo dentro do app com facilidade.  
+> Sem precisar fazer PIX a cada transação.”
+
+**Após simular recarga:**
+> “✅ Simulação concluída. Seu saldo será atualizado automaticamente no modo real.”
+
+**Histórico vazio (caso queira testar sem dados):**
+> “Nenhuma movimentação registrada ainda.”
+
+**Botões principais:**
+- “Adicionar Créditos”
+- “Ver Histórico”
+- “Voltar para CauCash”
+
+---
+
+### 🔐 PRIVACIDADE E REGRAS
+
+- Todos os textos devem deixar claro que esta é uma simulação.  
+- Nenhuma transação real deve ser executada.  
+- Nenhum dado pessoal ou financeiro deve ser exibido.  
+- O módulo deve estar completamente isolado das integrações existentes (sem chamadas reais de API).
+
+---
+
+✅ RESULTADO ESPERADO
+
+Após a atualização:
+- A nova funcionalidade **CauCash** aparece no menu principal do app.  
+- O usuário pode navegar pelas telas “Saldo”, “Adicionar Créditos” e “Histórico de Movimentações”.  
+- Tudo funciona em modo de teste, com dados estáticos e mensagens simuladas.  
+- Nenhuma integração com backend ou PIX é feita ainda.  
+
+O objetivo é validar o design, fluxo de navegação e experiência de uso antes da ativação real da funcionalidade.
+
+---
+
+# FIM DO PROMPT

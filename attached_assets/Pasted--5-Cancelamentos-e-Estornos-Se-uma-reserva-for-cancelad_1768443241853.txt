@@ -1,0 +1,77 @@
+
+---
+
+### 5️⃣ Cancelamentos e Estornos
+
+- Se uma reserva for cancelada antes do uso, o valor pago é automaticamente devolvido para o saldo do usuário CauCash.
+- O histórico deve registrar esse estorno como uma nova entrada:
+  - Tipo: “Estorno”
+  - Descrição: “Cancelamento de [tipo da transação]”
+  - Valor devolvido
+
+Mensagem:
+> “O valor foi estornado para seu saldo CauCash.”
+
+---
+
+### 6️⃣ Regras Gerais
+
+- Valor mínimo de recarga: R$30,00.  
+- Não permitir valores inferiores a esse.  
+- Os créditos não expiram enquanto o usuário estiver ativo.  
+- O saldo é pessoal e intransferível.  
+- O app deve exibir sempre o saldo atualizado no topo das telas de pagamento.  
+- Se o saldo for suficiente, o app **deve usar automaticamente o CauCash como forma prioritária de pagamento**.  
+
+---
+
+### 7️⃣ Textos e UX sugeridos
+
+**Tela principal (sem saldo):**
+> “Adicione créditos ao seu CauCash e pague tudo dentro do app com facilidade.  
+> Sem precisar fazer PIX a cada transação.”
+
+**Tela principal (com saldo):**
+> “Saldo disponível: R$85,00  
+> Use seu CauCash para pagar reservas e serviços com um toque.”
+
+**Ao comprar créditos:**
+> “Selecione o valor desejado e finalize o pagamento via PIX.  
+> Seu saldo será atualizado automaticamente após a confirmação.”
+
+**Ao pagar com créditos:**
+> “Pagamento realizado com sucesso com seu saldo CauCash!”
+
+**Ao tentar pagar sem saldo:**
+> “Saldo insuficiente. Adicione créditos para continuar.”
+
+---
+
+📊 ÁREA DO USUÁRIO — CAUCASH
+Deve conter três abas:
+1. **Saldo Atual**
+2. **Adicionar Créditos**
+3. **Histórico de Movimentações**
+
+---
+
+🔐 PRIVACIDADE E SEGURANÇA
+
+- Todos os registros devem ser associados ao usuário autenticado.  
+- Nenhuma transação deve ser anônima.  
+- Exibir sempre o status de cada operação (pendente, confirmado, cancelado).  
+- Todas as movimentações devem ter data e hora registradas.
+
+---
+
+✅ RESULTADO ESPERADO
+
+Após essa atualização:
+- O usuário poderá comprar créditos CauCash (mínimo R$30).  
+- O saldo será usado automaticamente em futuras transações.  
+- O histórico exibirá todas as movimentações, cancelamentos e estornos.  
+- As operações de pagamento via PIX direto passam a ser opcionais, já que o CauCash será o método padrão de saldo no app.
+
+---
+
+# FIM DO PROMPT

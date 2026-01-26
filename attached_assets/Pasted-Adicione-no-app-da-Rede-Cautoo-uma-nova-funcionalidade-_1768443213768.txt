@@ -1,0 +1,77 @@
+Adicione no app da Rede Cautoo uma nova funcionalidade chamada **CauCash**, que funcionará como uma carteira digital interna para os usuários realizarem pagamentos dentro do app.
+
+---
+
+🎯 OBJETIVO
+
+O CauCash permite que os usuários comprem créditos antecipadamente e usem esses créditos para pagar qualquer serviço dentro do app (como reservas de garagens, selos, taxas, etc.), sem precisar realizar um novo PIX a cada operação.
+
+---
+
+💡 CONCEITO PRINCIPAL
+
+- O usuário compra créditos (valor mínimo: R$30).  
+- O saldo é armazenado na conta Cautoo do usuário.  
+- Sempre que o usuário fizer um pagamento dentro do app, o valor é automaticamente descontado do seu saldo CauCash.  
+- O usuário pode consultar seu saldo, histórico de compras e pagamentos.  
+- Todo o histórico deve ser rastreável e transparente (entradas, saídas, cancelamentos, estornos).
+
+---
+
+⚙️ FLUXO DE FUNCIONAMENTO
+
+### 1️⃣ Acesso ao CauCash
+- O usuário acessa pelo menu principal a nova seção **CauCash**.
+- A tela inicial exibe:
+  - Saldo atual em destaque (ex: “Saldo: R$85,00”)
+  - Botão “Adicionar Créditos”
+  - Botão “Histórico de Movimentações”
+
+---
+
+### 2️⃣ Adicionar Créditos
+- Ao clicar em “Adicionar Créditos”, o usuário vê opções de valores pré-definidos:
+  - R$30
+  - R$50
+  - R$100
+  - R$200
+- O usuário escolhe um valor e clica em “Continuar”.
+
+- O sistema exibe um QR Code PIX e os dados para pagamento.  
+  - O pagamento pode ser feito manualmente via PIX.  
+  - Assim que o pagamento for confirmado (via webhook ou retorno do processador), o saldo é creditado automaticamente.
+
+Mensagem de sucesso:
+> “✅ Créditos adicionados com sucesso!  
+> Seu saldo CauCash foi atualizado.”
+
+---
+
+### 3️⃣ Uso dos Créditos
+
+- Sempre que o usuário realizar qualquer transação paga dentro do app (ex: reserva de garagem, compra de selo, participação em evento etc.), o sistema verifica:
+  - Se há saldo suficiente → desconta automaticamente.  
+  - Se não houver saldo → exibe a mensagem:
+    > “Seu saldo CauCash é insuficiente. Adicione créditos para continuar.”
+
+- Após o desconto, exibe mensagem:
+  > “Pagamento realizado com sucesso usando CauCash.”
+
+---
+
+### 4️⃣ Histórico de Movimentações
+
+- O histórico deve registrar todas as entradas e saídas, com os seguintes campos:
+  - Tipo de operação (Compra de Créditos, Pagamento, Cancelamento, Estorno)
+  - Descrição
+  - Valor
+  - Data e hora
+  - Status (Concluído, Pendente, Cancelado)
+
+- Na interface, o histórico deve ter filtros:
+  - “Todos”
+  - “Entradas”
+  - “Saídas”
+  - “Cancelamentos”
+
+Exemplo de exibição:

@@ -1,0 +1,146 @@
+Atualize o fluxo da funcionalidade “Cautoo Vagas” no app da Rede Cautoo para incluir as informações completas dos responsáveis pela vaga, pelo agendamento e pelo uso da vaga, conforme o novo comportamento abaixo.
+
+---
+
+🎯 OBJETIVO
+
+Garantir que, ao reservar uma vaga dentro do condomínio, todos os envolvidos — proprietário, morador que fez a reserva e visitante (quando aplicável) — tenham seus dados principais visíveis no registro da reserva e no link enviado à portaria.
+
+Essas informações devem permitir o controle de acesso de forma simples, segura e sem precisar de confirmação do condomínio.
+
+---
+
+⚙️ NOVO FLUXO DE RESERVA
+
+1. Quando um morador faz uma reserva de vaga, ele deve preencher:
+   - Data e horário da reserva  
+   - Se a vaga será utilizada por ele mesmo ou por um visitante  
+   - Nome completo do motorista que usará a vaga  
+   - Placa do veículo  
+   - Número do apartamento (ou identificação da unidade)  
+
+2. Assim que o morador confirma a reserva e faz o pagamento, o sistema deve gerar automaticamente o **resumo completo da reserva**, que contém:
+
+   **Informações do proprietário da vaga:**
+   - Nome completo  
+   - Número do apartamento  
+   - Placa vinculada à vaga (se houver)
+
+   **Informações de quem realizou a reserva:**
+   - Nome completo  
+   - Número do apartamento  
+
+   **Informações do veículo que vai ocupar a vaga:**
+   - Nome completo do motorista  
+   - Placa do veículo  
+   - Tipo de uso: Morador ou Visitante  
+
+   **Informações gerais:**
+   - Número da vaga  
+   - Datas e horários de início e término da reserva  
+   - Valor da diária (R$25,00)  
+   - Status (ativa, concluída ou cancelada)
+
+3. Essas informações devem aparecer em duas áreas:
+   - Dentro do app, na seção “Minhas Reservas” (para o morador e o dono da vaga).  
+   - No link de acesso temporário gerado automaticamente para a portaria.
+
+---
+
+📎 SOBRE O LINK TEMPORÁRIO (QR CODE)
+
+- O link de acesso deve exibir um cartão com todos os dados essenciais para o controle de portaria, em formato claro e visual.  
+- O cartão deve conter:
+
+   **Identificação da Reserva**
+   - Condomínio  
+   - Número da vaga  
+   - Período de uso  
+
+   **Responsável pela vaga**
+   - Nome completo  
+   - Apartamento  
+
+   **Responsável pela reserva**
+   - Nome completo  
+   - Apartamento  
+
+   **Responsável pelo veículo**
+   - Nome completo  
+   - Placa do veículo  
+   - Tipo de uso (Morador ou Visitante)
+
+- O link e o QR Code expiram automaticamente ao fim do período da reserva.  
+- Após o vencimento, o link exibe a mensagem:
+  “Esta reserva expirou. O acesso não está mais ativo.”
+
+---
+
+🔐 REGRAS E PRIVACIDADE
+
+- As informações devem ser visíveis apenas para:
+  - O dono da vaga  
+  - O morador que reservou  
+  - A portaria (via link compartilhado)  
+  - Nenhum dado deve ser público fora desses contextos.
+
+- As informações de contato pessoal (telefone, e-mail) não devem aparecer no link, apenas:
+  - Nome completo  
+  - Número do apartamento  
+  - Placa do veículo  
+
+- O link temporário deve incluir um cabeçalho visual com:
+  “Reserva Cautoo Vagas — Controle de Acesso Condomínio [NOME DO CONDOMÍNIO]”
+
+---
+
+📋 NOTIFICAÇÕES
+
+- Após criar a reserva, o dono da vaga recebe:
+  > “Sua vaga foi reservada por [NOME DO MORADOR], apto [NÚMERO].  
+  > O uso está agendado de [DATA/HORA INÍCIO] até [DATA/HORA FIM].”
+
+- O morador que fez a reserva recebe:
+  > “Reserva confirmada!  
+  > Link de acesso gerado para controle de portaria.  
+  > Você pode compartilhar o QR Code com o responsável pelo acesso.”
+
+- Ao término do período, ambos recebem:
+  > “Período de reserva encerrado.  
+  > Confirme se ocorreu tudo bem para liberar o pagamento.”
+
+---
+
+📈 AVALIAÇÃO
+
+Após o término da reserva:
+- O dono da vaga deve confirmar se o uso ocorreu sem problemas.  
+- Caso positivo, o pagamento é liberado.  
+- Caso negativo, o dono pode abrir uma disputa.  
+- O morador pode ser avaliado com nota e comentário curto (como já definido anteriormente).
+
+---
+
+🧩 REGRAS COMPLEMENTARES
+
+- Nenhuma reserva pode ser criada sem preencher os campos obrigatórios:
+  - Nome do motorista  
+  - Placa do veículo  
+  - Tipo de uso  
+  - Apartamento do responsável pela reserva  
+
+- O app deve exibir mensagens claras em caso de erro, por exemplo:
+  > “Informe o número do apartamento para concluir a reserva.”  
+  > “Preencha o nome e a placa do veículo.”  
+
+- As informações devem ser exibidas de forma visual e legível na tela do QR Code, com destaque para o nome e a placa do veículo.
+
+---
+
+✅ RESUMO FINAL
+
+Com essa atualização, o fluxo da Cautoo Vagas deve permitir que:
+1. Toda reserva inclua dados do proprietário, do morador que fez a reserva e do motorista.  
+2. Esses dados apareçam dentro do app e no link temporário de acesso.  
+3. A portaria consiga identificar facilmente os responsáveis e o veículo.  
+4. Tudo continue automatizado, seguro e dentro do conceito de autogestão comunitária da Cautoo.

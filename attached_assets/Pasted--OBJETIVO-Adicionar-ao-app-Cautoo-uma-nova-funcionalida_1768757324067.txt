@@ -1,0 +1,164 @@
+🎯 OBJETIVO
+
+Adicionar ao app Cautoo uma nova funcionalidade completa chamada **Registro Cautelar**, que permitirá aos usuários registrar, acompanhar e resolver ocorrências entre veículos, com possibilidade de mediação financeira e geração automática de certidão digital validada pela Cautoo.
+
+---
+
+🧩 ESTRUTURA GERAL
+
+Nome da funcionalidade: **Registro Cautelar**
+
+Descrição curta (para card):  
+> Registre e resolva ocorrências entre veículos de forma segura e validada pela Cautoo.
+
+Local:  
+Adicionar como nova funcionalidade principal na tela inicial do app, com ícone translúcido no padrão visual atual.
+
+---
+
+⚙️ FLUXO FUNCIONAL COMPLETO
+
+1️⃣ **Início do registro**
+- O usuário acessa “Registro Cautelar”.
+- Insere as **placas dos veículos envolvidos** (sem limite de quantidade).  
+  → Cada placa é validada no banco de dados.  
+  → Se o veículo for de um usuário Cautoo, ele recebe notificação para confirmar o envolvimento.  
+  → Se não for, gerar um link de convite temporário para registro no app e confirmação da ocorrência.
+
+2️⃣ **Dados básicos da ocorrência**
+- Após adicionar as placas, o usuário informa:
+  - Data e hora da ocorrência  
+  - Local aproximado  
+  - Tipo de ocorrência (colisão leve, dano de estacionamento, engavetamento, etc.)  
+  - Breve descrição (campo curto de até 120 caracteres, sem texto livre abusivo)  
+
+3️⃣ **Confirmação das partes**
+- Cada motorista envolvido confirma sua participação.
+- O sistema valida automaticamente a presença de pelo menos **duas confirmações** para considerar o registro oficial.
+
+4️⃣ **Status inicial**
+- Após as confirmações, o status da ocorrência passa a:
+  > “Em andamento – aguardando resolução.”
+
+5️⃣ **Resolução**
+- Qualquer parte pode marcar o status final:
+  - ✅ Resolvido em comum acordo  
+  - ⚠️ Sem resolução  
+  - 💰 Mediação Cautelar (se houver prejuízo material)
+
+6️⃣ **Prejuízo material**
+- Se o registro envolver dano material, o **responsável** (identificado no fluxo) pode:
+  - Informar o **valor do prejuízo**
+  - Informar o **nome e CNPJ do estabelecimento** que realizará o serviço
+  - Anexar o **orçamento ou nota do prestador** (campo opcional)
+  - Solicitar **parcelamento via Mediação Cautelar**
+  - Escolher número de parcelas (2x, 3x, 6x) conforme ICC
+
+---
+
+💳 MEDIAÇÃO CAUTELAR – FLUXO DETALHADO
+
+Disponível **somente** para motoristas com **Selo Verde ativo**.
+
+1️⃣ O responsável informa valor e dados do prestador.
+2️⃣ A Cautoo **valida o estabelecimento** (confirma orçamento e aceitação do pagamento direto).
+3️⃣ A Cautoo **paga o prestador** após o serviço ser concluído e validado.
+4️⃣ O motorista **paga a Cautoo** via **CauCash ou cartão**, conforme parcelamento autorizado.
+5️⃣ O status muda para:
+   > “Mediação Cautelar – Pagamento em andamento.”
+6️⃣ Ao quitar as parcelas, o sistema gera **Certidão Cautelar de Mediação Financeira**.
+
+Regras:
+- Responsável sem Selo Verde → ❌ não pode usar Mediação Cautelar.
+- ICC médio → limite de até 3 parcelas.
+- ICC alto → até 6 parcelas.
+- ICC baixo → bloqueado temporariamente.
+
+---
+
+📜 CERTIDÃO CAUTELAR – DOCUMENTO DIGITAL AUTOMÁTICO
+
+Gerada automaticamente ao encerrar a ocorrência.
+
+Tipos:
+- ✅ Certidão de Resolução (acordo entre partes)
+- ⚖️ Certidão de Mediação (pagamento via Cautoo)
+- ⚠️ Certidão Pendente (sem resolução)
+
+Campos no documento:
+- Número da ocorrência (ex: RC-2026.01.15.0009)
+- Tipo de ocorrência
+- Data e hora do registro
+- Data e hora do encerramento
+- Placas e nomes (parciais) dos envolvidos
+- Local e descrição resumida
+- Valor e forma de pagamento (se houver)
+- Estabelecimento e CNPJ
+- Status final (Resolvido, Mediado, Pendente)
+- Hash único de verificação
+- Assinatura digital da Cautoo
+- QR Code ou link para validação (ex: cautoo.app/validar/RC-2026.01.15.0009)
+
+Disponibilidade:
+- Cada parte pode baixar o PDF em: **Menu → Minhas Ocorrências → Baixar Certidão Cautelar.**
+
+---
+
+📊 IMPACTOS AUTOMÁTICOS
+
+| Ação | Score do Veículo | ICC (Índice de Contribuição Cautelar) |
+|-------|------------------|--------------------------------------|
+| Ocorrência resolvida | +2 | +1 |
+| Mediação paga corretamente | +3 | +2 |
+| Ocorrência sem resolução | -3 | -2 |
+| Responsável inadimplente | Suspensão temporária do Selo Verde |
+
+---
+
+🔐 REGRAS DE SEGURANÇA E LGPD
+
+- Nenhum dado pessoal público (CPF, telefone, endereço).  
+- Exibir apenas informações autorizadas (nome parcial e placa).  
+- Registro anonimizado para terceiros.  
+- Logs completos de auditoria e confirmação de cada participante.  
+
+---
+
+🧠 INTEGRAÇÕES AUTOMÁTICAS
+
+- **CauCash:** para pagamentos e parcelamentos.  
+- **ICC:** atualiza automaticamente conforme resolução.  
+- **Selos:** controla acesso à Mediação Cautelar (Selo Verde).  
+- **Histórico do Veículo:** adiciona cada Registro Cautelar.  
+- **Certidão Cautelar:** gera documento PDF com QR Code.  
+
+---
+
+🎨 VISUAL E UX
+
+- Layout escuro e moderno (seguindo padrão do app).  
+- Ícone translúcido no card inicial (tema Cautoo).  
+- Botões de ação claros e resumidos:  
+  - “Adicionar placa”  
+  - “Confirmar participação”  
+  - “Registrar prejuízo”  
+  - “Solicitar Mediação”  
+  - “Finalizar ocorrência”  
+- Feedback visual:
+  - Verde para acordos/resolução.  
+  - Amarelo para pendência.  
+  - Vermelho para falta de resolução.  
+- Animação sutil ao gerar a Certidão (feedback de “documento emitido”).  
+
+---
+
+✅ RESULTADO ESPERADO
+
+- Uma funcionalidade completa e integrada que cobre **registro, mediação e comprovação de ocorrências**.  
+- Interface fluida e simples, com comportamento condicional baseado em Selo Verde e ICC.  
+- Certidões geradas automaticamente, autenticadas e validáveis.  
+- Nenhuma outra funcionalidade do app deve ser alterada.  
+
+---
+
+# FIM DO PROMPT

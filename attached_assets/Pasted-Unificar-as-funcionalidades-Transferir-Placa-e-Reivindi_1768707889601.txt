@@ -1,0 +1,87 @@
+Unificar as funcionalidades “Transferir Placa” e “Reivindicar Placa” em uma única funcionalidade chamada **“Gerenciar Placa”**, mantendo o mesmo padrão visual, layout e comportamento do app da Cautoo.  
+
+---
+
+🎯 OBJETIVO
+
+Criar uma única experiência que centralize todas as ações relacionadas à posse e vinculação de veículos, permitindo ao usuário:
+
+1️⃣ Reivindicar a posse de uma placa ainda não vinculada a um CPF.  
+2️⃣ Solicitar a transferência de uma placa já vinculada a outro usuário (caso seja o novo dono).  
+3️⃣ Acompanhar o status da solicitação de reivindicação ou transferência diretamente no app.  
+
+---
+
+🧭 FUNCIONALIDADE: “GERENCIAR PLACA”
+
+**Local:** Substituir os botões atuais “Transferir Placa” e “Reivindicar Placa” por apenas um botão chamado **“Gerenciar Placa”**, com ícone unificado de veículo ↔️ pessoa.  
+**Descrição no card:**  
+“Gerencie a posse e a transferência de placas de veículos.”
+
+---
+
+⚙️ FLUXO FUNCIONAL
+
+1️⃣ **Tela inicial:**  
+O usuário acessa “Gerenciar Placa” e insere a placa do veículo (campo idêntico ao atual, com validação de formato).
+
+2️⃣ **Verificação automática:**  
+O sistema verifica no banco de dados:  
+- Se a placa **não estiver vinculada a nenhum CPF**, exibir a opção:  
+  → “Reivindicar posse desta placa.”  
+- Se a placa **já estiver vinculada a outro CPF**, exibir a opção:  
+  → “Solicitar transferência da placa.”  
+
+3️⃣ **Fluxo de Reivindicação:**  
+- O usuário confirma os dados do veículo e envia a solicitação.  
+- A equipe Cautoo ou o sistema automatizado valida o pedido com base nas políticas vigentes (ex: CPF único, histórico de alertas, etc.).  
+- Enquanto a validação ocorre, o status aparece como “Em análise”.  
+- Após aprovação, a placa é vinculada automaticamente ao novo usuário.
+
+4️⃣ **Fluxo de Transferência:**  
+- O usuário que possui a placa recebe uma notificação solicitando a liberação.  
+- Ele pode **aceitar ou recusar** o pedido diretamente pelo app.  
+- Se aceitar, o sistema transfere a posse para o novo usuário e registra a data da operação.  
+- Caso recuse, a solicitação é marcada como “Negada” e não pode ser repetida por 7 dias.  
+
+5️⃣ **Status de Solicitação:**  
+Na tela de “Gerenciar Placa”, o usuário pode ver todas as suas solicitações com os seguintes status:  
+- ✅ Aprovada  
+- ⏳ Em análise  
+- ❌ Negada  
+- 🔄 Pendente de resposta  
+
+---
+
+🧩 INTEGRAÇÃO E REGRAS
+
+- Cada placa continua sendo única no sistema (uma placa vinculada a apenas um CPF ativo).  
+- Todas as solicitações são registradas no histórico de auditoria.  
+- Usuários punidos por tentativas indevidas de reivindicação terão bloqueio temporário de 7 dias.  
+- Reincidência: bloqueio permanente.  
+- A validação do CPF e histórico do veículo permanece obrigatória conforme a LGPD.  
+
+---
+
+🎨 VISUAL E UX
+
+- Manter o layout escuro moderno da Cautoo.  
+- Ícone translúcido no estilo padrão do app (tons suaves e consistentes).  
+- Interface simples: campo para digitar a placa + botão dinâmico que muda conforme o status (“Reivindicar” ou “Transferir”).  
+- Feedback visual com mensagens curtas e diretas:
+  - “Solicitação enviada com sucesso.”  
+  - “Aguardando resposta do proprietário atual.”  
+  - “Placa vinculada com sucesso ao seu perfil.”  
+
+---
+
+✅ RESULTADO ESPERADO
+
+- O app passa a ter **apenas uma funcionalidade: “Gerenciar Placa”**.  
+- A funcionalidade combina os fluxos de **Reivindicar** e **Transferir** em uma única interface inteligente e condicional.  
+- O usuário entende claramente o status e o que pode fazer a cada etapa.  
+- Nenhum outro módulo ou funcionalidade do app deve ser alterado.  
+
+---
+
+# FIM DO PROMPT

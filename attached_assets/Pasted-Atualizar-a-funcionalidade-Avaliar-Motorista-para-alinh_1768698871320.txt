@@ -1,0 +1,67 @@
+Atualizar a funcionalidade “Avaliar Motorista” para alinhar as regras visuais e internas (de cálculo) com as novas políticas de pontuação e impacto definidas pela Cautoo.  
+
+---
+
+🎯 OBJETIVO
+
+1️⃣ Atualizar os textos exibidos nas seções de “Elogio” e “Crítica” (regras e impactos), mantendo o layout e estilo atuais.  
+2️⃣ Atualizar as regras internas do sistema (Score e ICC) para refletir os novos valores e limites.  
+
+---
+
+🟢 ELOGIOS
+
+**Regras visuais:**
+- Máx. 3 elogios por placa a cada 30 dias  
+- Máx. 5 elogios enviados por dia  
+- Melhora o Score do Veículo  
+- Aumenta o ICC (Índice de Contribuição Cautelar)  
+- Remetente permanece anônimo  
+
+**Impactos funcionais (backend):**
+- Cada elogio aprovado **aumenta o Score do veículo em +2 pontos**  
+- Cada elogio **aumenta o ICC do remetente em +1 ponto**  
+- Se um veículo receber **3 elogios válidos no mês**, o sistema aplica automaticamente o **selo “Condutor Colaborativo”**
+
+---
+
+🔴 CRÍTICAS
+
+**Regras visuais:**
+- Máx. 3 críticas por placa a cada 30 dias  
+- Máx. 5 críticas enviadas por dia  
+- Impacta o Score do Veículo (visível apenas ao dono)  
+- Não altera o ICC do remetente  
+- Remetente permanece anônimo  
+
+**Impactos funcionais (backend):**
+- Cada crítica registrada **reduz o Score do veículo em -1 ponto**  
+- Se um veículo acumular **3 críticas no mês**, o sistema remove temporariamente o **selo de confiança**  
+- Críticas são privadas, mas influenciam o histórico de reputação do veículo  
+
+---
+
+⚙️ IMPLEMENTAÇÃO TÉCNICA
+
+- Manter toda a estrutura atual de layout e fluxo (campo de placa, exibição de frases, botões de envio).  
+- Atualizar apenas as funções responsáveis por:
+  - Contabilizar elogios e críticas;
+  - Atualizar o Score do veículo;
+  - Atualizar o ICC do remetente;
+  - Aplicar ou remover selos automáticos (“Condutor Colaborativo” e “Selo de Confiança”);
+  - Garantir que os limites de envio e frequência (diário/mensal) sejam respeitados.  
+- As alterações devem ser refletidas tanto no **frontend** (textos e feedback visual) quanto no **backend** (lógica de pontos).  
+- Nenhuma outra funcionalidade fora de “Avaliar Motorista” deve ser modificada.
+
+---
+
+✅ RESULTADO ESPERADO
+
+- O app exibe as novas regras e impactos atualizados nas abas “Elogio” e “Crítica”.  
+- O sistema de pontuação aplica automaticamente os novos cálculos no Score e ICC.  
+- Selos são aplicados/removidos de forma automática conforme os limites mensais.  
+- Todo o layout e comportamento do fluxo permanecem idênticos ao padrão visual atual.
+
+---
+
+# FIM DO PROMPT

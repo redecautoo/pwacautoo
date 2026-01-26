@@ -1,0 +1,108 @@
+Atualizar completamente a funcionalidade “Frota de Amigos” para seguir o novo conceito aprovado da Rede Cautoo, substituindo o modelo atual com chat por uma estrutura focada em conexão segura entre motoristas e criação de frotas colaborativas.
+
+---
+
+🎯 OBJETIVO GERAL
+Modernizar a funcionalidade “Frota de Amigos” para se tornar um sistema de **conexão e colaboração entre motoristas**, com dois módulos principais:
+
+1️⃣ **Conexões entre motoristas (Troca de Contato)**
+2️⃣ **Frotas Cautoo (Comunidades de veículos com finalidade funcional)**
+
+Manter toda a identidade visual, cores e padrões de interface atuais do app da Cautoo.  
+Não alterar nenhuma outra funcionalidade fora desta seção.
+
+---
+
+### 1️⃣ TROCA DE CONTATO ENTRE MOTORISTAS (VIA PLACA)
+Substituir o chat atual por um fluxo de solicitação de contato direto via placa de veículo.
+
+**Funcionamento esperado:**
+- O usuário insere a **placa de um veículo** e envia uma solicitação de contato ao dono.
+- O dono do veículo recebe a solicitação e vê:
+  - Nome do solicitante;
+  - Informações básicas do veículo dele (modelo, placa, selo).
+- O dono pode:
+  - **Aceitar** e escolher quais dados quer compartilhar (telefone, e-mail ou redes sociais);
+  - **Recusar** a solicitação;
+  - **Bloquear** a placa, impedindo futuros pedidos de contato.
+- Após a troca aprovada, as informações ficam visíveis para ambos os envolvidos.
+- Mostrar status leve para feedback: “Solicitação enviada”, “Aguardando resposta”, “Contato aceito”.
+
+**Importante:**
+- Não deve haver chat nem campo de mensagem.
+- A interação é unicamente para troca de contatos autorizada.
+- Adicionar opção de denúncia para casos de abuso.
+
+---
+
+### 2️⃣ FROTAS CAUTOO (COMUNIDADES FUNCIONAIS DE VEÍCULOS)
+A aba “Frota Cautoo” deve ser redesenhada para permitir criação e gerenciamento de grupos com finalidades específicas.
+
+**Propósito das Frotas:**
+- Reunir motoristas e veículos em grupos colaborativos, com objetivos práticos como:
+  1. Contratar **assistência veicular temporária** (para eventos, viagens ou deslocamentos específicos);
+  2. Formar **seguros coletivos** (dividindo o valor total entre veículos participantes).
+
+**Fluxo e regras:**
+- O usuário pode criar uma frota, dar um nome e definir a finalidade:
+  - “Evento ou Viagem”  
+  - “Seguro Compartilhado”  
+  - “Frota de Condomínio”  
+  - “Clube Automotivo”
+- O criador (admin) adiciona as placas participantes.
+- Para “evento”:
+  - O admin define data e duração;
+  - Contrata o serviço de assistência com alguns dias de antecedência;
+  - Os veículos listados ficam cobertos durante o período.
+- Para “seguro compartilhado”:
+  - O grupo define o valor total de cobertura (ex: R$500.000);
+  - Cada participante informa o valor aproximado do seu veículo;
+  - O sistema divide a contribuição mensal de forma proporcional.
+
+**Outros pontos importantes:**
+- Remover totalmente qualquer chat dentro dessa aba.
+- Exibir apenas informações objetivas e administrativas da frota.
+- O admin é o único que pode editar a frota, adicionar ou remover veículos.
+- Exibir histórico de frotas criadas e participações anteriores.
+
+---
+
+### 3️⃣ VISUAL E INTERFACE
+Manter o padrão visual da Cautoo, com os mesmos estilos usados nas telas principais:
+
+- Ícones com fundo translúcido e cantos arredondados;
+- Componentes com fundo escuro e tipografia branca;
+- Botões com o padrão de cor principal (verde para ações positivas, roxo para frota);
+- Layout responsivo, limpo e coerente com o restante do app.
+
+---
+
+### 4️⃣ SEGURANÇA E REGRAS
+- Usuários podem **bloquear** placas que enviam solicitações indesejadas.
+- Apenas usuários verificados (selo azul) podem criar frotas.
+- Frotas com selos verdes (verificadas) têm acesso a serviços e benefícios da Cautoo.
+- Permitir denúncias de comportamento indevido dentro das frotas.
+- Nenhum dado pessoal é exibido publicamente — apenas após consentimento.
+
+---
+
+✅ RESULTADO ESPERADO
+
+- A seção “Frota de Amigos” passa a ter **duas abas principais:**
+  - **Amigos (Troca de Contato)**
+  - **Frota Cautoo (Grupos Funcionais)**
+
+- O chat é completamente removido.
+- A interface é coerente com o restante do app.
+- A função agora agrega valor prático, segurança e economia colaborativa aos motoristas.
+
+---
+
+# NÃO MODIFICAR:
+- Nenhuma outra funcionalidade do app.
+- Nenhum estilo global, rota, banco de dados ou fluxo externo.
+- Nenhum comportamento fora da funcionalidade “Frota de Amigos”.
+
+---
+
+# FIM DO PROMPT

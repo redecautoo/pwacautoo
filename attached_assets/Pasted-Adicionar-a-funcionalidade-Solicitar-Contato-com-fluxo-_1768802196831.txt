@@ -1,0 +1,64 @@
+Adicionar a funcionalidade **Solicitar Contato**, com fluxo e layout semelhantes à tela de avaliação por placa, permitindo que o usuário digite uma placa e escolha um motivo pré-definido para enviar a solicitação ao proprietário do veículo.
+
+1. ACESSO
+- A opção “Solicitar Contato” deve aparecer no menu principal do app (junto das demais funcionalidades).
+- Apenas usuários com conta verificada (Selo Azul) podem enviar solicitações de contato.
+- Caso o usuário não tenha o selo, exibir o aviso padrão de “Selo Verificado Necessário”.
+
+2. FLUXO PRINCIPAL
+- Ao acessar a funcionalidade, o usuário verá o título:
+  **“Solicitar Contato com Motorista”**
+- Campo de entrada de placa com validação automática (mesmo padrão usado nas outras telas do app).
+- Após digitar uma placa válida, o sistema exibe uma lista de frases curtas com os motivos possíveis da solicitação.
+
+3. LISTA DE FRASES (BOTÕES DE SELEÇÃO)
+As opções devem ser exibidas como botões ou chips de seleção (1 linha cada), permitindo que o usuário escolha apenas uma:
+
+1. Aviso sobre seu veículo.  
+2. Possível dano no seu carro.  
+3. Informação sobre um incidente.  
+4. Esqueceram algo no veículo.  
+5. Problema na vaga ou estacionamento.  
+6. Sobre uma ocorrência recente.  
+7. Quero confirmar um registro.  
+8. Para devolver um item encontrado.  
+9. Sobre alerta que deixei no app.  
+10. Preciso tratar de um pequeno acidente.  
+11. Carro em local de risco.  
+12. Assunto de condomínio.  
+13. Quero agradecer uma boa atitude.  
+14. Informação importante sobre sua placa.  
+15. Desejo propor ajuda ou parceria.
+
+- O usuário deve selecionar uma dessas frases.
+- Após escolher, aparece o botão **“Enviar Solicitação”**.
+
+4. ENVIO DA SOLICITAÇÃO
+- Ao clicar em “Enviar Solicitação”, o sistema:
+  - Envia uma notificação ao dono do veículo (caso tenha conta no app).
+  - Mostra um aviso ao solicitante:  
+    “Solicitação enviada com sucesso. O motorista será notificado.”
+- Caso o veículo não esteja cadastrado, exibir:  
+  “O proprietário desta placa ainda não está na Cautoo. Assim que ele se cadastrar, sua solicitação será entregue.”
+
+5. RECEBIMENTO DA SOLICITAÇÃO
+- O dono do veículo receberá a notificação com:
+  - A placa do solicitante.  
+  - O motivo escolhido.  
+  - Botões: **“Compartilhar Contato”**, **“Recusar”** e **“Bloquear”**.
+- Ao clicar em “Compartilhar Contato”, o motorista poderá escolher o que quer compartilhar:
+  - Telefone  
+  - E-mail  
+  - Redes sociais (se configuradas)  
+  - Ou todos.
+- Após compartilhar, o solicitante recebe mensagem automática:  
+  “O motorista aceitou sua solicitação e compartilhou os seguintes contatos: [dados escolhidos].”
+
+6. DESIGN E INTERFACE
+- Manter o mesmo layout e estilo da tela de avaliação por placa.
+- Ícones, cores e estrutura devem seguir o padrão atual da Cautoo.
+- As frases devem aparecer em botões horizontais, com limite de 1 linha.
+- Feedback visual suave (animação de envio e confirmação).
+
+7. OBJETIVO FINAL
+Permitir que o usuário envie solicitações de contato para outros motoristas de forma rápida, segura e padronizada, explicando o motivo da solicitação com frases curtas e objetivas, no mesmo estilo de usabilidade da avaliação por placa.

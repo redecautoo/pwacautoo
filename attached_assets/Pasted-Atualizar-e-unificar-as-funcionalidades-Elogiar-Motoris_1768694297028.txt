@@ -1,0 +1,93 @@
+Atualizar e unificar as funcionalidades “Elogiar Motorista” e “Criticar Motorista” em uma única funcionalidade chamada **“Avaliar Motorista”**, mantendo o mesmo fluxo atual de interação e o layout da Cautoo.
+
+---
+
+🎯 OBJETIVO
+
+Unificar as duas telas em uma única experiência onde:
+1️⃣ O usuário digita a **placa do veículo** (campo de entrada deve ser mantido exatamente como está hoje).  
+2️⃣ Após digitar uma placa válida, o sistema exibe duas abas ou botões principais: **Elogio** e **Crítica**.  
+3️⃣ Ao selecionar uma das opções, o app mostra a lista de frases curtas correspondentes.  
+4️⃣ O usuário escolhe uma frase e envia a avaliação.  
+
+O envio segue as mesmas regras de antes:
+- avaliações padronizadas (sem texto livre);
+- anonimato garantido;
+- limite de envios por período;
+- registro no histórico ICC.
+
+---
+
+🧩 ESTRUTURA FUNCIONAL
+
+- Nome da nova funcionalidade: **Avaliar Motorista**
+- Ícone: neutro, representando avaliação (⭐ ou 👍/👎 combinados)
+- Texto descritivo do card principal:  
+  **“Avalie motoristas — reconheça boas ações ou registre condutas imprudentes.”**
+
+Fluxo:
+- Campo para digitar placa (mantém o mesmo formato atual com validação automática).  
+- Exibição condicional das frases após validação da placa.  
+- Listas separadas para **Elogios** e **Críticas**, conforme conteúdo abaixo.  
+
+---
+
+🎨 ESTILO E VISUAL
+
+- Manter o layout escuro, moderno e padronizado da Cautoo.  
+- Ícones translúcidos, fontes existentes e espaçamento padrão.  
+- As frases devem aparecer em **botões de seleção de uma linha**, legíveis e bem espaçadas.  
+- Cada frase deve caber **em apenas uma linha**.  
+- Usar o mesmo padrão de cores já aplicado (verde para elogio, vermelho para crítica).  
+
+---
+
+🟢 FRASES DE ELOGIO (curtas e observáveis)
+1. Ajudou motorista com carro parado.  
+2. Prestou ajuda em acidente leve.  
+3. Rebocou veículo com pane.  
+4. Avisou sobre problema no carro.  
+5. Impediu tentativa de assalto.  
+6. Removeu obstáculo da pista.  
+7. Sinalizou perigo na via.  
+8. Ofereceu carona em emergência.  
+9. Socorreu vítima até local seguro.  
+10. Alertou sobre risco imediato.  
+
+---
+
+🔴 FRASES DE CRÍTICA (curtas e observáveis)
+1. Avançou sinal vermelho.  
+2. Ultrapassou em local proibido.  
+3. Bloqueou garagem ou calçada.  
+4. Usou celular ao dirigir.  
+5. Andou na contramão.  
+6. Ignorou pedestres ou ciclistas.  
+7. Parou em vaga indevida.  
+8. Mudou de faixa sem sinalizar.  
+9. Gerou risco em cruzamento.  
+10. Causou acidente por imprudência.  
+
+---
+
+⚙️ REGRAS DE FUNCIONAMENTO
+- Campo de placa: obrigatório antes de exibir as frases.  
+- Exibir frases apenas após a placa ser digitada e validada.  
+- Usuário escolhe tipo (Elogio ou Crítica) e frase → envia.  
+- Sistema registra a avaliação no histórico (anonimato mantido).  
+- Aplicar os mesmos limites de envio por usuário e IP.  
+- Nenhum campo de texto livre deve ser adicionado.  
+
+---
+
+✅ RESULTADO ESPERADO
+
+- Uma única tela “Avaliar Motorista”, substituindo as telas antigas.  
+- Campo de placa mantido.  
+- Exibição condicional das listas curtas de frases (Elogio/Crítica) após digitar a placa.  
+- Interface visual consistente com o restante do app.  
+- Nenhuma outra funcionalidade do app deve ser alterada.
+
+---
+
+# FIM DO PROMPT

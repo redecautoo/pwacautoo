@@ -1,0 +1,108 @@
+ATUALIZAÇÃO — SEÇÃO “SELOS E PLANOS” E INTEGRAÇÃO COM CAUCASH
+
+Objetivo:
+Atualizar a seção “Selos e Assinaturas”, alterando o nome para “Selos e Planos”.  
+Adicionar a exibição e opção de compra dos planos “Modo Cautela”, “Modo Certo” e “Modo Ciente” dentro do app, com as novas informações detalhadas abaixo.  
+Integrar o pagamento dos planos com a carteira digital CauCash, permitindo débito automático do saldo.  
+
+---
+
+NOVOS PLANOS A SEREM EXIBIDOS NA SEÇÃO “SELOS E PLANOS”
+
+**Modo Cautela**  
+R$ 31,50 / mês ou R$ 189,00 por 6 meses  
+1 chamado completo (pode combinar serviços)  
+
+Serviços inclusos:
+- Guincho Km Livre  
+- Veículo Reserva  
+- Auxílio Mecânico  
+- Auxílio Pane Seca  
+- Recarga de Bateria  
+- Chaveiro Automotivo  
+- Troca de Pneu  
+- Estadia Veicular  
+- Transporte Alternativo  
+
+Benefícios adicionais:
+- Selo Azul (Perfil Verificado)  
+- Uma placa adicional  
+- Um alerta de veículo roubado (no período de 6 meses)  
+- Cashback de R$ 30  
+- +100 pontos adicionais no ICC  
+
+Carência de 7 dias após a compra  
+Botão: “Quero este plano”
+
+---
+
+**Modo Certo**  
+R$ 43,50 / mês ou R$ 391,50 por 9 meses  
+2 chamados de serviços + 1 proteção  
+
+Serviços inclusos:
+- Todos do Modo Cautela  
+- Hospedagem / Pernoite  
+
+Proteções:
+- Proteção de Vidro  
+- Proteção de Pneu  
+- Pagamento de Multa  
+
+Benefícios adicionais:
+- Selo Azul (Perfil Verificado)  
+- Duas placas adicionais  
+- Três alertas de veículo roubado (no período de 9 meses)  
+- Cashback de R$ 45  
+- +200 pontos adicionais no ICC  
+
+Carência de 7 dias após a compra  
+Botão: “Quero este plano”
+
+---
+
+**Modo Ciente**  
+R$ 65,50 / mês ou R$ 786,00 por 12 meses  
+3 chamados de serviços + 2 proteções  
+
+Serviços inclusos:
+- Todos do Modo Certo  
+- Assistência Pet  
+
+Proteções:
+- Proteção de Roda  
+- Pagamento de Franquia  
+- Indenização por Acidente  
+
+Benefícios adicionais:
+- Selo Azul (Perfil Verificado)  
+- Três placas adicionais  
+- Seis alertas de veículo roubado (no período de 12 meses)  
+- Cashback de R$ 60  
+- +300 pontos adicionais no ICC  
+
+Carência de 7 dias após a compra  
+Botão: “Quero este plano”
+
+---
+
+**INTEGRAÇÃO COM CAUCASH**
+
+1. Adicionar os valores de recarga de **R$ 400** e **R$ 800** nas opções de recarga da CauCash.  
+2. Permitir que o valor dos planos seja **debitado automaticamente** dos créditos disponíveis na carteira digital CauCash do cliente.  
+3. Caso o usuário não tenha saldo suficiente, exibir aviso com opção para recarregar imediatamente.  
+
+---
+
+**INSTRUÇÕES ADICIONAIS**
+
+- Manter o mesmo padrão de design, layout e UX do aplicativo.  
+- Centralizar visualmente os cartões de planos na página.  
+- Garantir que a seção “Selos e Planos” fique acessível pelo mesmo menu atual.  
+- Nenhuma outra funcionalidade deve ser alterada.
+
+---
+
+Resultado esperado:
+O app deve exibir corretamente a nova seção “Selos e Planos” com as informações detalhadas, 
+integração completa com CauCash e funcionamento automático de débito do saldo para os planos contratados.

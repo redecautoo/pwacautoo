@@ -1,0 +1,33 @@
+Melhorar o aviso exibido nas funcionalidades que exigem o **Selo Azul (Verificado)**, mantendo o comportamento atual, mas aprimorando o layout, centralização e adicionando um resumo dinâmico que explique de forma simples o motivo de o selo ser necessário naquela funcionalidade.
+
+1. LAYOUT
+- Centralizar completamente o card do aviso (horizontal e verticalmente).
+- Fundo escuro (seguindo o tema do app).
+- Card com bordas arredondadas e sombra suave para destaque.
+- Ícone de escudo azul centralizado no topo, em tamanho médio, com leve brilho.
+- Título centralizado em branco e negrito: **“Selo Verificado Necessário”**
+- Subtítulo explicativo em cinza claro (#94A3B8), alinhado ao centro.
+- Espaço reservado logo abaixo do subtítulo para exibir um **resumo dinâmico da funcionalidade** (texto curto que muda conforme a tela).
+- Botão azul destacado, centralizado, com o texto **“Ver Selos”**
+  - O botão deve redirecionar o usuário para a tela **Selos e Assinaturas**, sem alterar o fluxo existente.
+
+2. TEXTO PADRÃO
+> **Selo Verificado Necessário**  
+> Para acessar esta funcionalidade, é necessário ter o **Selo Azul (Verificado)** ativo.  
+> O selo garante autenticidade, confiança e segurança entre os usuários.
+
+3. RESUMO DINÂMICO (NOVO ELEMENTO)
+- Logo abaixo do texto padrão, adicionar uma linha curta de resumo explicando o motivo do selo ser exigido naquela funcionalidade.  
+- Esse resumo é dinâmico e deve mudar conforme a funcionalidade, exemplo:
+  - “Esta função exige verificação para proteger dados pessoais dos usuários.”
+  - “A verificação ajuda a manter as interações seguras e confiáveis.”
+  - “Somente usuários verificados podem realizar esta ação para evitar uso indevido.”
+
+4. DESIGN GERAL
+- Respeitar a hierarquia visual (ícone → título → texto padrão → resumo → botão).
+- Garantir contraste adequado e espaçamento equilibrado.
+- Seguir o estilo visual atual do app (tema escuro, tipografia, cores e ícones).
+- Não alterar regras, fluxos ou lógica de exibição — apenas visual e experiência do usuário.
+
+5. OBJETIVO
+Padronizar e aprimorar o design do aviso de **Selo Verificado**, centralizando o conteúdo e adicionando um pequeno resumo dinâmico que ajude o usuário a entender claramente o motivo da exigência.

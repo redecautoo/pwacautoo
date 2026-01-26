@@ -1,0 +1,72 @@
+Atualize no app da Rede Cautoo o nome da funcionalidade “Cautoo Vagas” para “Garagem”.
+
+Todos os textos, botões, mensagens, seções e variáveis que atualmente usam as palavras “vaga”, “vagas” ou “Cautoo Vagas” devem ser atualizados para usar o termo “Garagem”, mantendo o mesmo significado e contexto.
+
+A funcionalidade continua exatamente a mesma — gerenciamento, disponibilidade, reservas e compartilhamento entre moradores — mas agora passa a ser chamada “Garagem” em toda a interface e comunicação.
+
+---
+
+🧭 ORIENTAÇÕES DE RENOMEAÇÃO
+
+1. **Nome principal da funcionalidade:**  
+   - De: “Cautoo Vagas”  
+   - Para: “Garagem”
+
+2. **Seções e botões:**
+   - “Minhas Vagas” → “Minha Garagem”  
+   - “Adicionar Vaga” → “Adicionar Garagem”  
+   - “Vagas Disponíveis” → “Garagens Disponíveis”  
+   - “Reserva de Vaga” → “Reserva de Garagem”  
+   - “Gerenciar Vagas” → “Gerenciar Garagens”  
+   - “Vaga Reservada” → “Garagem Reservada”  
+   - “Disponibilizar Vaga” → “Disponibilizar Garagem”  
+
+3. **Mensagens e textos:**
+   - Substituir todas as frases que usam “vaga” ou “vagas” por “garagem” ou “garagens”, ajustando plural e contexto.  
+   - Exemplo:
+     - “Cadastre sua vaga no condomínio.” → “Cadastre sua garagem no condomínio.”  
+     - “Sua vaga foi reservada.” → “Sua garagem foi reservada.”  
+     - “Gerencie suas vagas disponíveis.” → “Gerencie suas garagens disponíveis.”  
+     - “Veja as vagas do condomínio.” → “Veja as garagens do condomínio.”
+
+4. **Textos informativos e explicativos:**
+   - “Compartilhe sua vaga quando não estiver usando.” → “Compartilhe sua garagem quando não estiver usando.”  
+   - “Reserve uma vaga com segurança.” → “Reserve uma garagem com segurança.”  
+   - “O pagamento será liberado após o uso da vaga.” → “O pagamento será liberado após o uso da garagem.”  
+   - “Controle de acesso — Vaga Condomínio [Nome]” → “Controle de Acesso — Garagem Condomínio [Nome]”  
+
+5. **Mensagens no link de portaria:**
+   - O título deve ser alterado para:  
+     “Controle de Acesso — Garagem Condomínio [NOME DO CONDOMÍNIO]”
+   - E todos os rótulos dentro do link devem seguir a nomenclatura “Garagem”.
+
+6. **Títulos e descrições das telas:**
+   - Página inicial da funcionalidade deve exibir:  
+     **Garagem**  
+     “Gerencie e compartilhe garagens no seu condomínio de forma simples e segura.”
+
+   - Descrição curta para menus e seções:
+     > “Adicione, disponibilize e reserve garagens com segurança pela Cautoo.”
+
+---
+
+🔐 IMPORTANTE
+
+- Não alterar a estrutura lógica nem o comportamento das funcionalidades.  
+- Somente atualizar nomes, rótulos e textos exibidos ao usuário.  
+- Garantir que toda a interface, mensagens, botões, modais e notificações usem agora o termo “Garagem”.  
+- O estilo visual e o tom de linguagem devem seguir o padrão atual do app.
+
+---
+
+✅ RESULTADO ESPERADO
+
+Após essa atualização:
+- A funcionalidade será identificada no app apenas como “Garagem”.  
+- Todos os botões, menus, mensagens e links refletirão o novo nome.  
+- O fluxo de cadastro, reserva, pagamento, avaliação e controle de acesso permanecerá o mesmo.  
+- A experiência do usuário será contínua, apenas com o nome atualizado para “Garagem”.
+
+---
+
+# FIM DO PROMPT

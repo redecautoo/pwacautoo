@@ -1,0 +1,49 @@
+ATUALIZAÇÃO DE UI (APENAS CORES + HIERARQUIA) — MODO “ALERTA MÁXIMO” (ROUBO) — SEM MUDAR UX
+
+Objetivo:
+Atualizar SOMENTE o visual (cores, contraste, bordas, fundos translúcidos, tipografia/ênfase) das áreas de ROUBO dentro do app logado, mantendo 100% o layout/UX original (mesmos componentes, espaçamentos, grid, navegação e estrutura). A página pública de placa roubada (não logado) NÃO deve ser alterada.
+
+Escopo (somente estas telas logadas):
+1) Tela “Reportar Roubo” (rota /report-stolen/*)
+2) Tela “Veículos Roubados / Alertas na Região” (rota /stolen ou equivalente logado)
+3) Cards/elementos relacionados a status “ROUBADO” dentro do app (badges, headers, botões de ação como “Ligar 190” e “Reportar Avistamento”).
+
+Regras:
+- NÃO alterar layout, componentes, ordem de elementos, textos, fluxos, tamanhos de cards, navegação, nem estrutura HTML/JSX. Somente estilos (CSS/Tailwind/theme tokens).
+- Criar um tema visual “ALERTA MÁXIMO” específico para ROUBO: vermelho forte + fundos translúcidos + contraste extremo, com títulos em branco e texto secundário levemente transparente.
+- Manter o padrão dark do app e o estilo de cards existente (rounded, sombras sutis), apenas mudando a paleta e hierarquia visual para roubo.
+- Garantir acessibilidade/legibilidade (contraste alto) e consistência com o restante do app.
+
+Direção visual (tokens sugeridos):
+- Vermelho principal (alerta): #D32F2F (ou #E53935)
+- Vermelho profundo (hover/active): #B71C1C
+- Fundo translúcido do alerta: rgba(211,47,47,0.10) e rgba(211,47,47,0.16) para variações
+- Borda do alerta: rgba(211,47,47,0.55)
+- Texto principal: #FFFFFF
+- Texto secundário: rgba(255,255,255,0.78)
+- Texto terciário: rgba(255,255,255,0.62)
+- Ícones: branco ou vermelho sólido conforme contexto
+- Sombra leve com “glow” vermelho sutil (sem exagero): 0 0 0 1px rgba(211,47,47,0.25), 0 10px 30px rgba(0,0,0,0.35)
+
+Implementação (faça exatamente):
+1) Criar uma variação de estilo “alert” para cards de roubo:
+   - background: gradiente sutil ou sólido translúcido vermelho sobre o fundo dark
+   - border: 1px vermelho translúcido
+   - header/title branco com peso maior
+   - detalhes (endereço/data) em branco com opacidade menor
+2) Badge “ROUBADO” dentro do app:
+   - fundo vermelho sólido
+   - texto branco em caps
+   - leve sombra/glow para destaque
+3) Botões de ação relacionados a roubo:
+   - Primário (ex: “Ligar 190”): vermelho sólido (#D32F2F), hover #B71C1C, texto branco, ícone branco
+   - Secundário (ex: “Reportar Avistamento”): fundo translúcido vermelho, borda vermelha, texto branco, hover aumenta levemente opacidade
+4) Criar estados (default/hover/active/disabled) para esses elementos seguindo o padrão do app.
+5) Aplicar APENAS nessas rotas/componentes de roubo, sem afetar outros cards (Score, Socorro etc).
+
+Entrega:
+- Atualize os estilos (CSS/Tailwind/theme) e classes nos componentes existentes para aplicar esse “Modo Alerta Máximo”.
+- Não crie telas novas, não mova elementos, não reescreva fluxos. Apenas visual.
+
+Validação final:
+- Ao abrir “Reportar Roubo” e “Alertas na Região”, o usuário deve sentir “modo emergência” imediatamente, com hierarquia clara (título > status > ação), mantendo o mesmo UX original do app.

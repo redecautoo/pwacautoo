@@ -1,0 +1,57 @@
+Padronize todos os ícones de categorias e alertas no app da Rede Cautoo, garantindo consistência visual entre todos os elementos.
+
+⚠️ Não altere nenhuma outra funcionalidade, layout, texto ou comportamento do aplicativo.  
+Apenas ajuste os ícones exibidos nas telas de categorias e de envio de alertas (para usuários logados ou visitantes).
+
+---
+
+🎯 OBJETIVO
+
+Garantir que todos os ícones de categorias de alerta sigam o mesmo padrão visual:
+- ícones coloridos com fundo circular (ou levemente arredondado);
+- todos com o mesmo tamanho, proporção e alinhamento;
+- fundo com cor correspondente à categoria (usando tons suaves e harmônicos);
+- ícone centralizado no fundo, com contraste adequado;
+- ícone e fundo consistentes em todas as seções do app (home, alertas, categorias, etc).
+
+---
+
+🧩 PADRÃO DE ESTILO (VISUAL)
+
+**Formato:** círculo com leve sombra ou borda suave  
+**Tamanho:** 36px × 36px (ou padrão atual da interface)  
+**Espaçamento interno (padding):** 6px a 8px  
+**Raio do canto (border-radius):** 50% (círculo perfeito)  
+**Ícone centralizado** (display flex / justify-center / align-center)
+
+---
+
+🎨 PALETA DE CORES POR CATEGORIA
+
+| Categoria | Cor do Fundo | Cor do Ícone |
+|------------|---------------|--------------|
+| Segurança Imediata | `#E53935` | `#FFFFFF` |
+| Ocorrência Externa no Veículo | `#FFB300` | `#000000` |
+| Trânsito / Obstrução | `#1E88E5` | `#FFFFFF` |
+| Estacionamento Irregular | `#F57C00` | `#FFFFFF` |
+| Risco Mecânico ou Operacional | `#6D4C41` | `#FFFFFF` |
+| Risco Ambiental Imediato | `#43A047` | `#FFFFFF` |
+| Aviso de Trânsito / Fiscalização | `#8E24AA` | `#FFFFFF` |
+
+---
+
+⚙️ INSTRUÇÕES DE IMPLEMENTAÇÃO
+
+1️⃣ Localize o componente que renderiza a lista de categorias e ícones  
+(geralmente `AlertCategories.tsx`, `AlertList.tsx` ou `CategoryButton.tsx`).
+
+2️⃣ Aplique o mesmo padrão de container para todos os ícones.  
+Se estiver usando TailwindCSS, use algo como:
+
+```jsx
+<div
+  className="flex items-center justify-center w-9 h-9 rounded-full"
+  style={{ backgroundColor: categoria.corFundo }}
+>
+  <Icon className="text-white w-5 h-5" />
+</div>

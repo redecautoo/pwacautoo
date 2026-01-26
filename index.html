@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#10B77F" />
+    <meta name="background-color" content="#10B77F" />
+    
+    <!-- PWA / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Cautoo" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="/icons/app-icon.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- iOS Splash Screen handled by CSS fallback below -->
+    
+    <title>Cautoo - Alertas Veiculares</title>
+    <meta name="description" content="Envie alertas anônimos para proprietários de veículos através da placa. Seguro, rápido e prático." />
+    <meta name="author" content="Cautoo" />
+
+    <meta property="og:title" content="Cautoo - Alertas Veiculares" />
+    <meta property="og:description" content="Envie alertas anônimos para proprietários de veículos através da placa. Seguro, rápido e prático." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Cautoo" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Splash Screen Style (fallback for non-iOS) -->
+    <style>
+      #splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1a1f2e;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      }
+      #splash-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #splash-screen img {
+        width: 180px;
+        height: auto;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+      #splash-screen .loading-dots {
+        margin-top: 32px;
+        display: flex;
+        gap: 8px;
+      }
+      #splash-screen .loading-dots span {
+        width: 10px;
+        height: 10px;
+        background: #10B77F;
+        border-radius: 50%;
+        animation: bounce 1.4s ease-in-out infinite both;
+      }
+      #splash-screen .loading-dots span:nth-child(1) { animation-delay: -0.48s; }
+      #splash-screen .loading-dots span:nth-child(2) { animation-delay: -0.32s; }
+      #splash-screen .loading-dots span:nth-child(3) { animation-delay: -0.16s; }
+      #splash-screen .loading-dots span:nth-child(4) { animation-delay: 0s; }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+      <img src="/icons/splash-logo.png" alt="Cautoo" />
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // Hide splash screen when app is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var splash = document.getElementById('splash-screen');
+          if (splash) {
+            splash.classList.add('hidden');
+            setTimeout(function() {
+              splash.remove();
+            }, 300);
+          }
+        }, 800);
+      });
+    </script>
+  </body>
+</html>

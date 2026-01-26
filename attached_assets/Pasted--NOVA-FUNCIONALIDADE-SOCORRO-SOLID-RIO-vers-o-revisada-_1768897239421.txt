@@ -1,0 +1,100 @@
+🚨 NOVA FUNCIONALIDADE — SOCORRO SOLIDÁRIO (versão revisada e completa)
+
+Objetivo:
+Adicionar ao app Cautoo a funcionalidade **Socorro Solidário**, que permite a qualquer usuário enviar um pedido de ajuda em nome de outro motorista que esteja em apuros. 
+A função deve operar mesmo quando o motorista em questão estiver sem celular, sem internet ou sem sinal. 
+O socorro só será entregue a veículos com vínculo Cautoo ativo, conforme critérios oficiais abaixo.
+
+---
+
+📍 Localização:
+Adicionar o botão **Socorro Solidário** na tela principal do aplicativo, junto às demais opções (Enviar Alerta, Solicitar Socorro, Registro Cautelar, Garagem, etc.).
+
+---
+
+⚙️ FLUXO FUNCIONAL
+
+1️⃣ **Acesso**
+- Qualquer usuário (com ou sem selo) pode acessar e enviar um Socorro Solidário.
+- Exibir mensagem introdutória:
+  > “Você pode enviar ajuda para outro motorista. O alerta será entregue apenas a veículos com cobertura Cautoo ativa (clientes com plano vigente, selo verde ou frotas com assistência contratada).”
+
+---
+
+2️⃣ **Formulário de Socorro Solidário**
+Campos obrigatórios e opcionais:
+
+- **Placa do veículo** (campo obrigatório e validado)
+- **Tipo de emergência** (menu de seleção):
+  - Pane mecânica  
+  - Pneu furado  
+  - Acidente leve  
+  - Falta de combustível  
+  - Roubo/furto  
+  - Situação de risco / motorista sem sinal  
+  - Outro (campo livre curto)
+- **Descrição breve** (campo de texto curto)
+- **Local do ocorrido** (campo manual — rua, ponto de referência e cidade)
+- **Horário aproximado desde quando o veículo está no local**
+- **Caixa opcional:**  
+  - “Motorista sem celular ou sem sinal”
+- **Campo opcional:**  
+  - “Telefone para contato adicional (caso disponível)”
+
+---
+
+3️⃣ **Entrega do Alerta**
+O alerta é armazenado com status **“Pendente de Entrega”** e será entregue **somente** se o veículo atender a **um dos seguintes critérios oficiais de cobertura:**
+
+✅ **Cliente Cautoo com plano ativo**,  
+✅ **Usuário com Selo Verde ativo**,  
+✅ **Membro de Frota de Amigos que possua:**  
+   - **Seguro Compartilhado contratado**, **ou**  
+   - **Assistência Pontual ativa** no dia do ocorrido.
+
+Se o veículo **não atender a nenhum dos critérios acima**, exibir:
+> “O motorista informado não possui cobertura ativa com a Cautoo. O alerta foi registrado, mas não será encaminhado até que a cobertura esteja válida.”
+
+---
+
+4️⃣ **Mensagem entregue ao motorista elegível**
+> “Um motorista Cautoo relatou que seu veículo [XXX-1234] precisou de ajuda em [local informado], desde [hora informada]. Deseja acionar o socorro agora?”
+
+- Se houver telefone adicional:  
+  > “Contato informado: (xx) xxxxx-xxxx (opcional)”
+- Botões: **“Acionar Socorro”** | **“Já Resolvido”**
+- “Acionar Socorro” → ativa o fluxo normal de assistência Cautoo.
+- “Já Resolvido” → encerra o registro.
+
+---
+
+5️⃣ **Regras e Segurança**
+- Limite de 2 alertas de Socorro Solidário por hora por usuário.
+- Apenas placas válidas cadastradas no sistema.
+- Dados pessoais do remetente nunca são exibidos publicamente.
+- Uso indevido → suspensão de 7 dias / exclusão definitiva em reincidência.
+- Logs de auditoria: ID do remetente, placa, data, hora e status da entrega.
+
+---
+
+6️⃣ **Reconhecimento e ICC**
+- Se o alerta for confirmado como útil → +2 ICC para o remetente.
+- Exibir selo temporário “Condutor Solidário” por 7 dias.
+- O destinatário pode avaliar o alerta como “útil” ou “indevido”.
+
+---
+
+🎨 INTERFACE
+- Ícone: 🤝 ou 🚨  
+- Cor primária: Azul Cautoo (#3B82F6)
+- Layout semelhante ao fluxo de “Solicitar Socorro”, mas **sem GPS automático**.
+- Mensagem de sucesso após envio:
+  > “Seu alerta solidário foi registrado. Assim que o motorista Cautoo estiver acessível, ele será notificado. Obrigado por agir com solidariedade!”
+
+---
+
+🎯 OBJETIVO FINAL
+Criar uma rede colaborativa de emergência onde qualquer motorista pode enviar ajuda em nome de outro, mas garantindo que o socorro real só seja entregue a veículos com **vínculo Cautoo ativo**, ou seja:
+- Clientes Cautoo com plano vigente,  
+- Usuários com **Selo Verde ativo**, ou  
+- Membros de **Frota de Amigos** com **Seguro Compartilhado** ou **Assistência Pontual** ativa no dia do ocorrido.

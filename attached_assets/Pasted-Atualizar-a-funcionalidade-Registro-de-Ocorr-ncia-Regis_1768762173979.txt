@@ -1,0 +1,46 @@
+Atualizar a funcionalidade **Registro de Ocorrência (Registro Cautelar)** conforme as novas regras de uso, validação e benefícios de selo.
+
+1. ACESSO RESTRITO
+- Permitir acesso apenas a usuários com **Selo Azul (Verificado)**.
+- Caso o usuário não possua selo azul, exibir mensagem:
+  “Para garantir a autenticidade das ocorrências, apenas usuários verificados podem utilizar esta funcionalidade. Verifique seu perfil para continuar.”
+  Botão: [Verificar agora]
+- Usuários com **Selo Verde (Boa Conduta)** devem visualizar uma seção informativa destacando benefícios:
+  “Como motorista com Selo Verde, você tem acesso ao suporte da Cautoo em mediações e facilidades de pagamento para ocorrências registradas.”
+
+2. LÓGICA DE PLACAS
+- O usuário logado **não precisa digitar sua própria placa**, ela é automaticamente vinculada ao registro.
+- Ele deve informar **apenas as placas dos outros veículos envolvidos** na ocorrência.
+- Exigir no mínimo **1 placa inserida** (representando o outro veículo envolvido).
+- Permitir adicionar **quantas placas forem necessárias** (sem limite).
+- Atualizar texto de instrução para:
+  “Adicione as placas dos veículos envolvidos nesta ocorrência. Sua placa será incluída automaticamente.”
+- Caso o usuário tente prosseguir sem adicionar nenhuma placa, exibir aviso:
+  “É necessário adicionar pelo menos uma placa de outro veículo envolvido.”
+
+3. FLUXO DE REGISTRO
+- Se houver **1 placa adicionada** → seguir fluxo simples (ocorrência entre dois veículos).
+- Se houver **2 ou mais placas** → seguir fluxo colaborativo (ocorrência compartilhada).
+- Enviar notificação automática para cada placa convidada:
+  “Você foi incluído em uma ocorrência registrada no app Cautoo.”
+- Cada motorista envolvido poderá aceitar ou recusar o vínculo.
+- Somente após todas as confirmações o registro é finalizado.
+
+4. INTERFACE E TEXTOS
+- Atualizar título da tela para: **“Nova Ocorrência”**.
+- Subtítulo: **“Etapa 1 de 3 — Veículos Envolvidos”**.
+- Texto auxiliar: “Adicione as placas dos veículos que participaram da ocorrência. Caso mais de um veículo tenha se envolvido, inclua todos.”
+- Manter layout, design, e animações originais.
+
+5. BENEFÍCIOS EXCLUSIVOS PARA SELO VERDE
+- Exibir faixa informativa quando o usuário possuir Selo Verde:
+  🟢 “Motorista com Selo Verde pode solicitar intermediação da Cautoo e parcelar custos do prejuízo diretamente com estabelecimentos parceiros.”
+- Essa seção é apenas informativa, sem ação direta.
+
+6. MANTER
+- Fluxo de 3 etapas da funcionalidade atual.
+- Estrutura visual, cores e botões existentes.
+- Apenas ajustar as regras de acesso, validação de placas e mensagens exibidas.
+
+OBJETIVO FINAL:
+Permitir que apenas usuários com selo azul criem registros de ocorrência, mostrar os benefícios do selo verde, e aceitar de 1 a múltiplas placas (sem exigir a própria placa do usuário logado).

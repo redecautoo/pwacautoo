@@ -1,0 +1,40 @@
+Adicione no app da Rede Cautoo um novo fluxo para usuários que não possuem cadastro, permitindo o envio de alertas rápidos para veículos, com validação leve antes do envio.
+
+O fluxo deve funcionar assim:
+
+1. Quando um visitante acessar o app, ele poderá digitar a placa do veículo e escolher o tipo de alerta entre opções pré-definidas (sem texto livre), como:
+   - Farol aceso
+   - Porta aberta
+   - Pneu murcho
+   - Veículo atrapalhando saída
+   - Objeto embaixo do carro
+
+2. Ao clicar em “Enviar alerta”, se for o primeiro alerta do visitante, o alerta é enviado normalmente, de forma anônima.
+
+3. A partir do segundo envio, o sistema deve exibir uma tela solicitando a validação rápida de identidade, com a seguinte mensagem:
+   “Para continuar enviando alertas e evitar spam, valide seu contato. É rápido, gratuito e seus dados ficam protegidos.”
+
+4. O visitante escolhe o método de validação:
+   - Receber código por SMS
+   - Receber código por E-mail
+
+5. Após escolher, ele informa o telefone ou e-mail, recebe um código de 6 dígitos e o insere para confirmar.
+
+6. Assim que a validação for concluída, o alerta é enviado automaticamente, sem precisar repetir o processo.
+
+7. A partir daí, o visitante validado pode enviar até 10 alertas por dia.
+
+8. Caso o visitante tente enviar além do limite, o app mostra:
+   “Você atingiu o limite diário de alertas. Tente novamente amanhã.”
+
+9. Esse fluxo é apenas para visitantes, ou seja:
+   - Não exige CPF ou criação de conta.
+   - Não exige vínculo com veículo.
+   - O envio é anônimo, mas validado.
+   - O objetivo é permitir alertas reais, rápidos e seguros entre motoristas.
+
+10. O usuário validado pode continuar enviando alertas em outros dias sem precisar repetir o processo, a menos que o tempo de validade da verificação expire (ex: 30 dias).
+
+11. Nenhum dado pessoal deve ser exibido publicamente. O sistema deve deixar claro que a validação serve apenas para garantir autenticidade e proteger a comunidade Cautoo.
+
+Resuma a explicação na interface de forma amigável, com textos curtos e linguagem acessível, mantendo o estilo visual e a experiência de uso atuais do app.
