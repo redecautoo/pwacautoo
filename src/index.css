@@ -143,24 +143,21 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* PWA App-like behavior */
+  /* PWA App-like behavior - Relaxed for better scrolling */
   html {
-    height: 100%;
-    height: -webkit-fill-available;
+    /* Allow natural height */
   }
 
   body {
     min-height: 100vh;
     min-height: 100dvh;
-    min-height: -webkit-fill-available;
-    overscroll-behavior-y: none;
+    /* Removed overscroll-behavior-y: none to allow refresh if needed, and removed fixed height locks */
   }
 
   #root {
     min-height: 100vh;
     min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+    /* display: flex; flex-direction: column; -> Removed to allow natural flow */
   }
 
   /* Hide scrollbar but allow scroll */
@@ -178,6 +175,23 @@
   }
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Premium Glassmorphism */
+  .glass-panel {
+    @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-md border border-white/5 shadow-xl transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply bg-card/60 border-white/10 shadow-emerald-500/5;
+  }
+
+  .premium-gradient {
+    @apply bg-gradient-to-br from-emerald-500/20 via-transparent to-teal-500/20;
   }
 }
 

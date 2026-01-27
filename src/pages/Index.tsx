@@ -1,14 +1,11 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
-import LicensePlateInput from "@/components/LicensePlateInput";
-import ModeToggle from "@/components/ModeToggle";
+import LicensePlateInput, { isValidPlate } from "@/components/LicensePlateInput";
 import AlertCategories from "@/components/AlertCategories";
 import VisitorAlertFlow from "@/components/VisitorAlertFlow";
-import VehicleRegistrationForm, { VehicleFormData } from "@/components/VehicleRegistrationForm";
 import StolenVehicleAlert from "@/components/StolenVehicleAlert";
 import SuccessConfirmation from "@/components/SuccessConfirmation";
 import { useApp } from "@/contexts/AppContext";
@@ -20,20 +17,18 @@ const Index = () => {
   const {
     isLoggedIn,
     sendAlert,
-    addVehicle,
     submitClaim,
-    isPlateRegistered,
     stolenVehicles,
-    reportSighting
+    reportSighting,
+    showAlert,
+    getPlateMetrics
   } = useApp();
   const [plateValue, setPlateValue] = useState("");
-  const [isMyPlate, setIsMyPlate] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successPlate, setSuccessPlate] = useState("");
   const [showVisitorFlow, setShowVisitorFlow] = useState(false);
-  const [visitorAlertData, setVisitorAlertData] = useState<{categoryId: string, messageId: string} | null>(null);
+  const [visitorAlertData, setVisitorAlertData] = useState<{ categoryId: string, messageId: string } | null>(null);
 
-  // Verificar se a placa digitada está com alerta de roubo
   const stolenVehicle = useMemo(() => {
     if (plateValue.length < 7) return null;
     const normalizedPlate = plateValue.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -43,9 +38,7 @@ const Index = () => {
   const handleReportSighting = (location: string, date: string, time: string) => {
     if (stolenVehicle) {
       reportSighting(stolenVehicle.id, location, date, time);
-      toast.success("Avistamento reportado!", {
-        description: "O dono do veículo foi notificado. Obrigado por colaborar!"
-      });
+      showAlert("Avistamento Reportado!", "O proprietário do veículo foi notificado. Sua colaboração é fundamental!", "success");
     }
   };
 
@@ -80,136 +73,101 @@ const Index = () => {
     setShowVisitorFlow(false);
     setVisitorAlertData(null);
   };
-  const handleRegisterVehicle = (data: VehicleFormData) => {
-    if (!isLoggedIn) {
-      toast.info("Faça login para cadastrar seu veículo");
-      navigate("/login");
-      return;
-    }
 
-    // If it's a claim, submit claim instead of adding vehicle
-    if (data.isClaim && data.claimObservation) {
-      submitClaim(plateValue, data.claimObservation);
-      toast.success("Reivindicação enviada com sucesso!", {
-        description: `Placa: ${plateValue} - Aguarde análise em até 48h`
-      });
-      setPlateValue("");
-      navigate("/claim");
-      return;
-    }
-    addVehicle({
-      plate: plateValue,
-      model: data.vehicleModel,
-      color: data.vehicleColor,
-      hasActivePlan: false
-    });
-    toast.success("Veículo cadastrado com sucesso!", {
-      description: `Placa: ${plateValue} - ${data.vehicleModel}`
-    });
-    setPlateValue("");
-    navigate("/dashboard");
-  };
-  return <PageTransition>
-      <div className="min-h-[100dvh] bg-background flex flex-col">
+  return (
+    <PageTransition>
+      <div className="min-h-screen bg-background pb-8">
         <Header />
-
-        <main className="flex-1 px-4 pb-6 safe-area-bottom overflow-y-auto">
-          <div className="w-full max-w-lg mx-auto border-0">
-            {/* Zona de contexto - selo separado do header */}
-            <motion.div 
-              className="flex justify-center mt-2 mb-6" 
-              variants={slideUp} 
-              initial="hidden" 
-              animate="visible"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span className="text-primary font-medium text-sm">Rede de Alertas Cautoo</span>
+        <main className="px-4 pb-20">
+          <div className="w-full max-w-lg mx-auto">
+            <motion.div className="flex justify-center mt-0 mb-6" variants={slideUp} initial="hidden" animate="visible">
+              <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-[#1A1F2C]/60 border border-[#10B981]/20 backdrop-blur-sm shadow-sm">
+                <Sparkles className="w-4 h-4 text-[#10B981]" />
+                <span className="text-[#10B981] font-medium text-[13px] tracking-tight">Rede de Alertas Cautoo</span>
               </div>
             </motion.div>
 
-            {/* Zona de ação - título e subtítulo */}
-            <motion.div 
-              className="text-center mb-8" 
-              variants={slideUp} 
-              initial="hidden" 
-              animate="visible" 
-              transition={{ delay: 0.1 }}
-            >
-              <h2 className="text-2xl font-bold text-foreground mb-2 sm:text-5xl">
-                Alertas e socorro para
-                <br />
-                <span className="text-primary">qualquer veículo</span>
-              </h2>
-              <p className="text-sm text-muted-foreground px-2 text-center mt-3 sm:text-xl">
+            <motion.div className="text-center mb-6 px-4" variants={slideUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+              <h1 className="text-2xl sm:text-[40px] font-bold text-white leading-tight tracking-tight">
+                Alertas e socorro para <span className="text-[#10B981]">qualquer veículo</span>
+              </h1>
+              <p className="text-xs sm:text-base text-muted-foreground mt-2 max-w-[320px] mx-auto leading-relaxed opacity-60">
                 Alertas anônimos entre veículos e ajuda para o seu quando precisar.
               </p>
             </motion.div>
-
-            <motion.div className="bg-card border border-border rounded-2xl p-4 sm:p-6 space-y-4" variants={scaleIn} initial="hidden" animate="visible" transition={{
-            delay: 0.2
-          }}>
+            <motion.div className="bg-card border-none shadow-2xl rounded-[2.5rem] p-6 sm:p-8 space-y-6 relative overflow-hidden" variants={scaleIn} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
               <LicensePlateInput value={plateValue} onChange={setPlateValue} isStolen={!!stolenVehicle} />
-              
-              {/* Alerta de veículo roubado - prioridade visual */}
               {stolenVehicle && <StolenVehicleAlert stolenVehicle={stolenVehicle} onReportSighting={handleReportSighting} />}
-              
-              <ModeToggle isMyPlate={isMyPlate} onToggle={setIsMyPlate} />
 
-              {isMyPlate ? <motion.div key="register" initial={{
-              opacity: 0,
-              x: 20
-            }} animate={{
-              opacity: 1,
-              x: 0
-            }} exit={{
-              opacity: 0,
-              x: -20
-            }} transition={{
-              duration: 0.3
-            }}>
-                  <VehicleRegistrationForm plateValue={plateValue} onRegister={handleRegisterVehicle} />
-                </motion.div> : <motion.div key="alerts" initial={{
-              opacity: 0,
-              x: -20
-            }} animate={{
-              opacity: 1,
-              x: 0
-            }} exit={{
-              opacity: 0,
-              x: 20
-            }} transition={{
-              duration: 0.3
-            }}>
-                  <AlertCategories plateValue={plateValue} onSendAlert={handleSendAlert} />
-                </motion.div>}
+              <AnimatePresence mode="wait">
+                {isValidPlate(plateValue) && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-6 overflow-hidden"
+                  >
+                    {/* Bloco de Score Público */}
+                    {((): React.ReactNode => {
+                      const metrics = getPlateMetrics(plateValue);
+                      const getStatusStr = () => {
+                        if (metrics.score >= 50) return { label: "Confiável", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" };
+                        if (metrics.score >= 0) return { label: "Neutro", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20" };
+                        return { label: "Risco", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" };
+                      };
+                      const status = getStatusStr();
+
+                      return (
+                        <div className="space-y-4 pt-4 border-t border-border/50">
+                          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Score da Placa</h3>
+                          <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 border border-border/50">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-70">Score Cautoo</span>
+                              <span className={`text-3xl font-black ${status.color}`}>{metrics.score}</span>
+                            </div>
+                            <div className={`px-4 py-2 rounded-xl border ${status.bg} ${status.border} ${status.color} font-black text-[10px] uppercase tracking-widest`}>
+                              {status.label}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Elogios</span>
+                              <span className="text-lg font-black text-foreground">{metrics.compliments}</span>
+                            </div>
+                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Críticas</span>
+                              <span className="text-lg font-black text-foreground">{metrics.critiques}</span>
+                            </div>
+                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Alertas</span>
+                              <span className="text-lg font-black text-foreground">{metrics.alerts}</span>
+                            </div>
+                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Solidárias</span>
+                              <span className="text-lg font-black text-foreground">{metrics.solidaryActions}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="pt-4 border-t border-border/50">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4">Enviar Alerta</h3>
+                      <AlertCategories plateValue={plateValue} onSendAlert={handleSendAlert} />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
-
-            <motion.p className="text-center text-xs text-muted-foreground mt-4 px-4" variants={slideUp} initial="hidden" animate="visible" transition={{
-            delay: 0.3
-          }}>
-              Tem um veículo?{" "}
-              <button onClick={() => setIsMyPlate(true)} className="text-primary hover:underline font-medium">
-                Cadastre-se
-              </button>{" "}
-              para receber alertas.
-            </motion.p>
           </div>
         </main>
-
-        {/* Success Confirmation */}
         <SuccessConfirmation isOpen={showSuccess} onClose={() => setShowSuccess(false)} title="Alerta Enviado!" description="O proprietário do veículo" highlightText={successPlate} duration={2500} />
-        
-        {/* Visitor Alert Flow Modal */}
-        <div className="relative z-[100]">
-          <VisitorAlertFlow 
-            isOpen={showVisitorFlow} 
-            onClose={() => setShowVisitorFlow(false)} 
-            onSuccess={handleVisitorSuccess}
-            plate={plateValue}
-          />
-        </div>
+        <div className="relative z-[100]"><VisitorAlertFlow isOpen={showVisitorFlow} onClose={() => setShowVisitorFlow(false)} onSuccess={handleVisitorSuccess} plate={plateValue} /></div>
       </div>
-    </PageTransition>;
+    </PageTransition>
+  );
 };
+
 export default Index;

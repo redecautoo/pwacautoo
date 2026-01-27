@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, AlertTriangle } from "lucide-react";
+import { Check, AlertTriangle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export type SuccessModalVariant = "success" | "warning" | "error";
+export type SuccessModalVariant = "success" | "warning" | "error" | "info";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -40,6 +40,14 @@ const variantConfig = {
     iconColor: "text-white",
     titleColor: "text-foreground",
     highlightColor: "text-destructive",
+  },
+  info: {
+    icon: Info,
+    outerBg: "bg-blue-500/20",
+    innerBg: "bg-blue-500",
+    iconColor: "text-white",
+    titleColor: "text-foreground",
+    highlightColor: "text-blue-500",
   },
 };
 
@@ -138,17 +146,17 @@ const SuccessModal = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={onClose}
               >
                 {buttonText}
               </Button>
-              
+
               {secondaryButtonText && onSecondaryClick && (
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
+                <Button
+                  variant="outline"
+                  className="w-full"
                   onClick={onSecondaryClick}
                 >
                   {secondaryButtonText}

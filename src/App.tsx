@@ -1,5 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
@@ -47,6 +45,7 @@ import VagasCauCash from "./pages/VagasCauCash";
 import CautelarRegistry from "./pages/CautelarRegistry";
 import NewCautelarRegistry from "./pages/NewCautelarRegistry";
 import CautelarRegistryDetails from "./pages/CautelarRegistryDetails";
+import GlobalAlert from "@/components/GlobalAlert";
 
 const queryClient = new QueryClient();
 
@@ -56,8 +55,7 @@ const App = () => (
       <AppProvider>
         <VagasProvider>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
+            <GlobalAlert />
             <PWAInstallBanner />
             <HashRouter>
               <Routes>

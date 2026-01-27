@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
-import { 
-  User, 
-  Vehicle, 
-  Alert, 
-  SentAlert, 
+import {
+  User,
+  Vehicle,
+  Alert,
+  SentAlert,
   SentCritique,
-  Praise, 
-  FriendRequest, 
-  Friend, 
-  ChatMessage, 
-  PlateTransfer, 
+  Praise,
+  FriendRequest,
+  Friend,
+  ChatMessage,
+  PlateTransfer,
   PlateClaim,
   Referral,
   StolenAlertInfo,
@@ -75,6 +75,14 @@ const mockUsersById: { [key: string]: User } = {
 import { CautooFleet, FleetChatMessage, FleetHelpRequest, FleetMember, FleetInvite, FleetAssistance } from '@/lib/fleetTypes';
 import { mockFleets } from '@/lib/fleetMockData';
 
+export interface AlertModalState {
+  isOpen: boolean;
+  title: string;
+  description: string;
+  variant: "success" | "warning" | "error" | "info";
+  highlightText?: string;
+}
+
 interface AppContextType {
   // Auth state
   isLoggedIn: boolean;
@@ -83,7 +91,7 @@ interface AppContextType {
   loginWithPassword: (cpf: string, password: string) => boolean;
   logout: () => void;
   register: (data: { name: string; cpf: string; phone: string; email?: string; password: string; plate?: string; plateAlreadyRegistered?: boolean; ownershipType?: VehicleOwnershipType; subscriptionInfo?: VehicleSubscriptionInfo; insuranceInfo?: VehicleInsuranceInfo }) => void;
-  
+
   // Vehicles
   vehicles: Vehicle[];
   addVehicle: (vehicle: Omit<Vehicle, 'id' | 'ownerId' | 'score' | 'isStolen' | 'createdAt' | 'hasCompleteInfo'>) => void;
@@ -94,7 +102,7 @@ interface AppContextType {
   payForStolenAlert: (plate: string) => boolean; // Pagar por alerta de roubo
   reactivateStolenAlert: (id: string) => void; // Reativar alerta pago
   isPlateRegistered: (plate: string) => boolean;
-  
+
   // Alerts
   alerts: Alert[];
   sentAlerts: SentAlert[];
@@ -102,12 +110,12 @@ interface AppContextType {
   sendAlert: (plate: string, categoryId: string, categoryName: string, messageId: string, messageText: string) => void;
   markAlertAsRead: (id: string) => void;
   canSendCritique: (plate: string) => { canSend: boolean; reason: string };
-  
+
   // Praises
   praisesReceived: Praise[];
   praisesSent: Praise[];
   sendPraise: (plate: string, praiseType: string) => boolean;
-  
+
   // Friends
   friendRequests: FriendRequest[];
   friends: Friend[];
@@ -115,25 +123,25 @@ interface AppContextType {
   sendFriendRequest: (toPlate: string) => void;
   respondToFriendRequest: (id: string, accept: boolean) => void;
   sendChatMessage: (friendshipId: string, text: string) => void;
-  
+
   // Transfers
   transfers: PlateTransfer[];
   initiateTransfer: (plateId: string, plate: string, toUserCpf: string) => void;
   respondToTransfer: (id: string, accept: boolean) => void;
-  
+
   // Claims
   claims: PlateClaim[];
   submitClaim: (plate: string, reason: string) => void;
   submitVehicleClaim: (vehicleId: string, reason: string) => void;
   isVehicleBlocked: (vehicleId: string) => boolean;
-  
+
   // Referrals
   referrals: Referral[];
-  
+
   // Stolen vehicles (for sighting feature)
   stolenVehicles: Vehicle[];
   reportSighting: (plateId: string, location: string, date: string, time: string) => void;
-  
+
   // User actions
   updateUserProfile: (data: Partial<User>) => void;
   purchaseVerifiedSeal: (isFreeActivation?: boolean, skipDebit?: boolean) => void;
@@ -141,22 +149,22 @@ interface AppContextType {
   isVerifiedSealExpired: () => boolean;
   purchasePlateInfo: (vehicleId: string, skipBalanceCheck?: boolean) => void;
   addAdditionalPlate: (vehicle: Omit<Vehicle, 'id' | 'ownerId' | 'score' | 'isStolen' | 'createdAt' | 'hasCompleteInfo'>, isAdditional?: boolean) => void;
-  
+
   // Help Requests (Socorro)
   helpRequests: HelpRequest[];
   addHelpRequest: (data: Omit<HelpRequest, 'id' | 'userId' | 'userCpf' | 'status'>) => void;
-  
+
   // CauCash
   cauCashBalance: number;
   cauCashTransactions: any[];
   addTransaction: (data: { type: 'credit' | 'debit', amount: number, description: string, category: string }) => void;
   resetCauCashBalance: () => void;
   getCurrentCauCashBalance: () => number;
-  
+
   // Green Seal Free Call
   useGreenSealCall: () => void;
   hasGreenSealFreeCall: () => boolean;
-  
+
   // Green Seal Free Stolen Alerts
   useGreenSealStolenAlert: () => void;
   hasGreenSealFreeStolenAlert: () => boolean;
@@ -172,11 +180,11 @@ interface AppContextType {
   sendFleetChatMessage: (fleetId: string, text: string, type?: 'message' | 'help_request' | 'system', helpRequestId?: string) => void;
   addFleetHelpRequest: (fleetId: string, helpRequest: FleetHelpRequest) => void;
   updateFleetHelpRequest: (fleetId: string, helpRequestId: string, updates: Partial<FleetHelpRequest>) => void;
-  
+
   // Compras de Frota (atômicas: verificam, debitam e atualizam em uma operação)
   purchaseFleetVerifiedSeal: (fleetId: string) => { success: boolean; message: string };
   purchaseFleetAssistance: (fleetId: string, totalPrice: number, description: string, assistanceData?: FleetAssistance) => { success: boolean; message: string };
-  
+
   // Convites de Frota
   sendFleetInvite: (fleetId: string, plate: string) => FleetInvite;
   cancelFleetInvite: (fleetId: string, inviteId: string) => void;
@@ -198,7 +206,7 @@ interface AppContextType {
   addCautelarDamage: (registryId: string, damage: CautelarDamage) => void;
   payMediationInstallment: (registryId: string) => boolean;
   getCautelarRegistriesForUser: () => CautelarRegistry[];
-  
+
   // Solicitações de Contato
   contactRequests: ContactRequest[];
   sendContactRequest: (toPlate: string, reason: string) => boolean;
@@ -207,7 +215,7 @@ interface AppContextType {
   getContactRequestsReceived: () => ContactRequest[];
   getContactRequestsSent: () => ContactRequest[];
   getVehicleByPlate: (plate: string) => Vehicle | undefined;
-  
+
   // Alerta Solidário
   solidaryAlerts: SolidaryAlert[];
   sendSolidaryAlert: (data: {
@@ -222,6 +230,19 @@ interface AppContextType {
   getSolidaryAlertsForUser: (userId: string, type?: 'sent' | 'received') => SolidaryAlert[];
   respondToSolidaryAlert: (alertId: string, response: 'acionado' | 'ja_resolvido') => void;
   markSolidaryAlertAsUseful: (alertId: string, isUseful: boolean) => void;
+
+  // Global Alert System
+  alertModal: AlertModalState;
+  showAlert: (title: string, description: string, variant?: "success" | "warning" | "error" | "info", highlightText?: string) => void;
+  hideAlert: () => void;
+  getPlateMetrics: (plate: string) => {
+    compliments: number;
+    critiques: number;
+    alerts: number;
+    solidaryActions: number;
+    score: number;
+    isRegistered: boolean;
+  };
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -237,20 +258,20 @@ function readStoredUser(): User | null {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const user = JSON.parse(raw) as User;
-    
+
     // Aplicar recompensas pendentes de ICC ao restaurar sessão
     const pendingRewardsKey = 'cautoo_icc_rewards_v1';
     const existingRewards = localStorage.getItem(pendingRewardsKey);
     if (existingRewards) {
       const rewards: { userId: string; amount: number; reason: string; date: string; alertId?: string }[] = JSON.parse(existingRewards);
       const userRewards = rewards.filter(r => r.userId === user.id);
-      
+
       if (userRewards.length > 0) {
         const totalBonus = userRewards.reduce((sum, r) => sum + r.amount, 0);
         const newICC = Math.min(1000, user.icc + totalBonus);
         user.icc = newICC;
         user.ranking = getRankingFromICC(newICC);
-        
+
         // Atualizar alertas correspondentes no localStorage
         const alertIds = userRewards.filter(r => r.alertId).map(r => r.alertId);
         if (alertIds.length > 0) {
@@ -265,23 +286,23 @@ function readStoredUser(): User | null {
                 return a;
               });
               localStorage.setItem('cautoo_solidary_v1', JSON.stringify(updatedAlerts));
-              
+
               // Disparar evento para notificar componente
               window.dispatchEvent(new CustomEvent(REWARDS_APPLIED_EVENT, { detail: { alertIds } }));
             }
-          } catch (e) {}
+          } catch (e) { }
         }
-        
+
         // Remover recompensas aplicadas
         const remainingRewards = rewards.filter(r => r.userId !== user.id);
         localStorage.setItem(pendingRewardsKey, JSON.stringify(remainingRewards));
-        
+
         // Salvar usuário atualizado
         localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
         console.log(`Session restored: ICC bonus +${totalBonus} applied for user ${user.id}, alerts updated: ${alertIds.join(', ')}`);
       }
     }
-    
+
     return user;
   } catch {
     return null;
@@ -323,7 +344,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem('cautoo_vehicles_v1');
       if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
     return mockVehicles;
   });
 
@@ -331,21 +352,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       localStorage.setItem('cautoo_vehicles_v1', JSON.stringify(vehicles));
-    } catch (e) {}
+    } catch (e) { }
   }, [vehicles]);
   const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
   const [sentAlerts, setSentAlerts] = useState<SentAlert[]>(mockSentAlerts);
-  const [sentCritiques, setSentCritiques] = useState<SentCritique[]>([]);
-  const [praisesReceived, setPraisesReceived] = useState<Praise[]>(mockPraisesReceived);
+  const [sentCritiques, setSentCritiques] = useState<SentCritique[]>([
+    { id: 'crit-1', targetPlate: 'AAA1B22', messageText: 'Condução perigosa detectada', createdAt: new Date().toISOString() },
+    { id: 'crit-2', targetPlate: 'AAA1B22', messageText: 'Motorista agressivo no trânsito', createdAt: new Date().toISOString() }
+  ]);
+  const [praisesReceived, setPraisesReceived] = useState<Praise[]>(() => {
+    // Gerar 55 elogios para a placa ABC1D23 para testar o status "Confiável"
+    const praises: Praise[] = [...mockPraisesReceived];
+    for (let i = 0; i < 55; i++) {
+      praises.push({
+        id: `praise-mock-${i}`,
+        fromUserId: `user-mock-${i}`,
+        toPlate: 'ABC1D23',
+        praiseType: 'Direção segura',
+        createdAt: new Date().toISOString()
+      });
+    }
+    return praises;
+  });
   const [praisesSent, setPraisesSent] = useState<Praise[]>(mockPraisesSent);
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>(mockFriendRequests);
   const [friends, setFriends] = useState<Friend[]>(mockFriends);
+
+  // Global Alert Modal State
+  const [alertModal, setAlertModal] = useState<AlertModalState>({
+    isOpen: false,
+    title: "",
+    description: "",
+    variant: "success"
+  });
+
+  const showAlert = useCallback((title: string, description: string, variant: "success" | "warning" | "error" | "info" = "success", highlightText?: string) => {
+    setAlertModal({
+      isOpen: true,
+      title,
+      description,
+      variant,
+      highlightText
+    });
+  }, []);
+
+  const hideAlert = useCallback(() => {
+    setAlertModal(prev => ({ ...prev, isOpen: false }));
+  }, []);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(mockChatMessages);
   const [transfers, setTransfers] = useState<PlateTransfer[]>(mockTransfers);
   const [claims, setClaims] = useState<PlateClaim[]>(mockClaims);
   const [referrals] = useState<Referral[]>(mockReferrals);
   const [stolenVehicles, setStolenVehicles] = useState<Vehicle[]>(mockStolenVehicles);
-  
+
   // Frotas Cautoo - persistidas em localStorage
   const [userFleets, setUserFleets] = useState<CautooFleet[]>(() => {
     const stored = readStoredFleets();
@@ -443,19 +502,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (stored) {
         const parsed = JSON.parse(stored);
         // Atualiza os mocks de teste
-        const filtered = parsed.filter((r: CautelarRegistry) => 
+        const filtered = parsed.filter((r: CautelarRegistry) =>
           r.id !== 'cautelar-test-001' && r.id !== 'cautelar-test-002'
         );
         return [...filtered, mockCautelarRegistry, mockCautelarRegistry2];
       }
-    } catch (e) {}
+    } catch (e) { }
     return [mockCautelarRegistry, mockCautelarRegistry2];
   });
 
   useEffect(() => {
     try {
       localStorage.setItem('cautoo_cautelar_v1', JSON.stringify(cautelarRegistries));
-    } catch (e) {}
+    } catch (e) { }
   }, [cautelarRegistries]);
 
   // Solicitações de Contato - persistidas em localStorage
@@ -463,14 +522,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem('cautoo_contact_requests_v1');
       if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
     return [];
   });
 
   useEffect(() => {
     try {
       localStorage.setItem('cautoo_contact_requests_v1', JSON.stringify(contactRequests));
-    } catch (e) {}
+    } catch (e) { }
   }, [contactRequests]);
 
   // Alerta Solidário - persistido em localStorage
@@ -478,48 +537,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem('cautoo_solidary_v1');
       if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
     return [];
   });
 
   useEffect(() => {
     try {
       localStorage.setItem('cautoo_solidary_v1', JSON.stringify(solidaryAlerts));
-    } catch (e) {}
+    } catch (e) { }
   }, [solidaryAlerts]);
 
   // Reconciliar alertas quando o usuário loga - recarregar do localStorage para refletir rewards aplicados
   // Este efeito garante que após qualquer login/restore, os alertas estejam sincronizados
   const hasReconciledRef = useRef(false);
-  
+
   useEffect(() => {
     if (!currentUser) {
       hasReconciledRef.current = false;
       return;
     }
-    
+
     // Sempre recarregar do localStorage na primeira vez que currentUser está disponível
     // Isso captura as atualizações feitas por readStoredUser/applyPendingICCRewards
     if (!hasReconciledRef.current) {
       hasReconciledRef.current = true;
-      
+
       try {
         const storedAlerts = localStorage.getItem('cautoo_solidary_v1');
         if (storedAlerts) {
           const alerts: SolidaryAlert[] = JSON.parse(storedAlerts);
           setSolidaryAlerts(alerts);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [currentUser]);
-  
+
   // Reset o flag quando o usuário deslogar para permitir reconciliação no próximo login
   useEffect(() => {
     if (!isLoggedIn) {
       hasReconciledRef.current = false;
     }
   }, [isLoggedIn]);
-  
+
   // Escutar eventos de rewards aplicados para sincronizar state imediatamente
   useEffect(() => {
     const handleRewardsApplied = () => {
@@ -530,9 +589,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setSolidaryAlerts(alerts);
           console.log('Solidary alerts synchronized after reward application');
         }
-      } catch (e) {}
+      } catch (e) { }
     };
-    
+
     window.addEventListener(REWARDS_APPLIED_EVENT, handleRewardsApplied);
     return () => window.removeEventListener(REWARDS_APPLIED_EVENT, handleRewardsApplied);
   }, []);
@@ -545,7 +604,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // ignore
     }
   }, [userFleets]);
-  
+
   // Auth actions
   const login = useCallback((cpf: string) => {
     setCurrentUser(prev => (prev?.cpf === cpf ? prev : { ...mockCurrentUser, cpf }));
@@ -559,16 +618,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const existing = localStorage.getItem(pendingRewardsKey);
       if (!existing) return user;
-      
+
       const rewards: { userId: string; amount: number; reason: string; date: string; alertId?: string }[] = JSON.parse(existing);
       const userRewards = rewards.filter(r => r.userId === user.id);
-      
+
       if (userRewards.length === 0) return user;
-      
+
       // Calcular bonus total de ICC
       const totalBonus = userRewards.reduce((sum, r) => sum + r.amount, 0);
       const newICC = Math.min(1000, user.icc + totalBonus);
-      
+
       // Atualizar alertas correspondentes no localStorage
       const alertIds = userRewards.filter(r => r.alertId).map(r => r.alertId);
       if (alertIds.length > 0) {
@@ -583,17 +642,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
               return a;
             });
             localStorage.setItem('cautoo_solidary_v1', JSON.stringify(updatedAlerts));
-            
+
             // Disparar evento para notificar componente
             window.dispatchEvent(new CustomEvent(REWARDS_APPLIED_EVENT, { detail: { alertIds } }));
           }
-        } catch (e) {}
+        } catch (e) { }
       }
-      
+
       // Remover recompensas aplicadas
       const remainingRewards = rewards.filter(r => r.userId !== user.id);
       localStorage.setItem(pendingRewardsKey, JSON.stringify(remainingRewards));
-      
+
       console.log(`ICC bonus applied: +${totalBonus} for user ${user.id}, alerts updated: ${alertIds.join(', ')}`);
       return { ...user, icc: newICC, ranking: getRankingFromICC(newICC) };
     } catch {
@@ -604,16 +663,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Login com senha
   const loginWithPassword = useCallback((cpf: string, password: string): boolean => {
     const cleanCpf = cpf.replace(/\D/g, '');
-    
+
     // Verificar perfis de teste (todos usam senha 123456)
     const testCpfs = ['00000000000', '11111111111', '22222222222', '33333333333'];
-    
+
     if (testCpfs.includes(cleanCpf)) {
       // Para CPFs de teste, verificar senha e carregar perfil correspondente
       if (password !== '123456') {
         return false; // Senha incorreta para perfil de teste
       }
-      
+
       // Carregar perfil de teste baseado no CPF
       // Para simplificar, usamos o primeiro perfil de cada CPF de teste
       const testProfile = getTestProfile(cpf, cleanCpf.charAt(0).repeat(6));
@@ -627,12 +686,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return true;
       }
     }
-    
+
     // CPF normal - verificar se senha tem 6 dígitos
     if (password.length !== 6 || !/^\d{6}$/.test(password)) {
       return false;
     }
-    
+
     // Login bem sucedido para novos usuários
     const newUser = { ...mockCurrentUser, cpf, password };
     const userWithRewards = applyPendingICCRewards(newUser);
@@ -641,12 +700,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsLoggedIn(true);
     return true;
   }, []);
-  
+
   const logout = useCallback(() => {
     setCurrentUser(null);
     setIsLoggedIn(false);
   }, []);
-  
+
   const register = useCallback((data: { name: string; cpf: string; phone: string; email?: string; password: string; plate?: string; plateAlreadyRegistered?: boolean; ownershipType?: VehicleOwnershipType; subscriptionInfo?: VehicleSubscriptionInfo; insuranceInfo?: VehicleInsuranceInfo }) => {
     const userId = `user-${Date.now()}`;
     const newUser: User = {
@@ -672,14 +731,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setCurrentUser(newUser);
     setIsLoggedIn(true);
-    
+
     // Se placa foi informada, criar veículo automaticamente
     if (data.plate && data.plate.length === 7) {
       // Encontrar o dono original se a placa já está registrada
-      const existingVehicle = vehicles.find(v => 
+      const existingVehicle = vehicles.find(v =>
         v.plate.toUpperCase().replace(/[^A-Z0-9]/g, '') === data.plate.toUpperCase().replace(/[^A-Z0-9]/g, '')
       );
-      
+
       const newVehicle: Vehicle = {
         id: `vehicle-${Date.now()}`,
         plate: data.plate.toUpperCase(),
@@ -700,7 +759,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setVehicles(prev => [...prev, newVehicle]);
     }
   }, [vehicles]);
-  
+
   // Vehicle actions
   const addVehicle = useCallback((vehicleData: Omit<Vehicle, 'id' | 'ownerId' | 'score' | 'isStolen' | 'createdAt' | 'hasCompleteInfo'>) => {
     const newVehicle: Vehicle = {
@@ -714,93 +773,93 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setVehicles(prev => [...prev, newVehicle]);
   }, [currentUser]);
-  
+
   const updateVehicle = useCallback((id: string, data: Partial<Vehicle>) => {
     setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...data } : v));
   }, []);
-  
+
   const markAsStolen = useCallback((id: string, info: { location: string; date: string; time: string }) => {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dias
-    
+
     const stolenAlert: StolenAlertInfo = {
       activatedAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
       renewalUsed: false,
       isActive: true,
     };
-    
-    setVehicles(prev => prev.map(v => 
-      v.id === id 
+
+    setVehicles(prev => prev.map(v =>
+      v.id === id
         ? { ...v, isStolen: true, stolenInfo: { ...info, sightings: [] }, stolenAlert }
         : v
     ));
   }, []);
-  
+
   const markAsRecovered = useCallback((id: string) => {
-    setVehicles(prev => prev.map(v => 
-      v.id === id 
+    setVehicles(prev => prev.map(v =>
+      v.id === id
         ? { ...v, isStolen: false, stolenInfo: undefined, stolenAlert: undefined }
         : v
     ));
   }, []);
-  
+
   // Renovar alerta por +3 dias (gratuito, apenas 1x)
   const renewStolenAlert = useCallback((id: string): boolean => {
     const vehicle = vehicles.find(v => v.id === id);
     if (!vehicle?.stolenAlert || vehicle.stolenAlert.renewalUsed) {
       return false; // Já usou renovação
     }
-    
+
     const currentExpires = new Date(vehicle.stolenAlert.expiresAt);
     const newExpires = new Date(currentExpires.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 dias
-    
-    setVehicles(prev => prev.map(v => 
+
+    setVehicles(prev => prev.map(v =>
       v.id === id && v.stolenAlert
-        ? { 
-            ...v, 
-            stolenAlert: { 
-              ...v.stolenAlert, 
-              expiresAt: newExpires.toISOString(),
-              renewalUsed: true 
-            } 
+        ? {
+          ...v,
+          stolenAlert: {
+            ...v.stolenAlert,
+            expiresAt: newExpires.toISOString(),
+            renewalUsed: true
           }
+        }
         : v
     ));
-    
+
     return true;
   }, [vehicles]);
-  
+
   // Check if plate is already registered
   const isPlateRegistered = useCallback((plate: string): boolean => {
     const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, '');
     return vehicles.some(v => v.plate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate);
   }, [vehicles]);
-  
+
   // Check if user can send critique to a plate
   const canSendCritique = useCallback((plate: string): { canSend: boolean; reason: string } => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     // Max 3 críticas por placa em 30 dias
-    const critiquesForPlate = sentCritiques.filter(c => 
-      c.targetPlate.toUpperCase() === plate.toUpperCase() && 
+    const critiquesForPlate = sentCritiques.filter(c =>
+      c.targetPlate.toUpperCase() === plate.toUpperCase() &&
       new Date(c.createdAt) > thirtyDaysAgo
     );
     if (critiquesForPlate.length >= 3) {
       return { canSend: false, reason: "Limite de 3 críticas por placa a cada 30 dias atingido" };
     }
-    
+
     // Max 5 críticas por dia por usuário
     const critiquesToday = sentCritiques.filter(c => new Date(c.createdAt) > todayStart);
     if (critiquesToday.length >= 5) {
       return { canSend: false, reason: "Limite de 5 críticas por dia atingido" };
     }
-    
+
     return { canSend: true, reason: "" };
   }, [sentCritiques]);
-  
+
   // Alert actions
   const sendAlert = useCallback((plate: string, categoryId: string, categoryName: string, messageId: string, messageText: string) => {
     // Se for crítica de condução perigosa, salvar separadamente
@@ -812,18 +871,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
       };
       setSentCritiques(prev => [newCritique, ...prev]);
-      
+
       // Críticas impactam o score do veículo (-1 pt) e não alteram ICC
       setVehicles(prev => prev.map(v => {
         if (v.plate.toUpperCase() === plate.toUpperCase()) {
           const newScore = Math.max(0, (v.score || 500) - 1);
           const monthlyCritiques = (v.monthlyCritiques || 0) + 1;
           const hasTrustSeal = monthlyCritiques < 3; // Remove selo se 3+ críticas
-          return { 
-            ...v, 
-            score: newScore, 
+          return {
+            ...v,
+            score: newScore,
             monthlyCritiques,
-            hasTrustSeal 
+            hasTrustSeal
           };
         }
         return v;
@@ -838,7 +897,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
       };
       setSentAlerts(prev => [newSentAlert, ...prev]);
-      
+
       // Incrementar ICC se logado (apenas para alertas normais)
       if (currentUser) {
         setCurrentUser(prev => prev ? {
@@ -849,32 +908,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [currentUser]);
-  
+
   const markAlertAsRead = useCallback((id: string) => {
     setAlerts(prev => prev.map(a => a.id === id ? { ...a, isRead: true } : a));
   }, []);
-  
+
   // Praise actions
   const sendPraise = useCallback((plate: string, praiseType: string): boolean => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     // Max 3 elogios por placa em 30 dias
-    const praisesForPlate = praisesSent.filter(p => 
-      p.toPlate.toUpperCase() === plate.toUpperCase() && 
+    const praisesForPlate = praisesSent.filter(p =>
+      p.toPlate.toUpperCase() === plate.toUpperCase() &&
       new Date(p.createdAt) > thirtyDaysAgo
     );
     if (praisesForPlate.length >= 3) {
       return false;
     }
-    
+
     // Max 5 elogios por dia
     const praisesToday = praisesSent.filter(p => new Date(p.createdAt) > todayStart);
     if (praisesToday.length >= 5) {
       return false;
     }
-    
+
     const newPraise: Praise = {
       id: `praise-${Date.now()}`,
       fromUserId: currentUser?.id || '',
@@ -883,7 +942,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString(),
     };
     setPraisesSent(prev => [newPraise, ...prev]);
-    
+
     // Incrementar ICC do remetente (+1 pt)
     if (currentUser) {
       setCurrentUser(prev => prev ? {
@@ -893,26 +952,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
         positiveActionsLast90Days: prev.positiveActionsLast90Days + 1,
       } : null);
     }
-    
+
     // Atualizar score do veículo alvo (+2 pts) e verificar selo "Condutor Colaborativo"
     setVehicles(prev => prev.map(v => {
       if (v.plate.toUpperCase() === plate.toUpperCase()) {
         const newScore = Math.min(1000, (v.score || 500) + 2);
         const monthlyPraises = (v.monthlyPraises || 0) + 1;
         const hasCollaborativeSeal = monthlyPraises >= 3;
-        return { 
-          ...v, 
-          score: newScore, 
+        return {
+          ...v,
+          score: newScore,
           monthlyPraises,
-          hasCollaborativeSeal 
+          hasCollaborativeSeal
         };
       }
       return v;
     }));
-    
+
     return true;
   }, [currentUser, praisesSent]);
-  
+
   // Friend actions
   const sendFriendRequest = useCallback((toPlate: string) => {
     const newRequest: FriendRequest = {
@@ -927,12 +986,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setFriendRequests(prev => [newRequest, ...prev]);
   }, [currentUser, vehicles]);
-  
+
   const respondToFriendRequest = useCallback((id: string, accept: boolean) => {
-    setFriendRequests(prev => prev.map(fr => 
+    setFriendRequests(prev => prev.map(fr =>
       fr.id === id ? { ...fr, status: accept ? 'accepted' : 'rejected' } : fr
     ));
-    
+
     if (accept) {
       const request = friendRequests.find(fr => fr.id === id);
       if (request) {
@@ -948,7 +1007,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [friendRequests]);
-  
+
   const sendChatMessage = useCallback((friendshipId: string, text: string) => {
     const newMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
@@ -959,7 +1018,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setChatMessages(prev => [...prev, newMessage]);
   }, [currentUser]);
-  
+
   // Transfer actions
   const initiateTransfer = useCallback((plateId: string, plate: string, toUserCpf: string) => {
     const newTransfer: PlateTransfer = {
@@ -974,12 +1033,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setTransfers(prev => [newTransfer, ...prev]);
   }, [currentUser]);
-  
+
   const respondToTransfer = useCallback((id: string, accept: boolean) => {
-    setTransfers(prev => prev.map(t => 
+    setTransfers(prev => prev.map(t =>
       t.id === id ? { ...t, status: accept ? 'completed' : 'rejected' } : t
     ));
-    
+
     if (accept) {
       const transfer = transfers.find(t => t.id === id);
       if (transfer) {
@@ -987,7 +1046,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [transfers]);
-  
+
   // Claim actions
   const submitClaim = useCallback((plate: string, reason: string) => {
     const newClaim: PlateClaim = {
@@ -1002,12 +1061,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setClaims(prev => [newClaim, ...prev]);
   }, [currentUser]);
-  
+
   // Submit claim for a vehicle already in user's profile
   const submitVehicleClaim = useCallback((vehicleId: string, reason: string) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
     if (!vehicle) return;
-    
+
     // Create claim record
     const newClaim: PlateClaim = {
       id: `claim-${Date.now()}`,
@@ -1020,19 +1079,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString(),
     };
     setClaims(prev => [newClaim, ...prev]);
-    
+
     // Update vehicle claim status to pending
-    setVehicles(prev => prev.map(v => 
+    setVehicles(prev => prev.map(v =>
       v.id === vehicleId ? { ...v, claimStatus: 'pending' as const } : v
     ));
   }, [currentUser, vehicles]);
-  
+
   // Check if a vehicle is blocked (pending claim)
   const isVehicleBlockedFn = useCallback((vehicleId: string): boolean => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
     return vehicle?.claimStatus === 'pending';
   }, [vehicles]);
-  
+
   // Sighting action
   const reportSighting = useCallback((plateId: string, location: string, date: string, time: string) => {
     setStolenVehicles(prev => prev.map(v => {
@@ -1058,7 +1117,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       return v;
     }));
-    
+
     // Incrementar ICC
     if (currentUser) {
       setCurrentUser(prev => prev ? {
@@ -1068,12 +1127,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } : null);
     }
   }, [currentUser]);
-  
+
   // User profile actions
   const updateUserProfile = useCallback((data: Partial<User>) => {
     setCurrentUser(prev => prev ? { ...prev, ...data } : null);
   }, []);
-  
+
   // Verificar se selo verificado está expirado
   const isVerifiedSealExpiredFn = useCallback((): boolean => {
     if (!currentUser?.verifiedExpiresAt) return true;
@@ -1084,8 +1143,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const canActivateFreeSealFn = useCallback((): boolean => {
     if (!currentUser) return false;
     return (
-      currentUser.isCautooClient === true && 
-      !currentUser.verifiedFreeActivationUsed && 
+      currentUser.isCautooClient === true &&
+      !currentUser.verifiedFreeActivationUsed &&
       !currentUser.isVerified
     );
   }, [currentUser]);
@@ -1096,7 +1155,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (stored) return JSON.parse(stored);
       const storedUser = readStoredUser();
       if (storedUser?.cauCashBalance !== undefined) return storedUser.cauCashBalance;
-    } catch (e) {}
+    } catch (e) { }
     return 150.00;
   });
 
@@ -1114,7 +1173,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem('cautoo_caucash_transactions_v1');
       if (stored) return JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) { }
     return [
       { id: '1', type: 'credit', amount: 150.00, description: 'Recarga Inicial', date: new Date().toISOString(), category: 'Recarga' }
     ];
@@ -1134,16 +1193,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...data,
       date: new Date().toISOString()
     };
-    
+
     setCauCashTransactions(prev => [newTransaction, ...prev]);
     setCauCashBalance(prev => {
       const newBalance = data.type === 'credit' ? prev + data.amount : prev - data.amount;
       return newBalance;
     });
-    
-    setCurrentUser(prev => prev ? { 
-      ...prev, 
-      cauCashBalance: data.type === 'credit' ? (prev.cauCashBalance || 0) + data.amount : (prev.cauCashBalance || 0) - data.amount 
+
+    setCurrentUser(prev => prev ? {
+      ...prev,
+      cauCashBalance: data.type === 'credit' ? (prev.cauCashBalance || 0) + data.amount : (prev.cauCashBalance || 0) - data.amount
     } : null);
   }, []);
 
@@ -1259,26 +1318,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
-    setVehicles(prev => prev.map(v => 
-      v.id === id 
-        ? { 
-            ...v, 
-            isStolen: true,
-            stolenAlert: {
-              activatedAt: now.toISOString(),
-              expiresAt: expiresAt.toISOString(),
-              renewalUsed: false,
-              isActive: true,
-            }
+
+    setVehicles(prev => prev.map(v =>
+      v.id === id
+        ? {
+          ...v,
+          isStolen: true,
+          stolenAlert: {
+            activatedAt: now.toISOString(),
+            expiresAt: expiresAt.toISOString(),
+            renewalUsed: false,
+            isActive: true,
           }
+        }
         : v
     ));
   }, [addTransaction]);
 
   // Help Requests (Socorro)
   const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
-  
+
   const addHelpRequest = useCallback((data: Omit<HelpRequest, 'id' | 'userId' | 'userCpf' | 'status'>) => {
     const newRequest: HelpRequest = {
       id: `help-${Date.now()}`,
@@ -1365,21 +1424,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Atualizar frota
   const updateFleet = useCallback((fleetId: string, updates: Partial<CautooFleet>) => {
-    setUserFleets(prev => prev.map(f => 
+    setUserFleets(prev => prev.map(f =>
       f.id === fleetId ? { ...f, ...updates } : f
     ));
   }, []);
 
   // Adicionar membro à frota
   const addFleetMember = useCallback((fleetId: string, member: FleetMember) => {
-    setUserFleets(prev => prev.map(f => 
+    setUserFleets(prev => prev.map(f =>
       f.id === fleetId ? { ...f, members: [...f.members, member] } : f
     ));
   }, []);
 
   // Remover membro da frota
   const removeFleetMember = useCallback((fleetId: string, memberId: string) => {
-    setUserFleets(prev => prev.map(f => 
+    setUserFleets(prev => prev.map(f =>
       f.id === fleetId ? { ...f, members: f.members.filter(m => m.id !== memberId) } : f
     ));
   }, []);
@@ -1396,22 +1455,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
       helpRequestId,
       createdAt: new Date().toISOString(),
     };
-    setUserFleets(prev => prev.map(f => 
+    setUserFleets(prev => prev.map(f =>
       f.id === fleetId ? { ...f, chatMessages: [...f.chatMessages, newMessage] } : f
     ));
   }, [currentUser]);
 
   // Adicionar solicitação de socorro
   const addFleetHelpRequest = useCallback((fleetId: string, helpRequest: FleetHelpRequest) => {
-    setUserFleets(prev => prev.map(f => 
+    setUserFleets(prev => prev.map(f =>
       f.id === fleetId ? { ...f, helpRequests: [...f.helpRequests, helpRequest] } : f
     ));
   }, []);
 
   // Atualizar solicitação de socorro
   const updateFleetHelpRequest = useCallback((fleetId: string, helpRequestId: string, updates: Partial<FleetHelpRequest>) => {
-    setUserFleets(prev => prev.map(f => 
-      f.id === fleetId 
+    setUserFleets(prev => prev.map(f =>
+      f.id === fleetId
         ? { ...f, helpRequests: f.helpRequests.map(hr => hr.id === helpRequestId ? { ...hr, ...updates } : hr) }
         : f
     ));
@@ -1433,7 +1492,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString(),
     };
 
-    setUserFleets(prev => prev.map(f => 
+    setUserFleets(prev => prev.map(f =>
       f.id === fleetId ? { ...f, invites: [...f.invites, newInvite] } : f
     ));
 
@@ -1442,8 +1501,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Cancelar convite (admin)
   const cancelFleetInvite = useCallback((fleetId: string, inviteId: string) => {
-    setUserFleets(prev => prev.map(f => 
-      f.id === fleetId 
+    setUserFleets(prev => prev.map(f =>
+      f.id === fleetId
         ? { ...f, invites: f.invites.map(inv => inv.id === inviteId ? { ...inv, status: 'cancelled' as const, respondedAt: new Date().toISOString() } : inv) }
         : f
     ));
@@ -1458,9 +1517,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!invite) return f;
 
       // Atualizar status do convite
-      const updatedInvites = f.invites.map(inv => 
-        inv.id === inviteId 
-          ? { ...inv, status: (accept ? 'accepted' : 'rejected') as 'accepted' | 'rejected', respondedAt: new Date().toISOString() } 
+      const updatedInvites = f.invites.map(inv =>
+        inv.id === inviteId
+          ? { ...inv, status: (accept ? 'accepted' : 'rejected') as 'accepted' | 'rejected', respondedAt: new Date().toISOString() }
           : inv
       );
 
@@ -1518,22 +1577,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Compra de Selo de Frota Verificada (R$50) - ATÔMICA com guards de concorrência via refs
   const purchaseFleetVerifiedSeal = useCallback((fleetId: string): { success: boolean; message: string } => {
     const SEAL_PRICE = 50;
-    
+
     // Guard de concorrência: verificar se já há operação em andamento para esta frota
     if (fleetSealPurchaseInProgressRef.current.has(fleetId)) {
       return { success: false, message: 'Operação em andamento' };
     }
-    
+
     // Marcar operação como em andamento (sincronamente, antes de qualquer outro check)
     fleetSealPurchaseInProgressRef.current.add(fleetId);
-    
+
     // Verificar se a frota existe
     const fleet = userFleets.find(f => f.id === fleetId);
     if (!fleet) {
       fleetSealPurchaseInProgressRef.current.delete(fleetId);
       return { success: false, message: 'Frota não encontrada' };
     }
-    
+
     // Guard de idempotência: verificar se já possui selo válido
     if (fleet.isVerified && fleet.verifiedExpiresAt) {
       const expiryDate = new Date(fleet.verifiedExpiresAt);
@@ -1542,7 +1601,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return { success: false, message: 'Frota já possui selo verificado válido' };
       }
     }
-    
+
     // Usar cauCashBalanceRef para garantir saldo atualizado
     if (cauCashBalanceRef.current < SEAL_PRICE) {
       fleetSealPurchaseInProgressRef.current.delete(fleetId);
@@ -1563,9 +1622,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Atualizar frota atomicamente (dentro da mesma operação)
     const expiresAt = new Date();
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-    
-    setUserFleets(prev => prev.map(f => 
-      f.id === fleetId 
+
+    setUserFleets(prev => prev.map(f =>
+      f.id === fleetId
         ? { ...f, isVerified: true, verifiedAt: new Date().toISOString(), verifiedExpiresAt: expiresAt.toISOString() }
         : f
     ));
@@ -1584,17 +1643,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (fleetAssistancePurchaseInProgressRef.current.has(fleetId)) {
       return { success: false, message: 'Operação em andamento' };
     }
-    
+
     // Marcar operação como em andamento (sincronamente, antes de qualquer outro check)
     fleetAssistancePurchaseInProgressRef.current.add(fleetId);
-    
+
     // Verificar se a frota existe
     const fleet = userFleets.find(f => f.id === fleetId);
     if (!fleet) {
       fleetAssistancePurchaseInProgressRef.current.delete(fleetId);
       return { success: false, message: 'Frota não encontrada' };
     }
-    
+
     // Guard de idempotência: verificar se já existe assistência com o mesmo ID
     if (assistanceData) {
       const existingAssistance = fleet.assistances.find(a => a.id === assistanceData.id);
@@ -1603,7 +1662,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return { success: false, message: 'Assistência já contratada' };
       }
     }
-    
+
     // Usar cauCashBalanceRef para garantir saldo atualizado
     if (cauCashBalanceRef.current < totalPrice) {
       fleetAssistancePurchaseInProgressRef.current.delete(fleetId);
@@ -1623,8 +1682,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Atualizar frota com assistência atomicamente (se dados fornecidos)
     if (assistanceData) {
-      setUserFleets(prev => prev.map(f => 
-        f.id === fleetId 
+      setUserFleets(prev => prev.map(f =>
+        f.id === fleetId
           ? { ...f, assistances: [...f.assistances, assistanceData] }
           : f
       ));
@@ -1639,7 +1698,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [userFleets, addTransaction]);
 
   // ===== REGISTRO CAUTELAR =====
-  
+
   const createCautelarRegistry = useCallback((data: {
     plates: string[];
     occurrenceType: CautelarOccurrenceType;
@@ -1650,11 +1709,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }): CautelarRegistry => {
     const registryNumber = generateRegistryNumber();
     const id = `cautelar_${Date.now()}`;
-    
+
     const participants: CautelarParticipant[] = data.plates.map((plate, index) => {
       const vehicle = vehicles.find(v => v.plate.toUpperCase() === plate.toUpperCase());
       const isCreatorPlate = index === 0;
-      
+
       return {
         id: `part_${Date.now()}_${index}`,
         plate: plate.toUpperCase(),
@@ -1666,7 +1725,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         inviteLink: !vehicle ? `cautoo.app/convite/${registryNumber}/${plate.toUpperCase()}` : undefined,
       };
     });
-    
+
     const newRegistry: CautelarRegistry = {
       id,
       registryNumber,
@@ -1681,7 +1740,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       status: 'aguardando_confirmacao',
       createdAt: new Date().toISOString(),
     };
-    
+
     setCautelarRegistries(prev => [newRegistry, ...prev]);
     return newRegistry;
   }, [vehicles, currentUser]);
@@ -1689,13 +1748,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const confirmCautelarParticipation = useCallback((registryId: string, participantId: string) => {
     setCautelarRegistries(prev => prev.map(reg => {
       if (reg.id !== registryId) return reg;
-      
-      const updatedParticipants = reg.participants.map(p => 
+
+      const updatedParticipants = reg.participants.map(p =>
         p.id === participantId ? { ...p, confirmed: true, confirmedAt: new Date().toISOString() } : p
       );
-      
+
       const allConfirmed = updatedParticipants.filter(p => p.confirmed).length >= 2;
-      
+
       return {
         ...reg,
         participants: updatedParticipants,
@@ -1707,10 +1766,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const resolveCautelarRegistry = useCallback((registryId: string, resolutionType: CautelarResolutionType) => {
     setCautelarRegistries(prev => prev.map(reg => {
       if (reg.id !== registryId) return reg;
-      
+
       let newStatus: CautelarRegistryStatus;
       let certificateType: 'resolucao' | 'mediacao' | 'pendente';
-      
+
       switch (resolutionType) {
         case 'acordo':
           newStatus = 'resolvido_acordo';
@@ -1725,9 +1784,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           certificateType = 'mediacao';
           break;
       }
-      
+
       const shouldGenerateCertificate = resolutionType !== 'mediacao';
-      
+
       return {
         ...reg,
         status: newStatus,
@@ -1750,7 +1809,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentUser(prev => prev ? { ...prev, icc: Math.min(1000, prev.icc + 1) } : null);
         vehicles.forEach(v => {
           if (v.ownerId === currentUser.id) {
-            setVehicles(prev => prev.map(veh => 
+            setVehicles(prev => prev.map(veh =>
               veh.id === v.id ? { ...veh, score: Math.min(1000, veh.score + 2) } : veh
             ));
           }
@@ -1759,7 +1818,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentUser(prev => prev ? { ...prev, icc: Math.max(0, prev.icc - 2) } : null);
         vehicles.forEach(v => {
           if (v.ownerId === currentUser.id) {
-            setVehicles(prev => prev.map(veh => 
+            setVehicles(prev => prev.map(veh =>
               veh.id === v.id ? { ...veh, score: Math.max(0, veh.score - 3) } : veh
             ));
           }
@@ -1778,11 +1837,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const payMediationInstallment = useCallback((registryId: string): boolean => {
     const registry = cautelarRegistries.find(r => r.id === registryId);
     if (!registry?.damage) return false;
-    
+
     const installmentValue = registry.damage.value / registry.damage.installments;
-    
+
     if (cauCashBalanceRef.current < installmentValue) return false;
-    
+
     cauCashBalanceRef.current -= installmentValue;
     addTransaction({
       type: 'debit',
@@ -1790,13 +1849,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       description: `Mediação Cautelar - Parcela ${registry.damage.paidInstallments + 1}/${registry.damage.installments}`,
       category: 'Mediação'
     });
-    
+
     setCautelarRegistries(prev => prev.map(reg => {
       if (reg.id !== registryId || !reg.damage) return reg;
-      
+
       const newPaidInstallments = reg.damage.paidInstallments + 1;
       const isFullyPaid = newPaidInstallments >= reg.damage.installments;
-      
+
       return {
         ...reg,
         damage: { ...reg.damage, paidInstallments: newPaidInstallments },
@@ -1818,19 +1877,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setCurrentUser(prev => prev ? { ...prev, icc: Math.min(1000, prev.icc + 2) } : null);
       vehicles.forEach(v => {
         if (v.ownerId === currentUser.id) {
-          setVehicles(prev => prev.map(veh => 
+          setVehicles(prev => prev.map(veh =>
             veh.id === v.id ? { ...veh, score: Math.min(1000, veh.score + 3) } : veh
           ));
         }
       });
     }
-    
+
     return true;
   }, [cautelarRegistries, addTransaction, currentUser, vehicles]);
 
   const getCautelarRegistriesForUser = useCallback((): CautelarRegistry[] => {
     if (!currentUser) return [];
-    
+
     return cautelarRegistries.filter(reg => {
       if (reg.creatorId === currentUser.id) return true;
       return reg.participants.some(p => p.userId === currentUser.id);
@@ -1845,10 +1904,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const sendContactRequest = useCallback((toPlate: string, reason: string): boolean => {
     if (!currentUser || vehicles.length === 0) return false;
-    
+
     const fromPlate = vehicles[0].plate;
     const targetVehicle = getVehicleByPlate(toPlate);
-    
+
     const newRequest: ContactRequest = {
       id: `cr_${Date.now()}`,
       fromUserId: currentUser.id,
@@ -1860,7 +1919,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       status: 'pending',
       createdAt: new Date().toISOString(),
     };
-    
+
     setContactRequests(prev => [...prev, newRequest]);
     return true;
   }, [currentUser, vehicles, getVehicleByPlate]);
@@ -1877,22 +1936,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const blockContactRequest = useCallback((requestId: string) => {
-    setContactRequests(prev => prev.map(req => 
+    setContactRequests(prev => prev.map(req =>
       req.id === requestId ? { ...req, status: 'blocked' } : req
     ));
   }, []);
 
   const getContactRequestsReceived = useCallback((): ContactRequest[] => {
     if (!currentUser) return [];
-    
+
     // Pegar todas as placas do usuário atual
     const userPlates = vehicles.filter(v => v.ownerId === currentUser.id).map(v => v.plate);
-    
+
     // Retornar solicitações que:
     // 1. Tem toUserId igual ao usuário atual, OU
     // 2. toPlate corresponde a uma das placas do usuário atual (para entregas deferred)
-    return contactRequests.filter(req => 
-      req.toUserId === currentUser.id || 
+    return contactRequests.filter(req =>
+      req.toUserId === currentUser.id ||
       userPlates.includes(req.toPlate)
     );
   }, [contactRequests, currentUser, vehicles]);
@@ -1913,33 +1972,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
     additionalPhone?: string;
   }): { success: boolean; error?: string; hasCoverage?: boolean } => {
     if (!currentUser) return { success: false, error: 'Usuário não autenticado' };
-    
+
     const cleanPlate = data.targetPlate.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    
+
     // Verificar limite de 2 alertas por hora
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recentAlerts = solidaryAlerts.filter(a => 
+    const recentAlerts = solidaryAlerts.filter(a =>
       a.senderId === currentUser.id && new Date(a.createdAt) > oneHourAgo
     );
     if (recentAlerts.length >= 2) {
       return { success: false, error: 'Limite de 2 alertas por hora atingido' };
     }
-    
+
     // Buscar veículo e verificar cobertura
     const targetVehicle = vehicles.find(v => v.plate.replace(/[^A-Za-z0-9]/g, '').toUpperCase() === cleanPlate);
-    
+
     // Verificar cobertura baseado no veículo
     let hasCoverage = false;
     if (targetVehicle) {
-      // 1. Verificar se o veículo tem plano ativo (hasActivePlan ou subscription)
-      const hasActivePlan = targetVehicle.hasActivePlan || targetVehicle.subscriptionInfo?.isActive || false;
-      
+      // 1. Verificar se o veículo tem plano ativo (hasActivePlan ou subscription válida)
+      const hasActivePlan = targetVehicle.hasActivePlan ||
+        (targetVehicle.subscriptionInfo && new Date(targetVehicle.subscriptionInfo.contractEndDate) > new Date()) ||
+        false;
+
       // 2. Verificar se tem assistência contratada via frota
-      const hasFleetAssistance = userFleets.some(f => 
-        f.members.some(m => m.vehicleId === targetVehicle.id) && 
-        f.assistancePackage?.isActive
+      const hasFleetAssistance = userFleets.some(f =>
+        f.members.some(m => m.plate === targetVehicle.plate) &&
+        f.assistances.some(a => a.isActive && new Date(a.validUntil) > new Date())
       );
-      
+
       // 3. Verificar se o dono tem selo verde verificado
       // Primeiro verificar se o dono é o currentUser
       let ownerHasGreenSeal = false;
@@ -1952,10 +2013,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ownerHasGreenSeal = owner.seal === 'green' && owner.isVerified === true;
         }
       }
-      
+
       hasCoverage = hasActivePlan || hasFleetAssistance || ownerHasGreenSeal || false;
     }
-    
+
     const newAlert: SolidaryAlert = {
       id: `solidary-${Date.now()}`,
       senderId: currentUser.id,
@@ -1973,9 +2034,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       deliveredAt: hasCoverage ? new Date().toISOString() : undefined,
       hasCoverage
     };
-    
+
     setSolidaryAlerts(prev => [...prev, newAlert]);
-    
+
     // Aumentar ICC se alerta foi útil (será verificado depois)
     return { success: true, hasCoverage };
   }, [currentUser, solidaryAlerts, vehicles]);
@@ -1987,11 +2048,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (type === 'received') {
       // Retornar alertas para placas do usuário
       const userVehicleIds = vehicles.filter(v => v.ownerId === userId).map(v => v.id);
-      return solidaryAlerts.filter(a => 
+      return solidaryAlerts.filter(a =>
         a.targetVehicleId && userVehicleIds.includes(a.targetVehicleId)
       );
     }
-    return solidaryAlerts.filter(a => 
+    return solidaryAlerts.filter(a =>
       a.senderId === userId || (a.targetVehicleId && vehicles.some(v => v.id === a.targetVehicleId && v.ownerId === userId))
     );
   }, [solidaryAlerts, vehicles]);
@@ -2011,13 +2072,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const markSolidaryAlertAsUseful = useCallback((alertId: string, isUseful: boolean) => {
     const alert = solidaryAlerts.find(a => a.id === alertId);
     if (!alert) return;
-    
+
     // Proteção contra duplicatas: não permitir re-marcar se já foi processado
     if (alert.isUseful !== undefined) {
       console.log('Alert already marked as useful/not useful, skipping');
       return;
     }
-    
+
     // Verificar também se já existe um reward pendente para este alerta
     if (isUseful) {
       const pendingRewardsKey = 'cautoo_icc_rewards_v1';
@@ -2030,21 +2091,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-    
+
     const senderIsCurrentUser = currentUser && alert.senderId === currentUser.id;
-    
+
     // Atualizar o alerta com a informação de isUseful
     // iccRewardApplied = true apenas se o sender é o currentUser (aplicação imediata)
     setSolidaryAlerts(prev => prev.map(a => {
       if (a.id !== alertId) return a;
-      return { 
-        ...a, 
-        isUseful, 
+      return {
+        ...a,
+        isUseful,
         iccRewardApplied: isUseful && senderIsCurrentUser,
         iccRewardPending: isUseful && !senderIsCurrentUser
       };
     }));
-    
+
     // Se marcado como útil, processar a recompensa de ICC (+2)
     if (isUseful) {
       if (senderIsCurrentUser) {
@@ -2070,7 +2131,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [solidaryAlerts, currentUser]);
-  
+
+  const getPlateMetrics = useCallback((plate: string) => {
+    const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const isRegistered = isPlateRegistered(normalizedPlate);
+
+    // In this mock, we aggregate data from various sources to simulate a global history
+    const totalAlerts = (sentAlerts.filter(a => a.targetPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length) +
+      (alerts.filter(a => a.plate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length);
+
+    const totalCritiques = sentCritiques.filter(c => c.targetPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length;
+
+    const totalCompliments = (praisesSent.filter(p => p.toPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length) +
+      (praisesReceived.filter(p => p.toPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length);
+
+    const totalSolidary = solidaryAlerts.filter(s => s.targetPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length;
+
+    // Score Rules:
+    // Initial: 0
+    // Negative: each critique -1 (always)
+    let score = -totalCritiques;
+
+    // Positive: only for registered plates
+    if (isRegistered) {
+      score += totalCompliments + totalSolidary;
+    }
+
+    return {
+      compliments: totalCompliments,
+      critiques: totalCritiques,
+      alerts: totalAlerts,
+      solidaryActions: totalSolidary,
+      score,
+      isRegistered
+    };
+  }, [sentAlerts, alerts, sentCritiques, praisesSent, praisesReceived, solidaryAlerts, isPlateRegistered]);
+
   const value: AppContextType = {
     isLoggedIn,
     currentUser,
@@ -2170,8 +2266,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     getSolidaryAlertsForUser,
     respondToSolidaryAlert,
     markSolidaryAlertAsUseful,
+    // Global Alert System
+    alertModal,
+    showAlert,
+    hideAlert,
+    getPlateMetrics
   };
-  
+
   return (
     <AppContext.Provider value={value}>
       {children}

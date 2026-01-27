@@ -7,16 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApp } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
-import SuccessModal from "@/components/SuccessModal";
 
 const Transfer = () => {
   const navigate = useNavigate();
-  const { vehicles, transfers, initiateTransfer, respondToTransfer, currentUser } = useApp();
+  const { vehicles, transfers, initiateTransfer, respondToTransfer, currentUser, showAlert } = useApp();
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [cpf, setCpf] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState({ title: "", description: "" });
-  
+
   const formatCPF = (value: string) => {
     const cleaned = value.replace(/\D/g, "").slice(0, 11);
     return cleaned
@@ -24,25 +21,26 @@ const Transfer = () => {
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   };
-  
+
   // Transferências enviadas (dono atual enviando para novo dono)
   const sentTransfers = transfers.filter(t => t.fromUserId === currentUser?.id);
   const pendingSentTransfers = sentTransfers.filter(t => t.status === 'pending');
-  
+
   // Transferências recebidas (novo dono recebendo do dono anterior)
   const receivedTransfers = transfers.filter(t => t.toUserCpf === currentUser?.cpf);
   const pendingReceivedTransfers = receivedTransfers.filter(t => t.status === 'pending');
-  
+
   const selectedVehicleData = vehicles.find(v => v.id === selectedVehicle);
-  
+
   const handleInitiateTransfer = () => {
     if (selectedVehicle && selectedVehicleData && cpf.length >= 14) {
       initiateTransfer(selectedVehicle, selectedVehicleData.plate, cpf);
-      setSuccessMessage({
-        title: "Transferência Enviada!",
-        description: "O novo dono receberá a solicitação para aceitar."
-      });
-      setShowSuccess(true);
+      showAlert(
+        "Transferência Enviada!",
+        "O novo dono receberá a solicitação para aceitar.",
+        "success",
+        selectedVehicleData.plate
+      );
       setSelectedVehicle(null);
       setCpf("");
     }
@@ -50,31 +48,19 @@ const Transfer = () => {
 
   const handleAcceptTransfer = (transferId: string) => {
     respondToTransfer(transferId, true);
-    setSuccessMessage({
-      title: "Transferência Aceita!",
-      description: "O veículo agora pertence a você."
-    });
-    setShowSuccess(true);
+    showAlert("Transferência Aceita!", "O veículo agora pertence a você.", "success");
   };
 
   const handleRejectTransfer = (transferId: string) => {
     respondToTransfer(transferId, false);
-    setSuccessMessage({
-      title: "Transferência Recusada",
-      description: "A solicitação foi recusada com sucesso."
-    });
-    setShowSuccess(true);
+    showAlert("Transferência Recusada", "A solicitação foi recusada com sucesso.", "warning");
   };
 
   const handleCancelTransfer = (transferId: string) => {
     respondToTransfer(transferId, false);
-    setSuccessMessage({
-      title: "Transferência Cancelada",
-      description: "A solicitação foi cancelada com sucesso."
-    });
-    setShowSuccess(true);
+    showAlert("Transferência Cancelada", "A solicitação foi cancelada com sucesso.", "warning");
   };
-  
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
@@ -86,7 +72,7 @@ const Transfer = () => {
             <h1 className="text-lg font-semibold text-foreground">Transferência de Placa</h1>
           </div>
         </header>
-        
+
         <main className="px-4 py-6">
           <div className="max-w-lg mx-auto space-y-6">
             {/* Explicação do fluxo */}
@@ -137,8 +123,8 @@ const Transfer = () => {
                     <h2 className="text-sm font-medium text-muted-foreground mb-3">Aguardando Aceitação</h2>
                     <div className="space-y-3">
                       {pendingSentTransfers.map((transfer) => (
-                        <motion.div 
-                          key={transfer.id} 
+                        <motion.div
+                          key={transfer.id}
                           className="bg-card border border-yellow-500/20 rounded-xl p-4"
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -166,7 +152,7 @@ const Transfer = () => {
                     </div>
                   </section>
                 )}
-                
+
                 {/* Iniciar nova transferência */}
                 <section>
                   <h2 className="text-sm font-medium text-muted-foreground mb-3">Enviar Transferência</h2>
@@ -185,11 +171,10 @@ const Transfer = () => {
                             <button
                               key={vehicle.id}
                               onClick={() => setSelectedVehicle(vehicle.id)}
-                              className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                                selectedVehicle === vehicle.id
+                              className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${selectedVehicle === vehicle.id
                                   ? "bg-primary text-primary-foreground"
                                   : "bg-secondary/50 text-muted-foreground hover:bg-secondary"
-                              }`}
+                                }`}
                             >
                               <span className="font-bold tracking-wider">{vehicle.plate}</span>
                               <span className="text-sm ml-2">• {vehicle.model}</span>
@@ -198,7 +183,7 @@ const Transfer = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     {selectedVehicle && (
                       <>
                         <div>
@@ -214,7 +199,7 @@ const Transfer = () => {
                             Se o novo dono não tiver cadastro, ele precisará criar uma conta para aceitar.
                           </p>
                         </div>
-                        
+
                         <Button
                           onClick={handleInitiateTransfer}
                           disabled={cpf.length < 14}
@@ -245,8 +230,8 @@ const Transfer = () => {
                     <h2 className="text-sm font-medium text-muted-foreground mb-3">Transferências Recebidas</h2>
                     <div className="space-y-3">
                       {pendingReceivedTransfers.map((transfer) => (
-                        <motion.div 
-                          key={transfer.id} 
+                        <motion.div
+                          key={transfer.id}
                           className="bg-card border border-orange-500/20 rounded-xl p-4"
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -288,15 +273,6 @@ const Transfer = () => {
             </Tabs>
           </div>
         </main>
-
-        {/* Success Modal */}
-        <SuccessModal
-          isOpen={showSuccess}
-          onClose={() => setShowSuccess(false)}
-          title={successMessage.title}
-          description={successMessage.description}
-          variant="success"
-        />
       </div>
     </PageTransition>
   );
