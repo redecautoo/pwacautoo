@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useApp } from "@/contexts/AppContext";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { SealBadge } from "@/components/SealBadge";
@@ -395,6 +396,48 @@ const VehicleDetails = () => {
                 </div>
               </motion.section>
             )}
+
+            {/* Privacy Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-card border border-border rounded-2xl p-6"
+            >
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                🔓 Privacidade do Score
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                O score da sua placa é <strong className="text-foreground">público</strong> e visível
+                para todos os usuários. Porém, os <strong className="text-foreground">detalhes dos
+                  alertas são privados</strong> e apenas você pode vê-los.
+              </p>
+
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="public" className="border-b-0">
+                  <AccordionTrigger className="text-sm hover:no-underline">
+                    O que todos veem
+                  </AccordionTrigger>
+                  <AccordionContent className="text-xs text-muted-foreground space-y-1 pl-4">
+                    <p>• Número do score (ex: 450)</p>
+                    <p>• Categoria (ex: Placa Confiável)</p>
+                    <p>• Total de interações (sem detalhes)</p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="private" className="border-b-0">
+                  <AccordionTrigger className="text-sm hover:no-underline">
+                    O que só você vê (privado) 🔒
+                  </AccordionTrigger>
+                  <AccordionContent className="text-xs text-muted-foreground space-y-1 pl-4">
+                    <p>• Alertas específicos recebidos</p>
+                    <p>• Mensagens e denúncias</p>
+                    <p>• Quem enviou os alertas</p>
+                    <p>• Histórico completo de interações</p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </motion.section>
 
             <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => navigate("/dashboard")}>Voltar ao Dashboard</Button>
           </div>

@@ -67,12 +67,7 @@ const VisitorAlertFlow = ({ isOpen, onClose, onSuccess, plate }: VisitorAlertFlo
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden bg-[#0F1115] border border-white/10 shadow-2xl rounded-[2.5rem] z-[1001]">
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors z-50 text-white/50"
-        >
-          <X className="w-4 h-4" />
-        </button>
+
 
         <AnimatePresence mode="wait">
           {step === "validation" && (

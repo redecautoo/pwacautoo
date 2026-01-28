@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Phone, Mail, FileText, LogOut, Shield, ChevronRight } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, FileText, LogOut, Shield, ChevronRight, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useApp } from "@/contexts/AppContext";
+import { getICCCategoryInfo } from "@/contexts/AppContext";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -107,6 +108,48 @@ const Settings = () => {
               </div>
             </div>
           </section>
+
+          {/* Seção ICC */}
+          {currentUser && (() => {
+            const iccInfo = getICCCategoryInfo(currentUser.icc);
+            return (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-medium text-muted-foreground">Seu ICC</h2>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                    🔒 100% Privado
+                  </span>
+                </div>
+
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className={`p-6 ${iccInfo.bg} border-b ${iccInfo.border}`}>
+                    <div className="flex items-center gap-4">
+                      <span className="text-5xl">{iccInfo.icon}</span>
+                      <div className="flex-1">
+                        <span className={`text-4xl font-bold ${iccInfo.color} block`}>
+                          {currentUser.icc}
+                        </span>
+                        <span className={`text-sm ${iccInfo.color} block mt-1`}>
+                          {iccInfo.label}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigate('/icc-gain-points')}
+                    className="w-full flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="w-5 h-5 text-emerald-500" />
+                      <span className="text-sm text-foreground">Como ganhar pontos no ICC</span>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </div>
+              </section>
+            );
+          })()}
 
           <section>
             <h2 className="text-sm font-medium text-muted-foreground mb-3">Legal</h2>

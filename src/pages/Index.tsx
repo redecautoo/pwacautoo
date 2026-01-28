@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { Sparkles, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import LicensePlateInput, { isValidPlate } from "@/components/LicensePlateInput";
@@ -17,7 +17,6 @@ const Index = () => {
   const {
     isLoggedIn,
     sendAlert,
-    submitClaim,
     stolenVehicles,
     reportSighting,
     showAlert,
@@ -95,71 +94,68 @@ const Index = () => {
                 Alertas anônimos entre veículos e ajuda para o seu quando precisar.
               </p>
             </motion.div>
+
             <motion.div className="bg-card border-none shadow-2xl rounded-[2.5rem] p-6 sm:p-8 space-y-6 relative overflow-hidden" variants={scaleIn} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-              <LicensePlateInput value={plateValue} onChange={setPlateValue} isStolen={!!stolenVehicle} />
-              {stolenVehicle && <StolenVehicleAlert stolenVehicle={stolenVehicle} onReportSighting={handleReportSighting} />}
 
-              <AnimatePresence mode="wait">
-                {isValidPlate(plateValue) && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-6 overflow-hidden"
-                  >
-                    {/* Bloco de Score Público */}
-                    {((): React.ReactNode => {
-                      const metrics = getPlateMetrics(plateValue);
-                      const getStatusStr = () => {
-                        if (metrics.score >= 50) return { label: "Confiável", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20" };
-                        if (metrics.score >= 0) return { label: "Neutro", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20" };
-                        return { label: "Risco", color: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" };
-                      };
-                      const status = getStatusStr();
+              <div className="relative z-10 space-y-6">
+                <LicensePlateInput value={plateValue} onChange={setPlateValue} isStolen={!!stolenVehicle} />
 
-                      return (
-                        <div className="space-y-4 pt-4 border-t border-border/50">
-                          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Score da Placa</h3>
-                          <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 border border-border/50">
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-70">Score Cautoo</span>
-                              <span className={`text-3xl font-black ${status.color}`}>{metrics.score}</span>
+                {stolenVehicle && <StolenVehicleAlert stolenVehicle={stolenVehicle} onReportSighting={handleReportSighting} />}
+
+                <AnimatePresence mode="wait">
+                  {isValidPlate(plateValue) && (
+                    <motion.div
+                      key="plate-score-content"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-6 overflow-hidden"
+                    >
+                      {/* Bloco de Score Público */}
+                      {((): React.ReactNode => {
+                        const metrics = getPlateMetrics(plateValue);
+
+                        return (
+                          <div className="space-y-4 pt-4 border-t border-border/50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Score da Placa</h3>
+                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 text-white/40 border border-white/10">
+                                  🔓 Público
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => showAlert(
+                                  "Como funciona o Score da Placa?",
+                                  `O score é PÚBLICO e reflete o histórico da placa na rede CAUTOO.\n\n${metrics.categoryIcon} ${metrics.categoryLabel}\n\nCategorias:\n🔴 Placa em Alerta (< 0)\n⚪ Placa Neutra (0-199)\n🔵 Placa Conhecida (200-399)\n🟣 Placa Confiável (400-649)\n🟡 Placa Distinta (650-849)\n🟢 Placa Exemplar (850-1000)\n💎 Placa Ícone Cautoo (1001+)`,
+                                  "info"
+                                )}
+                                className="p-1 hover:bg-secondary/50 rounded-full transition-colors text-muted-foreground/50"
+                              >
+                                <HelpCircle className="w-4 h-4" />
+                              </button>
                             </div>
-                            <div className={`px-4 py-2 rounded-xl border ${status.bg} ${status.border} ${status.color} font-black text-[10px] uppercase tracking-widest`}>
-                              {status.label}
+
+                            <div className={`flex flex-col items-center justify-center p-8 rounded-3xl ${metrics.categoryBg} border ${metrics.categoryBorder} transition-all duration-300`}>
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-50 mb-1 tracking-widest">Score Público</span>
+                              <div className="flex items-center gap-3">
+                                <span className="text-4xl">{metrics.categoryIcon}</span>
+                                <span className={`text-6xl font-black ${metrics.categoryColor} tracking-tighter`}>{metrics.score}</span>
+                              </div>
+                              <span className={`text-sm font-medium ${metrics.categoryColor} mt-2`}>{metrics.categoryLabel}</span>
                             </div>
                           </div>
-
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Elogios</span>
-                              <span className="text-lg font-black text-foreground">{metrics.compliments}</span>
-                            </div>
-                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Críticas</span>
-                              <span className="text-lg font-black text-foreground">{metrics.critiques}</span>
-                            </div>
-                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Alertas</span>
-                              <span className="text-lg font-black text-foreground">{metrics.alerts}</span>
-                            </div>
-                            <div className="p-3 bg-secondary/20 border border-border/30 rounded-2xl transition-all">
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1 opacity-60">Solidárias</span>
-                              <span className="text-lg font-black text-foreground">{metrics.solidaryActions}</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    <div className="pt-4 border-t border-border/50">
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4">Enviar Alerta</h3>
-                      <AlertCategories plateValue={plateValue} onSendAlert={handleSendAlert} />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                        );
+                      })()}
+                      <div className="pt-4 border-t border-border/50">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4">Enviar Alerta</h3>
+                        <AlertCategories plateValue={plateValue} onSendAlert={handleSendAlert} />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           </div>
         </main>

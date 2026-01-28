@@ -33,7 +33,11 @@ import {
   VehicleInsuranceInfo,
   SolidaryAlert,
   SolidaryEmergencyType,
-  checkVehicleCoverage
+  checkVehicleCoverage,
+  ScoreCategory,
+  ICCCategory,
+  PlateClaimRequest,
+  ScoreHistoryEntry
 } from '@/lib/types';
 import {
   mockCurrentUser,
@@ -74,6 +78,74 @@ const mockUsersById: { [key: string]: User } = {
 };
 import { CautooFleet, FleetChatMessage, FleetHelpRequest, FleetMember, FleetInvite, FleetAssistance } from '@/lib/fleetTypes';
 import { mockFleets } from '@/lib/fleetMockData';
+
+// ===== HELPER FUNCTIONS FOR SCORE/ICC SYSTEM =====
+
+/**
+ * Calcula a categoria do Score da Placa (PÚBLICO)
+ * Baseado nas novas 7 faixas
+ */
+export function getScoreCategory(score: number): ScoreCategory {
+  if (score < 0) return 'alerta';
+  if (score < 200) return 'neutra';
+  if (score < 400) return 'conhecida';
+  if (score < 650) return 'confiavel';
+  if (score < 850) return 'distinta';
+  if (score <= 1000) return 'exemplar';
+  return 'icone';
+}
+
+/**
+ * Calcula a categoria do ICC (PRIVADO)
+ * Baseado nas novas 7 faixas
+ */
+export function getICCCategory(icc: number): ICCCategory {
+  if (icc < 0) return 'negativo';
+  if (icc < 200) return 'iniciante';
+  if (icc < 400) return 'ativo';
+  if (icc < 650) return 'engajado';
+  if (icc < 850) return 'protetor';
+  if (icc <= 1000) return 'embaixador';
+  return 'guardiao';
+}
+
+/**
+ * Retorna informações de exibição da categoria do Score
+ */
+export function getScoreCategoryInfo(score: number) {
+  const category = getScoreCategory(score);
+
+  const categoryMap = {
+    'alerta': { label: 'Placa em Alerta', icon: '🔴', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+    'neutra': { label: 'Placa Neutra', icon: '⚪', color: 'text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
+    'conhecida': { label: 'Placa Conhecida', icon: '🔵', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+    'confiavel': { label: 'Placa Confiável', icon: '🟣', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+    'distinta': { label: 'Placa Distinta', icon: '🟡', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+    'exemplar': { label: 'Placa Exemplar', icon: '🟢', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+    'icone': { label: 'Placa Ícone Cautoo', icon: '💎', color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/20' }
+  };
+
+  return { category, ...categoryMap[category] };
+}
+
+/**
+ * Retorna informações de exibição da categoria do ICC
+ */
+export function getICCCategoryInfo(icc: number) {
+  const category = getICCCategory(icc);
+
+  const categoryMap = {
+    'negativo': { label: 'Contribuidor Negativo', icon: '🔴', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+    'iniciante': { label: 'Iniciante', icon: '⚪', color: 'text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
+    'ativo': { label: 'Colaborador Ativo', icon: '🔵', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+    'engajado': { label: 'Cauteloso Engajado', icon: '🟣', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+    'protetor': { label: 'Protetor da Rede', icon: '🟡', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+    'embaixador': { label: 'Embaixador Cautoo', icon: '🟢', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+    'guardiao': { label: 'Guardião Elite', icon: '💎', color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/20' }
+  };
+
+  return { category, ...categoryMap[category] };
+}
 
 export interface AlertModalState {
   isOpen: boolean;
@@ -236,12 +308,20 @@ interface AppContextType {
   showAlert: (title: string, description: string, variant?: "success" | "warning" | "error" | "info", highlightText?: string) => void;
   hideAlert: () => void;
   getPlateMetrics: (plate: string) => {
+    score: number;
+    category: ScoreCategory;
+    categoryLabel: string;
+    categoryIcon: string;
+    categoryColor: string;
+    categoryBg: string;
+    categoryBorder: string;
+    isPublic: boolean;
+    isRegistered: boolean;
+    totalInteractions: number;
     compliments: number;
     critiques: number;
     alerts: number;
     solidaryActions: number;
-    score: number;
-    isRegistered: boolean;
   };
 }
 
@@ -2132,9 +2212,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [solidaryAlerts, currentUser]);
 
+  /**
+   * Obtém métricas e score de uma placa
+   * IMPORTANTE: Função PÚBLICA - não requer autenticação
+   * O score e a categoria são públicos, mas detalhes dos alertas são privados
+   */
   const getPlateMetrics = useCallback((plate: string) => {
     const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, '');
     const isRegistered = isPlateRegistered(normalizedPlate);
+
+    // Buscar veículo no sistema
+    const vehicle = vehicles.find(v => v.plate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate);
 
     // In this mock, we aggregate data from various sources to simulate a global history
     const totalAlerts = (sentAlerts.filter(a => a.targetPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length) +
@@ -2147,25 +2235,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const totalSolidary = solidaryAlerts.filter(s => s.targetPlate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate).length;
 
-    // Score Rules:
+    // Score Rules (usando lógica antiga como base, mas retornando com novo sistema):
     // Initial: 0
     // Negative: each critique -1 (always)
-    let score = -totalCritiques;
+    let score = vehicle?.score || -totalCritiques;
 
     // Positive: only for registered plates
-    if (isRegistered) {
+    if (isRegistered && !vehicle) {
       score += totalCompliments + totalSolidary;
     }
 
+    // Usar score do veículo se existir, senão calcular
+    const finalScore = vehicle?.score ?? score;
+
+    // Calcular categoria usando nova função
+    const categoryInfo = getScoreCategoryInfo(finalScore);
+
+    // PÚBLICO: Retorna score, categoria e totais (sem detalhes)
     return {
+      // Dados PÚBLICOS
+      score: finalScore,
+      category: categoryInfo.category,
+      categoryLabel: categoryInfo.label,
+      categoryIcon: categoryInfo.icon,
+      categoryColor: categoryInfo.color,
+      categoryBg: categoryInfo.bg,
+      categoryBorder: categoryInfo.border,
+      isPublic: true, // Indicador de que estes dados são públicos
+      isRegistered,
+      // Totais agregados (sem detalhes específicos)
+      totalInteractions: totalAlerts + totalCritiques + totalCompliments + totalSolidary,
+      // Dados agregados (sem detalhes individuais)
       compliments: totalCompliments,
       critiques: totalCritiques,
       alerts: totalAlerts,
       solidaryActions: totalSolidary,
-      score,
-      isRegistered
     };
-  }, [sentAlerts, alerts, sentCritiques, praisesSent, praisesReceived, solidaryAlerts, isPlateRegistered]);
+  }, [vehicles, sentAlerts, alerts, sentCritiques, praisesSent, praisesReceived, solidaryAlerts, isPlateRegistered]);
 
   const value: AppContextType = {
     isLoggedIn,

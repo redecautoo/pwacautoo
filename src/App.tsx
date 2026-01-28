@@ -46,6 +46,12 @@ import CautelarRegistry from "./pages/CautelarRegistry";
 import NewCautelarRegistry from "./pages/NewCautelarRegistry";
 import CautelarRegistryDetails from "./pages/CautelarRegistryDetails";
 import GlobalAlert from "@/components/GlobalAlert";
+// Score and ICC Info Pages
+import ScoreInfo from "./pages/ScoreInfo";
+import ICCInfo from "./pages/ICCInfo";
+import ScoreVsICC from "./pages/ScoreVsICC";
+import ScoreCalculation from "./pages/ScoreCalculation";
+import ICCGainPoints from "./pages/ICCGainPoints";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +104,12 @@ const App = () => (
                 <Route path="/cautelar-registry" element={<CautelarRegistry />} />
                 <Route path="/cautelar-registry/new" element={<NewCautelarRegistry />} />
                 <Route path="/cautelar-registry/:id" element={<CautelarRegistryDetails />} />
+                {/* Score and ICC Info Pages */}
+                <Route path="/score-info" element={<ScoreInfo />} />
+                <Route path="/icc-info" element={<ICCInfo />} />
+                <Route path="/score-vs-icc" element={<ScoreVsICC />} />
+                <Route path="/score-calculation" element={<ScoreCalculation />} />
+                <Route path="/icc-gain-points" element={<ICCGainPoints />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </HashRouter>

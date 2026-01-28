@@ -2,6 +2,26 @@
 
 export type SealType = 'none' | 'blue' | 'yellow' | 'green';
 
+// Novo sistema de 7 categorias para Score da Placa (PÚBLICO)
+export type ScoreCategory =
+  | 'alerta'      // < 0
+  | 'neutra'      // 0-199
+  | 'conhecida'   // 200-399
+  | 'confiavel'   // 400-649
+  | 'distinta'    // 650-849
+  | 'exemplar'    // 850-1000
+  | 'icone';      // 1001+
+
+// Novo sistema de 7 categorias para ICC (PRIVADO)
+export type ICCCategory =
+  | 'negativo'    // < 0
+  | 'iniciante'   // 0-199
+  | 'ativo'       // 200-399
+  | 'engajado'    // 400-649
+  | 'protetor'    // 650-849
+  | 'embaixador'  // 850-1000
+  | 'guardiao';   // 1001+
+
 export type ClaimStatus = 'none' | 'pending' | 'approved' | 'rejected';
 
 export type VehicleOwnershipType = 'proprio' | 'assinatura';
@@ -15,6 +35,26 @@ export interface VehicleSubscriptionInfo {
 export interface VehicleInsuranceInfo {
   companyName: string;
   endDate: string;
+}
+
+// Histórico de score arquivado (quando placa é transferida/reivindicada)
+export interface ScoreHistoryEntry {
+  score: number;
+  category: ScoreCategory;
+  archivedAt: string;
+  reason: 'transfer' | 'claim';
+}
+
+// Requisição de reivindicação/transferência de placa
+export interface PlateClaimRequest {
+  id: string;
+  plateId: string;
+  requesterId: string;
+  documentUrl: string; // URL da foto do CRLV
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  reviewedAt?: string;
+  reviewNotes?: string;
 }
 
 export interface Vehicle {
@@ -41,11 +81,17 @@ export interface Vehicle {
   monthlyCritiques?: number; // Contador de críticas recebidas no mês
   hasCollaborativeSeal?: boolean; // Selo "Condutor Colaborativo" (3+ elogios no mês)
   hasTrustSeal?: boolean; // Selo de confiança (removido se 3+ críticas no mês)
-  
+
   // Tipo de propriedade do veículo
   ownershipType?: VehicleOwnershipType;
   subscriptionInfo?: VehicleSubscriptionInfo;
   insuranceInfo?: VehicleInsuranceInfo;
+
+  // Sistema de Score atualizado
+  scoreCategory?: ScoreCategory; // Categoria calculada do score
+  scoreHistory?: ScoreHistoryEntry[]; // Histórico de scores arquivados
+  lastClaimDate?: string; // Última reivindicação (proteção 6 meses)
+  lastScoreUpdate?: string; // Para controle de decaimento mensal
 }
 
 // Helper para verificar se veículo está bloqueado (reivindicação pendente)
@@ -103,31 +149,31 @@ export interface User {
   email?: string;
   password: string; // Senha de 6 dígitos numéricos
   gender?: 'masculino' | 'feminino' | 'outro'; // Gênero para PPink
-  
+
   // ICC - Índice de Contribuição Cautelar (INTERNO E PRIVADO)
   // Mede quanto o CPF contribui positivamente para a Rede Cautoo
   // Aumenta com: alertas úteis, elogios recebidos, ajuda em veículos roubados, indicações válidas
   // Diminui com: críticas válidas, denúncias confirmadas, abusos do sistema
   icc: number; // 0-1000
-  
+
   ranking: RankingLevel;
   referralCode: string;
   referralCount: number;
   referralPoints: number;
-  
+
   // Métricas para cálculo de selos
   usefulAlertsSent: number; // Alertas úteis enviados
   validCritiquesReceived: number; // Críticas válidas recebidas
   realHelpsGiven: number; // Ajudas reais prestadas
   confirmedAbuses: number; // Abusos confirmados (perda de selo se > 0)
-  
+
   positiveActionsLast90Days: number;
   lastCritiqueDateWithConvergence?: string;
   banStatus?: BanStatus;
-  
+
   // CauCash Wallet
   cauCashBalance: number;
-  
+
   // Selo Azul (Perfil Verificado) - vinculado ao CPF
   // - Cliente Cautoo: ativação GRATUITA
   // - Não cliente: R$ 50,00
@@ -136,21 +182,21 @@ export interface User {
   verifiedAt?: string;
   verifiedExpiresAt?: string;
   verifiedFreeActivationUsed?: boolean; // Se já usou a ativação gratuita (cliente Cautoo)
-  
+
   // Status de cliente Cautoo (plano ativo)
   isCautooClient?: boolean; // Se tem plano Cautoo ativo
   activePlanType?: 'cautela' | 'certo' | 'ciente'; // Tipo do plano ativo
   cautooClientSince?: string; // Desde quando é cliente
   cautooClientPlanExpiresAt?: string; // Quando o plano expira
-  
+
   // Selo conquistado (blue, yellow, green)
   seal?: SealType;
-  
+
   // Benefícios Selo Amarelo (Guardião Viário)
   // - 1 alerta de roubo gratuito a cada 30 dias
   yellowSealStolenAlertsUsed?: number;
   yellowSealBenefitsStartedAt?: string;
-  
+
   // Benefícios Selo Verde (Referência Cautoo) - renovam a cada 6 meses
   // Cliente: 1 chamado gratuito a cada 6 meses + 2 alertas de roubo a cada 30 dias
   // Não cliente: 2 alertas de roubo a cada 30 dias
@@ -159,7 +205,12 @@ export interface User {
   greenSealStolenAlertsUsed?: number;
   greenSealBenefitsStartedAt?: string;
   greenSealBenefitsRenewedAt?: string;
-  
+
+  // Sistema de ICC atualizado
+  iccCategory?: ICCCategory; // Categoria calculada do ICC
+  iccGracePeriodEndsAt?: string; // 30 dias de graça para novos usuários
+  lastICCUpdate?: string; // Para controle de decaimento mensal
+
   createdAt: string;
 }
 
@@ -205,15 +256,15 @@ export function shouldLoseYellowSeal(user?: User | null): boolean {
 
 export function canAchieveGreenSeal(user?: User | null, vehicles?: Vehicle[]): boolean {
   if (!user) return false;
-  
+
   // Precisa ter Selo Amarelo
   if (!canAchieveYellowSeal(user)) return false;
-  
+
   // Calcular média de score dos veículos
   const avgScore = vehicles && vehicles.length > 0
     ? vehicles.reduce((sum, v) => sum + v.score, 0) / vehicles.length
     : 0;
-  
+
   return (
     user.icc >= 850 &&
     (user.usefulAlertsSent || 0) >= 30 &&
@@ -240,8 +291,8 @@ export function canActivateFreeSeal(user?: User | null): boolean {
   if (!user) return false;
   // Cliente Cautoo + primeira ativação + não tem selo ativo
   return (
-    user.isCautooClient === true && 
-    !user.verifiedFreeActivationUsed && 
+    user.isCautooClient === true &&
+    !user.verifiedFreeActivationUsed &&
     !user.isVerified
   );
 }
@@ -275,11 +326,11 @@ export interface HelpRequest {
   createdAt: string;
 }
 
-export type RankingLevel = 
-  | 'Iniciante' 
-  | 'Condutor Consciente' 
-  | 'Apoiador Urbano' 
-  | 'Guardião Viário' 
+export type RankingLevel =
+  | 'Iniciante'
+  | 'Condutor Consciente'
+  | 'Apoiador Urbano'
+  | 'Guardião Viário'
   | 'Referência Cautoo';
 
 export interface BanStatus {
@@ -438,7 +489,7 @@ export function getSealName(seal: SealType): string {
 
 // ===== REGISTRO CAUTELAR =====
 
-export type CautelarOccurrenceType = 
+export type CautelarOccurrenceType =
   | 'colisao_leve'
   | 'dano_estacionamento'
   | 'engavetamento'
@@ -446,7 +497,7 @@ export type CautelarOccurrenceType =
   | 'abalroamento'
   | 'outro';
 
-export type CautelarRegistryStatus = 
+export type CautelarRegistryStatus =
   | 'aguardando_confirmacao'
   | 'em_andamento'
   | 'resolvido_acordo'
@@ -455,7 +506,7 @@ export type CautelarRegistryStatus =
   | 'mediacao_pagamento'
   | 'mediacao_concluida';
 
-export type CautelarResolutionType = 
+export type CautelarResolutionType =
   | 'acordo'
   | 'sem_resolucao'
   | 'mediacao';
@@ -578,7 +629,7 @@ export function getMaxInstallments(user?: User | null): number {
 // SOCORRO SOLIDÁRIO
 // ==========================================
 
-export type SolidaryEmergencyType = 
+export type SolidaryEmergencyType =
   | 'pane_mecanica'
   | 'pneu_furado'
   | 'acidente_leve'
@@ -587,7 +638,7 @@ export type SolidaryEmergencyType =
   | 'situacao_risco'
   | 'outro';
 
-export type SolidaryAlertStatus = 
+export type SolidaryAlertStatus =
   | 'pendente_entrega'
   | 'entregue'
   | 'acionado'
