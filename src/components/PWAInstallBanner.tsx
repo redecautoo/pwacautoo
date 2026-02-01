@@ -122,22 +122,16 @@ const PWAInstallBanner = () => {
         return;
       }
 
-      // Para Chrome/Edge - tentar recarregar e esperar o evento
+      // Para Chrome/Edge - mostrar instruções sem reload
       if (!isIOS) {
-        const shouldReload = confirm(
-          '📱 Para instalar automaticamente:\n\n' +
-          '1. Vou recarregar a página\n' +
-          '2. Aguarde o banner aparecer novamente\n' +
-          '3. Clique em "Instalar agora"\n\n' +
-          'Deseja continuar?'
+        alert(
+          '📱 Para instalar o Cautoo:\n\n' +
+          '1. Toque nos 3 pontinhos (⋮) no canto superior\n' +
+          '2. Selecione "Instalar app" ou "Adicionar à tela inicial"\n' +
+          '3. Confirme a instalação\n\n' +
+          '✅ O app ficará disponível na sua tela inicial!'
         );
-
-        if (shouldReload) {
-          // Limpar o cache de dismissal
-          localStorage.removeItem('pwa_banner_dismissed');
-          // Recarregar
-          window.location.reload();
-        }
+        setShowBanner(false);
       } else {
         // Para iOS - mostrar instruções
         alert(
