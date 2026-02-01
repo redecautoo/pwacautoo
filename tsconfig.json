@@ -24,11 +24,24 @@
         "./src/assets/*"
       ]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
+    // ===== STRICT MODE PARCIAL =====
+    // Ativado gradualmente para não quebrar o código existente
+    "strict": false, // Mude para true quando estiver pronto
+    "noImplicitAny": true, // ✅ ATIVADO - força tipagem explícita
+    "strictNullChecks": false, // Ative depois de corrigir erros de noImplicitAny
+    "noUnusedParameters": true, // ✅ ATIVADO - detecta parâmetros não usados
+    "noUnusedLocals": true, // ✅ ATIVADO - detecta variáveis não usadas
+    // Outras configurações úteis
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
   }
 }
