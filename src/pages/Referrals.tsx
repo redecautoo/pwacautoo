@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Gift, Copy, Check, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -122,3 +122,4 @@ const Referrals = () => {
 };
 
 export default Referrals;
+

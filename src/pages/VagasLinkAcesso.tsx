@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -16,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { PageTransition } from "@/components/PageTransition";
 import { useVagas } from "@/contexts/VagasContext";
 import { useApp } from "@/contexts/AppContext";
-import { useState } from "react";
 
 const VagasLinkAcesso = () => {
   const navigate = useNavigate();
@@ -93,22 +93,38 @@ const VagasLinkAcesso = () => {
                   <InfoBox label="Condomínio" value={condominio?.nome} />
                   <InfoBox label="Vaga" value={`Vaga ${vaga?.numero}`} />
                 </div>
-                <InfoBox label="Período de Uso" value={`${new Date(reserva.dataInicio).toLocaleDateString()} - ${new Date(reserva.dataFim).toLocaleDateString()}`} />
+                <InfoBox label="Endereço" value={condominio ? `${condominio.endereco}, ${condominio.bairro}` : undefined} />
+                <InfoBox label="Período Autorizado" value={`${new Date(reserva.dataInicio).toLocaleDateString()} - ${new Date(reserva.dataFim).toLocaleDateString()}`} />
               </Section>
-              <Section title="Responsável pelo Veículo" icon={<Car className="w-4 h-4" />}>
+              <Section title="Proprietário da Vaga" icon={<User className="w-4 h-4" />}>
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoBox label="Reservado por" value={reserva.userName || "Morador"} />
+                  <InfoBox label="Apartamento" value={reserva.userApartment || "---"} />
+                </div>
+              </Section>
+              <Section title="Veículo Autorizado" icon={<Car className="w-4 h-4" />}>
                 <div className="grid grid-cols-2 gap-3">
                   <InfoBox label="Motorista" value={reserva.motorista} />
                   <InfoBox label="Placa" value={reserva.placa} />
                 </div>
-                <InfoBox label="Tipo de Uso" value={reserva.tipoUso} capital />
+                <InfoBox label="Tipo de Uso" value={reserva.tipoUso === 'morador' ? 'Morador' : 'Visitante'} capital />
               </Section>
             </div>
-            <div className="p-6 bg-secondary/10 border-t border-border">
+            <div className="p-6 bg-secondary/10 border-t border-border space-y-3">
               {reserva.status !== 'concluida' ? (
-                <Button onClick={handleCheckIn} disabled={isProcessing} className="w-full h-14 text-lg font-bold gap-2 shadow-lg">{isProcessing ? <motion.div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} /> : <><LogIn className="w-6 h-6" />Confirmar Entrada</>}</Button>
+                <Button onClick={handleCheckIn} disabled={isProcessing} className="w-full h-12 font-bold gap-2 shadow-lg" data-testid="button-confirm-entry">{isProcessing ? <motion.div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} /> : <><LogIn className="w-5 h-5" />Confirmar Entrada</>}</Button>
               ) : (
                 <div className="text-center p-4 bg-blue-500/10 rounded-xl border border-blue-500/20 text-blue-400 font-bold flex items-center justify-center gap-2 font-medium"><CheckCircle2 className="w-5 h-5" />Entrada Confirmada</div>
               )}
+              <Button
+                variant="outline"
+                className="w-full border-destructive/50 text-destructive hover:bg-destructive/10"
+                onClick={() => showAlert("Problema Reportado", "O administrador do condomínio será notificado sobre este problema.", "warning")}
+                data-testid="button-report-issue"
+              >
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Reportar Problema
+              </Button>
             </div>
           </div>
           <div className="text-center space-y-4"><p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">ID: {reserva.id.toUpperCase()}</p><Button variant="ghost" onClick={() => navigate("/")} className="text-muted-foreground">Voltar ao Início</Button></div>

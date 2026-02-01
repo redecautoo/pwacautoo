@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from "framer-motion";
 import { Check, ShieldCheck } from "lucide-react";
 

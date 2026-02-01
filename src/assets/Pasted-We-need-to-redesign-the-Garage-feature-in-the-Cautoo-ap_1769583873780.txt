@@ -1,0 +1,149 @@
+We need to redesign the "Garage" feature in the Cautoo app.
+
+IMPORTANT RULES:
+- Do NOT break existing features.
+- Do NOT refactor unrelated code.
+- Do NOT change UI style unless requested.
+- Implement changes incrementally and safely.
+- Preserve current database structure when possible.
+- Add new logic only where necessary.
+
+GOAL:
+Transform the Garage feature into a condominium-based system instead of a global garage marketplace.
+
+========================
+1) FIRST ACCESS FLOW (EMPTY STATE)
+========================
+
+When the user accesses "Garage" for the first time and is not linked to any condominium:
+
+Show an empty state with the message:
+"You must be linked to a condominium to rent or offer a parking space."
+
+Buttons:
+- Search Condominium
+- Create Condominium
+
+========================
+2) SEARCH CONDOMINIUM
+========================
+
+Allow users to search condominiums by:
+- Name
+- Address (city, neighborhood, street)
+
+If a condominium exists:
+- Display the condominium profile card
+- Show button: "Join this condominium"
+
+If not found:
+- Show button: "Create new condominium"
+
+IMPORTANT:
+Prevent duplicate condominiums by name + address.
+If a similar condominium exists, show the existing one instead of creating a new one.
+
+========================
+3) CREATE CONDOMINIUM
+========================
+
+Fields:
+- Condominium name
+- Type: Building or Houses
+- Full address
+
+RULE:
+The user who creates the condominium is NOT an admin.
+He is only the creator.
+
+========================
+4) CONDOMINIUM PROFILE
+========================
+
+After joining a condominium, the user can see:
+
+- Condominium profile
+- List of registered parking spaces
+- Button: "Register my parking space"
+
+========================
+5) REGISTER PARKING SPACE
+========================
+
+Fields:
+- Parking space identifier (e.g., 32B)
+- Type: Covered / Uncovered
+- Daily price
+- Monthly price
+- Availability status
+
+RULE:
+Only residents of the condominium can register parking spaces.
+
+========================
+6) RESERVATION FLOW
+========================
+
+Instead of searching globally, the user:
+
+- Selects a condominium
+- Selects a time period
+- System shows available parking spaces for that period
+- Shows prices
+- User reserves the space
+
+Reservation types:
+- Resident
+- Visitor
+
+========================
+7) VISITOR RESERVATION LINK
+========================
+
+When reserving for a visitor, generate a secure link containing:
+
+- Condominium name
+- Parking space info
+- Owner of the space
+- Person who made the reservation
+- Vehicle plate
+- Driver name
+- Authorized period
+
+The link must include buttons:
+- Confirm parking usage (for gatekeeper)
+- Report issue
+
+========================
+8) PAYMENT LOGIC (CAUCASH)
+========================
+
+Payments are made using CauCash credits.
+
+Rules:
+- User pays using CauCash balance
+- Cautoo keeps 20% commission
+- Parking owner receives 80%
+- Payment is released only after the reservation period ends AND the renter confirms everything went well
+
+========================
+9) SECURITY AND REPORTS
+========================
+
+Rules:
+- Only residents can rent or offer parking spaces in a condominium
+- Residents can report suspicious or fake parking spaces
+- If confirmed, the parking space is blocked and the user can be penalized
+
+========================
+10) TECHNICAL REQUIREMENTS
+========================
+
+- Implement this logic with minimal changes to existing architecture
+- Create new services/controllers only when necessary
+- Ensure data validation and anti-duplication logic
+- Keep UI consistent with the current Cautoo design
+- Ensure state management is stable and predictable
+
+Before coding, analyze the current Garage implementation and explain what must be changed.
+Then implement step by step.

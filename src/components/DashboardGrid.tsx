@@ -88,8 +88,8 @@ const SortableItem = ({
             className={`relative h-full ${isDragging ? "opacity-30" : "opacity-100"}`}
         >
             <motion.div
-                className={`h-full w-full relative bg-card border rounded-xl p-4 text-left transition-all ${isLocked ? "opacity-60" : "hover:bg-secondary/50"
-                    } ${isReordering ? "border-primary/50 ring-1 ring-primary/20 shadow-inner cursor-grab active:cursor-grabbing select-none" : "border-border shadow-sm"}`}
+                className={`h-full w-full relative bg-card rounded-xl p-4 text-left transition-all ${isLocked ? "opacity-60" : "hover:bg-secondary/50"
+                    } ${isReordering ? "ring-1 ring-primary/20 shadow-inner cursor-grab active:cursor-grabbing select-none" : ""}`}
                 layoutId={item.path}
             >
                 {isReordering && (
@@ -243,7 +243,7 @@ export const DashboardGrid = ({ menuItems, referralItem, isVerified }: Props) =>
                 }}>
                     {activeItem ? (
                         <div className="w-full h-full scale-105 opacity-90 cursor-grabbing">
-                            <div className="h-full bg-card border border-primary rounded-xl p-4 shadow-2xl ring-2 ring-primary/20">
+                            <div className="h-full bg-card rounded-xl p-4 shadow-2xl ring-2 ring-primary/30">
                                 <div className={`w-10 h-10 rounded-lg ${activeItem.bg} flex items-center justify-center mb-3`}>
                                     <activeItem.icon className={`w-5 h-5 ${activeItem.color}`} />
                                 </div>

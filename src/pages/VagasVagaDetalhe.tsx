@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useVagas } from "@/contexts/VagasContext";
 import { useApp } from "@/contexts/AppContext";
 import { PageTransition } from "@/components/PageTransition";
-import { VALOR_DIARIA, calcularValorReserva, TipoUso } from "@/lib/vagasTypes";
+import { VALOR_DIARIA_PADRAO, calcularValorReserva, TipoUso } from "@/lib/vagasTypes";
 import {
   Dialog,
   DialogContent,
@@ -29,14 +29,26 @@ import {
   ExternalLink,
   Home,
   AlertCircle,
-  Wallet
+  Wallet,
+  Edit,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const VagasVagaDetalhe = () => {
   const navigate = useNavigate();
   const { vagaId } = useParams<{ vagaId: string }>();
   const { currentUser, showAlert } = useApp();
-  const { vagas, condominios, criarReserva, isMembroCondominio, saldo, pagarComCauCash } = useVagas();
+  const { vagas, condominios, criarReserva, isMembroCondominio, saldo, pagarComCauCash, excluirVaga } = useVagas();
 
   const vaga = vagas.find(v => v.id === vagaId);
   const condominio = vaga ? condominios.find(c => c.id === vaga.condominioId) : null;
@@ -45,6 +57,7 @@ const VagasVagaDetalhe = () => {
 
   const [showReservaModal, setShowReservaModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [reservaData, setReservaData] = useState({
     tipoUso: "morador" as TipoUso,
     placa: "",
@@ -70,8 +83,9 @@ const VagasVagaDetalhe = () => {
     );
   }
 
+  const precoDiario = vaga?.precoDiario || VALOR_DIARIA_PADRAO;
   const valorTotal = reservaData.dataInicio && reservaData.dataFim
-    ? calcularValorReserva(reservaData.dataInicio, reservaData.dataFim)
+    ? calcularValorReserva(reservaData.dataInicio, reservaData.dataFim, precoDiario)
     : 0;
 
   const handleReservar = async () => {
@@ -135,7 +149,7 @@ const VagasVagaDetalhe = () => {
                   <div className={`w-14 h-14 rounded-lg flex items-center justify-center ${vaga.tipo === 'coberta' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}><ParkingCircle className="w-8 h-8" /></div>
                   <div><h2 className="text-xl font-bold">Vaga {vaga.numero}</h2><span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded inline-block mt-1 ${vaga.tipo === 'coberta' ? 'bg-green-500/20 text-green-500' : 'bg-amber-500/20 text-amber-500'}`}>{vaga.tipo}</span></div>
                 </div>
-                <div className="text-right"><div className="text-2xl font-bold text-primary">R$ {VALOR_DIARIA}</div><div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">/ diária</div></div>
+                <div className="text-right"><div className="text-2xl font-bold text-primary">R$ {precoDiario}</div><div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">/ diária</div></div>
               </div>
               {vaga.observacao && <p className="text-xs text-muted-foreground mx-4 mb-4 p-3 bg-secondary/30 rounded-lg border border-border/50">{vaga.observacao}</p>}
               <div className="grid grid-cols-2 gap-4 px-4 pb-4">
@@ -150,10 +164,26 @@ const VagasVagaDetalhe = () => {
             </div>
 
             {!isMinhaVaga && isMembro && vaga.status === 'disponivel' && (
-              <Button onClick={() => setShowReservaModal(true)} className="w-full h-14 text-lg font-bold shadow-lg" size="lg"><CreditCard className="w-5 h-5 mr-3" />Reservar Agora</Button>
+              <Button onClick={() => setShowReservaModal(true)} className="w-full h-12 font-bold shadow-lg"><CreditCard className="w-5 h-5 mr-3" />Reservar Agora</Button>
             )}
 
-            {isMinhaVaga && <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-center"><p className="text-sm font-bold text-blue-400">Esta é a sua vaga</p></div>}
+            {isMinhaVaga && (
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="p-4 text-center bg-blue-500/10 border-b border-blue-500/30">
+                  <p className="text-sm font-bold text-blue-400">Esta é a sua vaga</p>
+                </div>
+                <div className="p-3 flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={() => navigate(`/garagem/vaga/${vaga.id}/editar`)}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar
+                  </Button>
+                  <Button variant="outline" className="flex-1 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => setShowDeleteDialog(true)}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Excluir
+                  </Button>
+                </div>
+              </div>
+            )}
             {!isMembro && <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 text-center"><p className="text-sm font-bold text-amber-500">Acesso Restrito</p><p className="text-xs text-amber-500/70 mt-1">Apenas membros podem reservar vagas.</p><Button variant="outline" className="mt-4 border-amber-500/50 text-amber-500 hover:bg-amber-500/10" onClick={() => navigate(`/garagem/condominio/${vaga.condominioId}`)}>Ver Condomínio</Button></div>}
           </div>
         </main>
@@ -188,14 +218,39 @@ const VagasVagaDetalhe = () => {
             <p className="text-sm text-muted-foreground mt-2">Apresente este link na portaria para acesso:</p>
             <div className="bg-secondary/30 rounded-2xl p-4 mt-6 border border-border/50">
               <div className="flex items-center gap-2"><Input value={linkAcesso} readOnly className="text-xs font-mono h-10" /><Button size="icon" variant="ghost" onClick={copyLink}><Copy className="w-4 h-4" /></Button></div>
-              <Button onClick={() => navigate(`/v/${linkAcesso.split('/').pop()}`)} variant="link" className="text-xs mt-2 text-primary gap-1 font-bold"><ExternalLink className="w-3 h-3" />Abrir Comprovante</Button>
+              <Button onClick={() => navigate(`/v/${linkAcesso.split('/').pop()}`)} variant="ghost" className="text-xs mt-2 text-primary gap-1 font-bold"><ExternalLink className="w-3 h-3" />Abrir Comprovante</Button>
             </div>
             <Button onClick={() => { setShowSuccessModal(false); navigate("/garagem/minhas-reservas"); }} className="w-full mt-8 h-12 rounded-xl font-bold">Ir para Minhas Reservas</Button>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir Garagem?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Deseja remover permanentemente esta garagem? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  excluirVaga(vaga.id);
+                  showAlert("Vaga Excluída", "A garagem foi removida permanentemente.", "success");
+                  navigate("/garagem/minhas-vagas");
+                }} 
+                className="bg-destructive text-white hover:bg-destructive/90"
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </PageTransition>
   );
 };
 
 export default VagasVagaDetalhe;
+

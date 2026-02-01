@@ -1,21 +1,24 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft, Building2, MapPin, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Building2, MapPin, Check, Home, AlertTriangle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useVagas } from "@/contexts/VagasContext";
 import { useApp } from "@/contexts/AppContext";
 import { PageTransition } from "@/components/PageTransition";
+import { TipoCondominio, Condominio, verificarCondominioExistente } from "@/lib/vagasTypes";
 
 const VagasNovoCondominio = () => {
   const navigate = useNavigate();
-  const { criarCondominio } = useVagas();
+  const { criarCondominio, condominios, entrarCondominio } = useVagas();
   const { showAlert } = useApp();
 
   const [formData, setFormData] = useState({
     nome: "",
+    tipo: "predio" as TipoCondominio,
     endereco: "",
     bairro: "",
     cidade: "",
@@ -24,6 +27,22 @@ const VagasNovoCondominio = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [condominioExistente, setCondominioExistente] = useState<Condominio | null>(null);
+
+  // Verificação em tempo real de duplicação
+  useEffect(() => {
+    if (formData.endereco.trim().length >= 5 && formData.cep.replace(/\D/g, '').length === 8) {
+      const existente = verificarCondominioExistente(
+        condominios,
+        formData.nome.trim(),
+        formData.endereco.trim(),
+        formData.cep
+      );
+      setCondominioExistente(existente || null);
+    } else {
+      setCondominioExistente(null);
+    }
+  }, [formData.nome, formData.endereco, formData.cep, condominios]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -36,14 +55,33 @@ const VagasNovoCondominio = () => {
     formData.uf.trim().length === 2 &&
     formData.cep.replace(/\D/g, '').length === 8;
 
+  const handleEntrarCondominioExistente = () => {
+    if (condominioExistente) {
+      entrarCondominio(condominioExistente.id);
+      showAlert("Bem-vindo!", "Você entrou no condomínio com sucesso.", "success");
+      navigate(`/garagem/condominio/${condominioExistente.id}`);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!isValid) return;
+
+    // Bloquear se existe condomínio duplicado
+    if (condominioExistente) {
+      showAlert(
+        "Condomínio já cadastrado!", 
+        "Este condomínio já existe no sistema. Use o botão 'Entrar neste condomínio' abaixo.", 
+        "warning"
+      );
+      return;
+    }
 
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
 
     criarCondominio({
       nome: formData.nome.trim(),
+      tipo: formData.tipo,
       endereco: formData.endereco.trim(),
       bairro: formData.bairro.trim(),
       cidade: formData.cidade.trim(),
@@ -88,8 +126,31 @@ const VagasNovoCondominio = () => {
           <div className="max-w-lg mx-auto space-y-6">
             <div className="flex justify-center"><div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center"><Building2 className="w-10 h-10 text-blue-400" /></div></div>
             <div className="space-y-4">
-              <div><Label htmlFor="nome">Nome do Condomínio *</Label><Input id="nome" placeholder="Ex: Edifício Solar..." value={formData.nome} onChange={(e) => handleChange("nome", e.target.value)} maxLength={100} className="mt-1.5" /></div>
-              <div><Label htmlFor="endereco">Endereço (Rua e Número) *</Label><Input id="endereco" placeholder="Ex: Rua das Flores, 123" value={formData.endereco} onChange={(e) => handleChange("endereco", e.target.value)} maxLength={200} className="mt-1.5" /></div>
+              <div><Label htmlFor="nome">Nome do Condomínio *</Label><Input id="nome" placeholder="Ex: Edifício Solar..." value={formData.nome} onChange={(e) => handleChange("nome", e.target.value)} maxLength={100} className="mt-1.5" data-testid="input-nome-condominio" /></div>
+              
+              <div>
+                <Label>Tipo de Condomínio</Label>
+                <RadioGroup 
+                  value={formData.tipo} 
+                  onValueChange={(v) => handleChange("tipo", v)} 
+                  className="mt-2 flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="predio" id="predio" />
+                    <Label htmlFor="predio" className="font-normal cursor-pointer flex items-center gap-2">
+                      <Building2 className="w-4 h-4" /> Prédio
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="casas" id="casas" />
+                    <Label htmlFor="casas" className="font-normal cursor-pointer flex items-center gap-2">
+                      <Home className="w-4 h-4" /> Casas
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div><Label htmlFor="endereco">Endereço (Rua e Número) *</Label><Input id="endereco" placeholder="Ex: Rua das Flores, 123" value={formData.endereco} onChange={(e) => handleChange("endereco", e.target.value)} maxLength={200} className="mt-1.5" data-testid="input-endereco-condominio" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label htmlFor="bairro">Bairro *</Label><Input id="bairro" placeholder="Ex: Jardim América" value={formData.bairro} onChange={(e) => handleChange("bairro", e.target.value)} maxLength={100} className="mt-1.5" /></div>
                 <div><Label htmlFor="cep">CEP *</Label><Input id="cep" placeholder="00000-000" value={formData.cep} onChange={(e) => { const value = e.target.value.replace(/\D/g, '').slice(0, 8); const formatted = value.replace(/(\d{5})(\d{3})/, '$1-$2'); handleChange("cep", formatted); }} className="mt-1.5" /></div>
@@ -99,8 +160,45 @@ const VagasNovoCondominio = () => {
                 <div><Label htmlFor="uf">UF *</Label><Input id="uf" placeholder="SP" value={formData.uf} onChange={(e) => handleChange("uf", e.target.value.toUpperCase())} maxLength={2} className="mt-1.5" /></div>
               </div>
             </div>
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-xs text-amber-400"><strong>⚠️ Atenção:</strong> A associação é autodeclarada. Falsos cadastros podem ser denunciados.</div>
-            <Button onClick={handleSubmit} disabled={!isValid || isSubmitting} className="w-full h-12 font-bold" size="lg">
+            {/* Alerta de condomínio duplicado */}
+            <AnimatePresence>
+              {condominioExistente && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-destructive/10 border border-destructive/30 rounded-xl p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-medium text-destructive mb-1">Este condomínio já está cadastrado</p>
+                      <p className="text-sm text-destructive/80 mb-3">
+                        Encontramos "{condominioExistente.nome}" no mesmo endereço.
+                      </p>
+                      <div className="bg-card/50 rounded-lg p-3 mb-3">
+                        <p className="text-xs text-muted-foreground mb-1">Código: <span className="font-mono font-bold">{condominioExistente.codigo}</span></p>
+                        <p className="text-sm font-medium text-foreground">{condominioExistente.nome}</p>
+                        <p className="text-xs text-muted-foreground">{condominioExistente.endereco}</p>
+                        <p className="text-xs text-muted-foreground">{condominioExistente.bairro}, {condominioExistente.cidade} - {condominioExistente.uf}</p>
+                      </div>
+                      <Button 
+                        onClick={handleEntrarCondominioExistente}
+                        className="w-full"
+                        size="sm"
+                        data-testid="button-entrar-condominio-existente"
+                      >
+                        <Users className="w-4 h-4 mr-2" />
+                        Entrar neste condomínio
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-xs text-amber-400"><strong>Atenção:</strong> A associação é autodeclarada. Falsos cadastros podem ser denunciados.</div>
+            <Button onClick={handleSubmit} disabled={!isValid || isSubmitting || !!condominioExistente} className="w-full h-12 font-bold" size="lg">
               {isSubmitting ? <motion.div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} /> : <><MapPin className="w-4 h-4 mr-2" />Cadastrar Condomínio</>}
             </Button>
           </div>
@@ -111,3 +209,4 @@ const VagasNovoCondominio = () => {
 };
 
 export default VagasNovoCondominio;
+

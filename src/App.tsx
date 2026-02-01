@@ -1,3 +1,4 @@
+import React from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
@@ -26,7 +27,6 @@ import ReportStolen from "./pages/ReportStolen";
 import RequestHelp from "./pages/RequestHelp";
 import SolidarySocorro from "./pages/SolidarySocorro";
 import NotFound from "./pages/NotFound";
-// Vagas Module
 import VagasHome from "./pages/VagasHome";
 import VagasCondominios from "./pages/VagasCondominios";
 import VagasNovoCondominio from "./pages/VagasNovoCondominio";
@@ -41,12 +41,10 @@ import VagasEditarVaga from "./pages/VagasEditarVaga";
 import VagasLinkAcesso from "./pages/VagasLinkAcesso";
 import VagasVisitanteAlerta from "./pages/VagasVisitanteAlerta";
 import VagasCauCash from "./pages/VagasCauCash";
-// Registro Cautelar
 import CautelarRegistry from "./pages/CautelarRegistry";
 import NewCautelarRegistry from "./pages/NewCautelarRegistry";
 import CautelarRegistryDetails from "./pages/CautelarRegistryDetails";
 import GlobalAlert from "@/components/GlobalAlert";
-// Score and ICC Info Pages
 import ScoreInfo from "./pages/ScoreInfo";
 import ICCInfo from "./pages/ICCInfo";
 import ScoreVsICC from "./pages/ScoreVsICC";
@@ -85,7 +83,6 @@ const App = () => (
                 <Route path="/ranking" element={<Ranking />} />
                 <Route path="/referrals" element={<Referrals />} />
                 <Route path="/settings" element={<Settings />} />
-                {/* Garagem Module */}
                 <Route path="/garagem" element={<VagasHome />} />
                 <Route path="/garagem/condominios" element={<VagasCondominios />} />
                 <Route path="/garagem/novo-condominio" element={<VagasNovoCondominio />} />
@@ -100,11 +97,9 @@ const App = () => (
                 <Route path="/garagem/caucash" element={<VagasCauCash />} />
                 <Route path="/v/:code" element={<VagasLinkAcesso />} />
                 <Route path="/alerta-visitante" element={<VagasVisitanteAlerta />} />
-                {/* Registro Cautelar */}
                 <Route path="/cautelar-registry" element={<CautelarRegistry />} />
                 <Route path="/cautelar-registry/new" element={<NewCautelarRegistry />} />
                 <Route path="/cautelar-registry/:id" element={<CautelarRegistryDetails />} />
-                {/* Score and ICC Info Pages */}
                 <Route path="/score-info" element={<ScoreInfo />} />
                 <Route path="/icc-info" element={<ICCInfo />} />
                 <Route path="/score-vs-icc" element={<ScoreVsICC />} />

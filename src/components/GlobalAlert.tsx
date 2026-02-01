@@ -1,3 +1,4 @@
+import React from "react";
 import { useApp } from "@/contexts/AppContext";
 import SuccessModal from "@/components/SuccessModal";
 

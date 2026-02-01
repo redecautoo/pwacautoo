@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Send, Info, ThumbsUp, ThumbsDown } from "lucide-react";
@@ -305,3 +305,4 @@ const RateDriver = () => {
 };
 
 export default RateDriver;
+

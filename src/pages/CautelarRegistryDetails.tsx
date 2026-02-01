@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -280,8 +280,7 @@ const CautelarRegistryDetails = () => {
             {canConfirm && (
               <Button
                 onClick={handleConfirm}
-                className="w-full py-6 bg-green-600 hover:bg-green-700"
-                size="lg"
+                className="w-full h-12 bg-green-600 hover:bg-green-700 font-bold"
                 data-testid="button-confirm-participation"
               >
                 <CheckCircle className="w-5 h-5 mr-2" />
@@ -292,8 +291,7 @@ const CautelarRegistryDetails = () => {
             {canResolve && !showResolveOptions && !showDamageForm && (
               <Button
                 onClick={() => setShowResolveOptions(true)}
-                className="w-full py-6"
-                size="lg"
+                className="w-full h-12 font-bold"
                 data-testid="button-resolve"
               >
                 <Shield className="w-5 h-5 mr-2" />
@@ -312,8 +310,7 @@ const CautelarRegistryDetails = () => {
                 <Button
                   onClick={() => handleResolve('acordo')}
                   variant="outline"
-                  className="w-full py-6 border-green-500/30 hover:bg-green-500/10"
-                  size="lg"
+                  className="w-full h-12 border-green-500/30 hover:bg-green-500/10"
                   data-testid="button-resolve-acordo"
                 >
                   <Handshake className="w-5 h-5 mr-2 text-green-500" />
@@ -326,8 +323,7 @@ const CautelarRegistryDetails = () => {
                 <Button
                   onClick={() => handleResolve('sem_resolucao')}
                   variant="outline"
-                  className="w-full py-6 border-red-500/30 hover:bg-red-500/10"
-                  size="lg"
+                  className="w-full h-12 border-red-500/30 hover:bg-red-500/10"
                   data-testid="button-resolve-sem"
                 >
                   <XCircle className="w-5 h-5 mr-2 text-red-500" />
@@ -341,8 +337,7 @@ const CautelarRegistryDetails = () => {
                   <Button
                     onClick={() => handleResolve('mediacao')}
                     variant="outline"
-                    className="w-full py-6 border-emerald-500/30 hover:bg-emerald-500/10"
-                    size="lg"
+                    className="w-full h-12 border-emerald-500/30 hover:bg-emerald-500/10"
                     data-testid="button-resolve-mediacao"
                   >
                     <DollarSign className="w-5 h-5 mr-2 text-emerald-500" />
@@ -529,3 +524,4 @@ const CautelarRegistryDetails = () => {
 };
 
 export default CautelarRegistryDetails;
+

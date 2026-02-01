@@ -6,19 +6,15 @@
     <meta name="theme-color" content="#10B77F" />
     <meta name="background-color" content="#10B77F" />
     
-    <!-- PWA / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Cautoo" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
     
-    <!-- PWA Icons -->
     <link rel="apple-touch-icon" href="/icons/app-icon.png" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="manifest" href="/manifest.json" />
-    
-    <!-- iOS Splash Screen handled by CSS fallback below -->
     
     <title>Cautoo - Alertas Veiculares</title>
     <meta name="description" content="Envie alertas anônimos para proprietários de veículos através da placa. Seguro, rápido e prático." />
@@ -27,13 +23,14 @@
     <meta property="og:title" content="Cautoo - Alertas Veiculares" />
     <meta property="og:description" content="Envie alertas anônimos para proprietários de veículos através da placa. Seguro, rápido e prático." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Cautoo" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
-    <!-- Splash Screen Style (fallback for non-iOS) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
     <style>
       #splash-screen {
         position: fixed;
@@ -86,7 +83,6 @@
   </head>
 
   <body>
-    <!-- Splash Screen -->
     <div id="splash-screen">
       <img src="/icons/splash-logo.png" alt="Cautoo" />
       <div class="loading-dots">
@@ -100,8 +96,22 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
+    
     <script>
-      // Hide splash screen when app is ready
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('[SW] Service Worker registered successfully:', registration.scope);
+            })
+            .catch(function(error) {
+              console.log('[SW] Service Worker registration failed:', error);
+            });
+        });
+      }
+
+      // Splash screen removal
       window.addEventListener('load', function() {
         setTimeout(function() {
           var splash = document.getElementById('splash-screen');

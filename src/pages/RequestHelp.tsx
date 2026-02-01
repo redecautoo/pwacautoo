@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -271,7 +271,7 @@ const RequestHelp = () => {
                   <div className="flex justify-between"><span className="text-muted-foreground">Problema:</span><span className="font-medium">{problemLabels[problemType as ProblemType]}</span></div>
                 </div>
               </motion.div>
-              <Button onClick={handleWhatsAppClick} className="w-full bg-green-600 hover:bg-green-500 text-white h-14 rounded-xl font-bold gap-3">WhatsApp Cautoo <ExternalLink className="w-4 h-4" /></Button>
+              <Button onClick={handleWhatsAppClick} className="w-full bg-green-600 hover:bg-green-500 text-white h-12 font-bold gap-3">WhatsApp Cautoo <ExternalLink className="w-4 h-4" /></Button>
               <Button variant="outline" className="w-full h-12 rounded-xl" onClick={() => navigate(`/vehicle/${vehicleId}`)}>Voltar ao veículo</Button>
             </div>
           </main>
@@ -311,7 +311,7 @@ const RequestHelp = () => {
               <AnimatePresence>{showProblemDropdown && <motion.div className="absolute top-full left-0 right-0 mt-2 bg-card border rounded-xl shadow-xl z-50 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{(Object.keys(problemLabels) as ProblemType[]).map((key) => (<button key={key} type="button" className="w-full p-3 text-left hover:bg-muted" onClick={() => { setProblemType(key); setShowProblemDropdown(false); }}>{problemLabels[key]}</button>))}</motion.div>}</AnimatePresence></div></div>
             <div className="bg-card border border-border rounded-xl p-4 space-y-4"><div className="flex items-center justify-between"><Label className="text-sm font-semibold">Localização *</Label><Button variant="outline" size="sm" onClick={handleGetLocation} disabled={isLoadingLocation} className="gap-2">{isLoadingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />} GPS</Button></div><div><Label className="text-xs">Endereço completo *</Label><Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, número, bairro..." className="mt-1" /></div><div className="grid grid-cols-2 gap-3"><div><Label className="text-xs">CEP</Label><Input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="00000-000" className="mt-1" /></div><div><Label className="text-xs">GPS</Label><p className="text-sm text-muted-foreground mt-2">{latitude ? `${latitude}, ${longitude}` : "Não detectado"}</p></div></div><div><Label className="text-xs">Referência *</Label><Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Ex: Próximo ao posto..." className="mt-1" /></div><div><Label className="text-xs">Observações facilitadoras</Label><Textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Cor do portão, local exato (calçada, meio da via)..." className="mt-1 resize-none" rows={2} /></div></div>
             <Button
-              className="w-full h-14 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg transition-all mt-4"
+              className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-lg mt-4"
               onClick={handleSubmit}
               disabled={!isFormValid()}
             >
@@ -325,3 +325,4 @@ const RequestHelp = () => {
 };
 
 export default RequestHelp;
+

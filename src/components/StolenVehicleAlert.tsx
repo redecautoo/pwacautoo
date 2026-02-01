@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Phone, MapPin, Clock, Calendar, Send, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -136,7 +136,7 @@ const StolenVehicleAlert = ({ stolenVehicle, onReportSighting }: StolenVehicleAl
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm text-muted-foreground mb-2">
                     Local do avistamento *

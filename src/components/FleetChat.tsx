@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, MessageCircle, AlertTriangle, Check, X, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { 
-  FleetChatMessage, 
-  FleetHelpRequest, 
+import {
+  FleetChatMessage,
+  FleetHelpRequest,
   CautooFleet,
   isFleetAdmin,
   getActiveAssistance,
@@ -24,9 +24,9 @@ interface FleetChatProps {
   onRejectHelp: (requestId: string) => void;
 }
 
-export function FleetChat({ 
-  fleet, 
-  currentUserId, 
+export function FleetChat({
+  fleet,
+  currentUserId,
   currentUserName,
   onSendMessage,
   onApproveHelp,
@@ -217,11 +217,10 @@ export function FleetChat({
                         className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[80%] rounded-xl px-4 py-2 ${
-                            isOwnMessage
+                          className={`max-w-[80%] rounded-xl px-4 py-2 ${isOwnMessage
                               ? 'bg-primary text-primary-foreground rounded-br-sm'
                               : 'bg-card border border-border rounded-bl-sm'
-                          }`}
+                            }`}
                         >
                           {!isOwnMessage && (
                             <div className="flex items-center gap-1 mb-1">
@@ -236,9 +235,8 @@ export function FleetChat({
                           <p className={`text-sm ${isOwnMessage ? 'text-primary-foreground' : 'text-foreground'}`}>
                             {msg.text}
                           </p>
-                          <p className={`text-xs mt-1 ${
-                            isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-xs mt-1 ${isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            }`}>
                             {formatMessageTime(msg.createdAt)}
                           </p>
                         </div>
@@ -263,8 +261,8 @@ export function FleetChat({
             placeholder="Digite sua mensagem..."
             className="flex-1"
           />
-          <Button 
-            onClick={handleSend} 
+          <Button
+            onClick={handleSend}
             disabled={!message.trim()}
             size="icon"
             className="shrink-0"

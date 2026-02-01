@@ -1,14 +1,14 @@
-import { 
-  User, 
-  Vehicle, 
-  Alert, 
-  SentAlert, 
-  Praise, 
-  FriendRequest, 
-  Friend, 
-  ChatMessage, 
-  PlateTransfer, 
-  PlateClaim, 
+import {
+  User,
+  Vehicle,
+  Alert,
+  SentAlert,
+  Praise,
+  FriendRequest,
+  Friend,
+  ChatMessage,
+  PlateTransfer,
+  PlateClaim,
   Referral,
   Sighting,
   HelpRequest
@@ -54,6 +54,8 @@ export const mockFemaleNonClient: User = {
   isVerified: false,
   isCautooClient: false, // NÃO é cliente Cautoo
   verifiedFreeActivationUsed: false,
+  verificationCode: 'MRN001',
+  verificationCodeCreatedAt: '2025-01-01T10:00:00Z',
   createdAt: '2025-01-01T10:00:00Z',
 };
 
@@ -86,6 +88,8 @@ export const mockFemaleClient: User = {
   cautooClientSince: '2024-06-01T10:00:00Z',
   cautooClientPlanExpiresAt: '2025-06-01T10:00:00Z', // Plano de 12 meses
   verifiedFreeActivationUsed: false, // Ainda não usou a gratuidade
+  verificationCode: 'ANC002',
+  verificationCodeCreatedAt: '2024-06-01T10:00:00Z',
   createdAt: '2024-06-01T10:00:00Z',
 };
 
@@ -114,6 +118,8 @@ export const mockMaleNonClient: User = {
   isVerified: false,
   isCautooClient: false, // NÃO é cliente Cautoo
   verifiedFreeActivationUsed: false,
+  verificationCode: 'CRL003',
+  verificationCodeCreatedAt: '2025-01-05T10:00:00Z',
   createdAt: '2025-01-05T10:00:00Z',
 };
 
@@ -146,6 +152,8 @@ export const mockMaleClient: User = {
   cautooClientSince: '2024-05-01T10:00:00Z',
   cautooClientPlanExpiresAt: '2025-05-01T10:00:00Z', // Plano de 12 meses
   verifiedFreeActivationUsed: false, // Ainda não usou a gratuidade
+  verificationCode: 'PDR004',
+  verificationCodeCreatedAt: '2024-05-01T10:00:00Z',
   createdAt: '2024-05-01T10:00:00Z',
 };
 
@@ -180,6 +188,8 @@ export const mockFemaleYellowSealNonClient: User = {
   verifiedFreeActivationUsed: false, // Pagou pelo selo (não é cliente)
   isCautooClient: false,
   seal: 'yellow',
+  verificationCode: 'LCA005',
+  verificationCodeCreatedAt: '2024-08-01T10:00:00Z',
   createdAt: '2024-08-01T10:00:00Z',
 };
 
@@ -214,6 +224,8 @@ export const mockFemaleYellowSealClient: User = {
   seal: 'yellow',
   yellowSealStolenAlertsUsed: 0,
   yellowSealBenefitsStartedAt: '2024-10-01T10:00:00Z',
+  verificationCode: 'FND006',
+  verificationCodeCreatedAt: '2024-04-01T10:00:00Z',
   createdAt: '2024-04-01T10:00:00Z',
 };
 
@@ -251,6 +263,8 @@ export const mockMaleGreenSealNonClient: User = {
   hasUsedGreenSealCall: false,
   greenSealStolenAlertsUsed: 0,
   greenSealBenefitsStartedAt: '2024-07-01T10:00:00Z',
+  verificationCode: 'RBT007',
+  verificationCodeCreatedAt: '2024-07-01T10:00:00Z',
   createdAt: '2024-07-01T10:00:00Z',
 };
 
@@ -286,6 +300,8 @@ export const mockMaleGreenSealClient: User = {
   hasUsedGreenSealCall: false,
   greenSealStolenAlertsUsed: 0,
   greenSealBenefitsStartedAt: '2024-03-01T10:00:00Z',
+  verificationCode: 'MRC008',
+  verificationCodeCreatedAt: '2024-03-01T10:00:00Z',
   createdAt: '2024-03-01T10:00:00Z',
 };
 
@@ -310,6 +326,8 @@ export const mockCurrentUser: User = {
   positiveActionsLast90Days: 12,
   cauCashBalance: 150.00,
   isVerified: false,
+  verificationCode: 'ABC123',
+  verificationCodeCreatedAt: '2024-01-15T10:00:00Z',
   createdAt: '2024-01-15T10:00:00Z',
 };
 
@@ -325,7 +343,7 @@ export const mockFemaleNonClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-fnc-1',
     plate: 'AAA1A00',
-    model: 'Fiat Mobi 2021',
+    model: 'Fiat Mobi',
     color: 'Prata',
     ownerId: 'user-female-nonclient',
     score: 50,
@@ -341,7 +359,7 @@ export const mockFemaleClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-fc-1',
     plate: 'ABC1D23',
-    model: 'Fiat Argo 2023',
+    model: 'Fiat Argo',
     color: 'Vermelho',
     ownerId: 'user-female-client',
     score: 92,
@@ -353,7 +371,7 @@ export const mockFemaleClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-fc-2',
     plate: 'DEF4G56',
-    model: 'Chevrolet Onix 2022',
+    model: 'Chevrolet Onix',
     color: 'Branco',
     ownerId: 'user-female-client',
     score: 78,
@@ -369,7 +387,7 @@ export const mockMaleNonClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-mnc-1',
     plate: 'BBB2B11',
-    model: 'Volkswagen Gol 2020',
+    model: 'Volkswagen Gol',
     color: 'Preto',
     ownerId: 'user-male-nonclient',
     score: 60,
@@ -385,7 +403,7 @@ export const mockMaleClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-mc-1',
     plate: 'GHI7J89',
-    model: 'Honda Civic 2023',
+    model: 'Honda Civic',
     color: 'Prata',
     ownerId: 'user-male-client',
     score: 88,
@@ -397,7 +415,7 @@ export const mockMaleClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-mc-2',
     plate: 'KLM1N23',
-    model: 'Toyota Corolla 2021',
+    model: 'Toyota Corolla',
     color: 'Cinza',
     ownerId: 'user-male-client',
     score: 75,
@@ -417,7 +435,7 @@ export const mockFemaleYellowSealNonClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-fysn-1',
     plate: 'CCC2C22',
-    model: 'Renault Kwid 2022',
+    model: 'Renault Kwid',
     color: 'Amarelo',
     ownerId: 'user-female-yellow-nonclient',
     score: 65,
@@ -433,7 +451,7 @@ export const mockFemaleYellowSealClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-fysc-1',
     plate: 'DDD3D33',
-    model: 'Jeep Renegade 2023',
+    model: 'Jeep Renegade',
     color: 'Laranja',
     ownerId: 'user-female-yellow-client',
     score: 85,
@@ -445,7 +463,7 @@ export const mockFemaleYellowSealClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-fysc-2',
     plate: 'EEE4E44',
-    model: 'Fiat Pulse 2022',
+    model: 'Fiat Pulse',
     color: 'Branco',
     ownerId: 'user-female-yellow-client',
     score: 70,
@@ -465,7 +483,7 @@ export const mockMaleGreenSealNonClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-mgsn-1',
     plate: 'FFF5F55',
-    model: 'Volkswagen T-Cross 2022',
+    model: 'Volkswagen T-Cross',
     color: 'Verde',
     ownerId: 'user-male-green-nonclient',
     score: 85, // Score ≥ 80 para selo verde
@@ -481,7 +499,7 @@ export const mockMaleGreenSealClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-mgsc-1',
     plate: 'GGG6G66',
-    model: 'BMW X1 2024',
+    model: 'BMW X1',
     color: 'Preto',
     ownerId: 'user-male-green-client',
     score: 95, // Score ≥ 80 para selo verde
@@ -493,7 +511,7 @@ export const mockMaleGreenSealClientVehicles: Vehicle[] = [
   {
     id: 'vehicle-mgsc-2',
     plate: 'HHH7H77',
-    model: 'Audi A3 2023',
+    model: 'Audi A3',
     color: 'Azul',
     ownerId: 'user-male-green-client',
     score: 88, // Score ≥ 80 para selo verde
@@ -509,7 +527,7 @@ export const mockVehicles: Vehicle[] = [
   {
     id: 'vehicle-1',
     plate: 'ABC1D23',
-    model: 'Honda Civic 2022',
+    model: 'Honda Civic',
     color: 'Preto',
     ownerId: 'user-1',
     score: 85,
@@ -519,9 +537,21 @@ export const mockVehicles: Vehicle[] = [
     createdAt: '2024-01-15T10:00:00Z',
   },
   {
+    id: 'vehicle-bunny',
+    plate: 'ROS1A11',
+    model: 'Volkswagen Gol',
+    color: 'Rosa',
+    ownerId: 'user-1',
+    score: 95,
+    hasCompleteInfo: true,
+    hasActivePlan: true,
+    isStolen: false,
+    createdAt: '2025-01-30T10:00:00Z',
+  },
+  {
     id: 'vehicle-2',
     plate: 'XYZ4E56',
-    model: 'Toyota Corolla 2021',
+    model: 'Toyota Corolla',
     color: 'Branco',
     ownerId: 'user-1',
     score: 72,
@@ -538,7 +568,7 @@ export const mockTestVehicles: Vehicle[] = mockFemaleClientVehicles;
 // Função para obter perfil de teste por CPF + Código
 export function getTestProfile(cpf: string, code: string): { user: User; vehicles: Vehicle[] } | null {
   const cleanCpf = cpf.replace(/\D/g, '');
-  
+
   // CPF Mulher: 00000000000
   if (cleanCpf === '00000000000') {
     if (code === '000000') {
@@ -548,7 +578,7 @@ export function getTestProfile(cpf: string, code: string): { user: User; vehicle
       return { user: mockFemaleClient, vehicles: mockFemaleClientVehicles };
     }
   }
-  
+
   // CPF Homem: 11111111111
   if (cleanCpf === '11111111111') {
     if (code === '111111') {
@@ -578,7 +608,7 @@ export function getTestProfile(cpf: string, code: string): { user: User; vehicle
       return { user: mockMaleGreenSealClient, vehicles: mockMaleGreenSealClientVehicles };
     }
   }
-  
+
   return null;
 }
 
@@ -590,7 +620,7 @@ export const mockStolenVehicles: Vehicle[] = [
   {
     id: 'stolen-1',
     plate: 'ROB1A23',
-    model: 'Volkswagen Gol 2020',
+    model: 'Volkswagen Gol',
     color: 'Prata',
     ownerId: 'user-7',
     score: 60,

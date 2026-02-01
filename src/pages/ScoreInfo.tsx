@@ -1,8 +1,10 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, Unlock, BarChart3, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageTransition } from "@/components/PageTransition";
 import { motion } from "framer-motion";
+import { getScoreCategoryInfo } from "@/contexts/AppContext";
 
 const ScoreInfo = () => {
     const navigate = useNavigate();
@@ -76,25 +78,28 @@ const ScoreInfo = () => {
                             <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">7 Categorias do Score</h3>
                             <div className="bg-card border border-border rounded-2xl divide-y divide-border">
                                 {[
-                                    { icon: '🔴', label: 'Placa em Alerta', range: '< 0', description: 'Score negativo' },
-                                    { icon: '⚪', label: 'Placa Neutra', range: '0 - 199', description: 'Sem histórico significativo' },
-                                    { icon: '🔵', label: 'Placa Conhecida', range: '200 - 399', description: 'Histórico positivo básico' },
-                                    { icon: '🟣', label: 'Placa Confiável', range: '400 - 649', description: 'Boa reputação estabelecida' },
-                                    { icon: '🟡', label: 'Placa Distinta', range: '650 - 849', description: 'Excelente reputação' },
-                                    { icon: '🟢', label: 'Placa Exemplar', range: '850 - 1000', description: 'Reputação impecável' },
-                                    { icon: '💎', label: 'Placa Ícone Cautoo', range: '1001+', description: 'Máxima excelência' }
-                                ].map((cat, idx) => (
-                                    <div key={idx} className="p-3 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-2xl">{cat.icon}</span>
-                                            <div>
-                                                <span className="text-sm font-medium block">{cat.label}</span>
-                                                <span className="text-xs text-muted-foreground">{cat.description}</span>
+                                    { min: -999, label: 'Placa em Alerta', range: '< 0', description: 'Score negativo' },
+                                    { min: 0, label: 'Placa Neutra', range: '0 - 199', description: 'Sem histórico significativo' },
+                                    { min: 200, label: 'Placa Conhecida', range: '200 - 399', description: 'Histórico positivo básico' },
+                                    { min: 400, label: 'Placa Confiável', range: '400 - 649', description: 'Boa reputação estabelecida' },
+                                    { min: 650, label: 'Placa Distinta', range: '650 - 849', description: 'Excelente reputação' },
+                                    { min: 850, label: 'Placa Exemplar', range: '850 - 1000', description: 'Reputação impecável' },
+                                    { min: 1001, label: 'Placa Ícone Cautoo', range: '1001+', description: 'Máxima excelência' }
+                                ].map((cat, idx) => {
+                                    const info = getScoreCategoryInfo(cat.min);
+                                    return (
+                                        <div key={idx} className="p-3 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`badge-capsula ${info.badgeClass} scale-75 -ml-4`} />
+                                                <div>
+                                                    <span className="text-sm font-medium block">{cat.label}</span>
+                                                    <span className="text-xs text-muted-foreground">{cat.description}</span>
+                                                </div>
                                             </div>
+                                            <span className="text-xs text-muted-foreground font-mono">{cat.range}</span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground font-mono">{cat.range}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </motion.section>
 
@@ -111,3 +116,4 @@ const ScoreInfo = () => {
 };
 
 export default ScoreInfo;
+

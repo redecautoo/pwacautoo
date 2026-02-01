@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Phone, Mail, FileText, LogOut, Shield, ChevronRight, TrendingUp } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, FileText, LogOut, Shield, ChevronRight, TrendingUp, Key, Copy, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useApp } from "@/contexts/AppContext";
@@ -30,6 +30,13 @@ const Settings = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const copyVerificationCode = () => {
+    if (currentUser?.verificationCode) {
+      navigator.clipboard.writeText(currentUser.verificationCode);
+      showAlert("Copiado!", "Código de verificação copiado para a área de transferência.", "success");
+    }
   };
 
   return (
@@ -109,6 +116,45 @@ const Settings = () => {
             </div>
           </section>
 
+          {/* Seção Código de Verificação */}
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-muted-foreground">Código de Verificação</h2>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                Alerta Solidário
+              </span>
+            </div>
+            
+            <div className="bg-card border border-border rounded-2xl p-4 space-y-4">
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2 items-start">
+                <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                <div className="text-xs text-muted-foreground space-y-2">
+                  <p><strong>Precisa de ajuda?</strong> Compartilhe sua placa e este código com quem vai te ajudar.</p>
+                  <p>Este código é único e garante que apenas pessoas autorizadas por você podem enviar alertas em seu nome.</p>
+                </div>
+              </div>
+
+              {currentUser?.verificationCode && (
+                <div className="flex items-center justify-between bg-background border border-border rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <Key className="w-5 h-5 text-emerald-500" />
+                    <span className="text-2xl font-mono font-bold text-foreground tracking-widest" data-testid="text-verification-code">
+                      {currentUser.verificationCode}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={copyVerificationCode}
+                    data-testid="button-copy-code"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          </section>
+
           {/* Seção ICC */}
           {currentUser && (() => {
             const iccInfo = getICCCategoryInfo(currentUser.icc);
@@ -182,3 +228,4 @@ const Settings = () => {
 };
 
 export default Settings;
+

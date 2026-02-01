@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Info, HelpCircle } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
@@ -108,15 +109,14 @@ const Ranking = () => {
             >
               <div className="w-32 h-32 rounded-full bg-secondary/50 flex items-center justify-center mx-auto mb-4">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-5xl">{iccInfo.icon}</span>
                   <span className={`text-4xl font-bold ${iccInfo.color}`}>
                     {currentUser?.icc || 0}
                   </span>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-2">Seu ICC (privado) 🔒</p>
-              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${iccInfo.bg} border ${iccInfo.border} text-sm font-medium mb-1`}>
-                <span className={iccInfo.color}>{iccInfo.label}</span>
+              <div className={`badge-capsula ${iccInfo.badgeClass} mb-1`}>
+                {iccInfo.label}
               </div>
               <p className="text-xs text-muted-foreground mt-2">{currentCategory.description}</p>
 
@@ -146,11 +146,12 @@ const Ranking = () => {
               <div className="space-y-2">
                 {iccCategories.map((cat, index) => {
                   const isCurrentLevel = cat.label === currentCategory.label;
+                  const catInfo = getICCCategoryInfo(cat.min);
                   return (
                     <motion.div
                       key={cat.label}
                       className={`flex items-center justify-between p-4 rounded-xl ${isCurrentLevel
-                        ? `${iccInfo.bg} border ${iccInfo.border}`
+                        ? 'bg-secondary/30 border-primary/20'
                         : 'bg-card border border-border'
                         }`}
                       initial={{ opacity: 0, x: -20 }}
@@ -158,13 +159,13 @@ const Ranking = () => {
                       transition={{ delay: 0.2 + index * 0.05 }}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">{cat.icon}</span>
+                        <div className={`badge-capsula ${catInfo.badgeClass} scale-90`} />
                         <div>
                           <span className={`text-sm font-medium block ${isCurrentLevel ? 'text-foreground' : 'text-muted-foreground'}`}>
                             {cat.label}
                           </span>
                           {isCurrentLevel && (
-                            <p className={`text-xs ${iccInfo.color} font-medium`}>← Você está aqui</p>
+                            <p className={`text-[10px] ${iccInfo.color} font-medium`}>← Você está aqui</p>
                           )}
                         </div>
                       </div>
@@ -207,3 +208,4 @@ const Ranking = () => {
 };
 
 export default Ranking;
+

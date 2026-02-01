@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, HelpCircle } from "lucide-react";
+import { Sparkles, HelpCircle, Car } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import LicensePlateInput, { isValidPlate } from "@/components/LicensePlateInput";
@@ -8,6 +8,7 @@ import AlertCategories from "@/components/AlertCategories";
 import VisitorAlertFlow from "@/components/VisitorAlertFlow";
 import StolenVehicleAlert from "@/components/StolenVehicleAlert";
 import SuccessConfirmation from "@/components/SuccessConfirmation";
+import ScoreInfoModal from "@/components/ScoreInfoModal";
 import { useApp } from "@/contexts/AppContext";
 import { alertCategories } from "@/lib/alertCategories";
 import { PageTransition, slideUp, scaleIn } from "@/components/PageTransition";
@@ -27,6 +28,7 @@ const Index = () => {
   const [successPlate, setSuccessPlate] = useState("");
   const [showVisitorFlow, setShowVisitorFlow] = useState(false);
   const [visitorAlertData, setVisitorAlertData] = useState<{ categoryId: string, messageId: string } | null>(null);
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
 
   const stolenVehicle = useMemo(() => {
     if (plateValue.length < 7) return null;
@@ -112,38 +114,62 @@ const Index = () => {
                       exit={{ opacity: 0, height: 0 }}
                       className="space-y-6 overflow-hidden"
                     >
-                      {/* Bloco de Score Público */}
+                      {/* Bloco de Informações do Veículo */}
                       {((): React.ReactNode => {
-                        const metrics = getPlateMetrics(plateValue);
+                        const vehicleInfo = {
+                          marca: "Volkswagen",
+                          modelo: "Gol 1.0",
+                          cor: "Prata",
+                          ano: "2019/2020"
+                        };
 
                         return (
-                          <div className="space-y-4 pt-4 border-t border-border/50">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Score da Placa</h3>
-                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 text-white/40 border border-white/10">
-                                  🔓 Público
-                                </span>
+                          <div className="pt-4 border-t border-border/50">
+                            <div className="relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300">
+                              <div className="absolute inset-0 opacity-10">
+                                <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
                               </div>
-                              <button
-                                onClick={() => showAlert(
-                                  "Como funciona o Score da Placa?",
-                                  `O score é PÚBLICO e reflete o histórico da placa na rede CAUTOO.\n\n${metrics.categoryIcon} ${metrics.categoryLabel}\n\nCategorias:\n🔴 Placa em Alerta (< 0)\n⚪ Placa Neutra (0-199)\n🔵 Placa Conhecida (200-399)\n🟣 Placa Confiável (400-649)\n🟡 Placa Distinta (650-849)\n🟢 Placa Exemplar (850-1000)\n💎 Placa Ícone Cautoo (1001+)`,
-                                  "info"
-                                )}
-                                className="p-1 hover:bg-secondary/50 rounded-full transition-colors text-muted-foreground/50"
-                              >
-                                <HelpCircle className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            <div className={`flex flex-col items-center justify-center p-8 rounded-3xl ${metrics.categoryBg} border ${metrics.categoryBorder} transition-all duration-300`}>
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-50 mb-1 tracking-widest">Score Público</span>
-                              <div className="flex items-center gap-3">
-                                <span className="text-4xl">{metrics.categoryIcon}</span>
-                                <span className={`text-6xl font-black ${metrics.categoryColor} tracking-tighter`}>{metrics.score}</span>
+                              <div className="relative">
+                                <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Car className="w-4 h-4 text-primary" />
+                                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dados do Veículo</span>
+                                  </div>
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 font-medium">
+                                    Verificado
+                                  </span>
+                                </div>
+                                <div className="p-4 space-y-3">
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-secondary/30 rounded-xl p-3">
+                                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Marca</p>
+                                      <p className="text-sm font-bold text-foreground">{vehicleInfo.marca}</p>
+                                    </div>
+                                    <div className="bg-secondary/30 rounded-xl p-3">
+                                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Modelo</p>
+                                      <p className="text-sm font-bold text-foreground">{vehicleInfo.modelo}</p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-secondary/30 rounded-xl p-3">
+                                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Cor</p>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-gray-400 border border-white/20" />
+                                        <p className="text-sm font-bold text-foreground">{vehicleInfo.cor}</p>
+                                      </div>
+                                    </div>
+                                    <div className="bg-secondary/30 rounded-xl p-3">
+                                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ano</p>
+                                      <p className="text-sm font-bold text-foreground">{vehicleInfo.ano}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="px-4 pb-4">
+                                  <p className="text-[10px] text-center text-muted-foreground/70">
+                                    Confirme se as informações correspondem ao veículo
+                                  </p>
+                                </div>
                               </div>
-                              <span className={`text-sm font-medium ${metrics.categoryColor} mt-2`}>{metrics.categoryLabel}</span>
                             </div>
                           </div>
                         );
@@ -161,6 +187,7 @@ const Index = () => {
         </main>
         <SuccessConfirmation isOpen={showSuccess} onClose={() => setShowSuccess(false)} title="Alerta Enviado!" description="O proprietário do veículo" highlightText={successPlate} duration={2500} />
         <div className="relative z-[100]"><VisitorAlertFlow isOpen={showVisitorFlow} onClose={() => setShowVisitorFlow(false)} onSuccess={handleVisitorSuccess} plate={plateValue} /></div>
+        <ScoreInfoModal isOpen={showScoreInfo} onClose={() => setShowScoreInfo(false)} />
       </div>
     </PageTransition>
   );

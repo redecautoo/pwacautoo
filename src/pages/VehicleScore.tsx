@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -195,15 +196,14 @@ const VehicleScore = () => {
 
               <div className="w-32 h-32 rounded-full bg-secondary/50 flex items-center justify-center mx-auto mb-4">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-5xl">{scoreInfo.icon}</span>
-                  <span className={`text-4xl font-bold ${scoreInfo.color}`}>
+                  <span className={`text-5xl font-bold ${scoreInfo.color}`}>
                     {vehicle.score}
                   </span>
                 </div>
               </div>
 
-              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${scoreInfo.bg} border ${scoreInfo.border} text-sm font-medium mb-1`}>
-                <span className={scoreInfo.color}>{scoreInfo.label}</span>
+              <div className={`badge-capsula ${scoreInfo.badgeClass} mb-1`}>
+                {scoreInfo.label}
               </div>
               <p className="text-xs text-muted-foreground mt-2">{currentCategory.description}</p>
 
@@ -233,11 +233,12 @@ const VehicleScore = () => {
               <div className="space-y-2">
                 {scoreCategories.map((cat, index) => {
                   const isCurrentLevel = cat.label === currentCategory.label;
+                  const catInfo = getScoreCategoryInfo(cat.min);
                   return (
                     <motion.div
                       key={cat.label}
                       className={`flex items-center justify-between p-4 rounded-xl ${isCurrentLevel
-                        ? `${scoreInfo.bg} border ${scoreInfo.border}`
+                        ? 'bg-secondary/30 border-primary/20'
                         : 'bg-card border border-border'
                         }`}
                       initial={{ opacity: 0, x: -20 }}
@@ -245,13 +246,13 @@ const VehicleScore = () => {
                       transition={{ delay: 0.2 + index * 0.05 }}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">{cat.icon}</span>
+                        <div className={`badge-capsula ${catInfo.badgeClass} scale-90`} />
                         <div>
                           <span className={`text-sm font-medium block ${isCurrentLevel ? 'text-foreground' : 'text-muted-foreground'}`}>
                             {cat.label}
                           </span>
                           {isCurrentLevel && (
-                            <p className={`text-xs ${scoreInfo.color} font-medium`}>← Sua placa está aqui</p>
+                            <p className={`text-[10px] ${scoreInfo.color} font-medium`}>← Sua placa</p>
                           )}
                         </div>
                       </div>

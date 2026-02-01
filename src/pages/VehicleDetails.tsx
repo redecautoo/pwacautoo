@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -28,6 +28,7 @@ import { useApp } from "@/contexts/AppContext";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { SealBadge } from "@/components/SealBadge";
 import { PageTransition } from "@/components/PageTransition";
+import { LicensePlateDisplay } from "@/components/LicensePlateDisplay";
 
 // Dados mockados para veículos com selo azul (simulando dados da API)
 const mockVehicleDetails = {
@@ -255,25 +256,18 @@ const VehicleDetails = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex items-center gap-4 mb-4">
-                <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${isBlocked ? 'bg-amber-500/20' : 'bg-primary/10'}`}>
-                  {isBlocked ? <Lock className="w-8 h-8 text-amber-500" /> : <Car className="w-8 h-8 text-primary" />}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-foreground tracking-wider">{vehicle.plate}</span>
-                    {isBlocked ? (
-                      <span className="text-xs bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded flex items-center gap-1"><Clock className="w-3 h-3" /> Em análise</span>
-                    ) : (
-                      <>
-                        {(currentUser?.seal && currentUser.seal !== 'none') ? (
-                          <SealBadge seal={currentUser.seal} size="md" />
-                        ) : (
-                          <VerifiedBadge isVerified={currentUser?.isVerified || false} size="md" />
-                        )}
-                      </>
-                    )}
-                  </div>
-                  {vehicle.isStolen && <span className="text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded mt-1 inline-block">ROUBADO</span>}
+                <LicensePlateDisplay
+                  plate={vehicle.plate}
+                  size="md"
+                  isStolen={vehicle.isStolen}
+                />
+                <div className="flex flex-col gap-1 flex-1">
+                  {isBlocked && (
+                    <span className="text-xs bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded flex items-center gap-1 w-fit"><Clock className="w-3 h-3" /> Em análise</span>
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    {vehicle.model} • {vehicle.color}
+                  </p>
                 </div>
               </div>
 

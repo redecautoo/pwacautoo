@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { 
   Download, 
@@ -379,3 +379,4 @@ const CautelarCertificateView = ({ registry }: CautelarCertificateViewProps) => 
 };
 
 export default CautelarCertificateView;
+

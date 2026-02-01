@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,7 @@ const ScoreVsICC = () => {
                                     📊 Score do Veículo (PLACA)
                                 </h3>
                                 <div className="space-y-2 text-sm text-muted-foreground">
-                                    <p>✓ Índice <strong className="text-blue-500">PÚBLICO 🔓</strong></p>
+                                    <p>✓ Índice <strong className="text-blue-500">PÚBLICO</strong></p>
                                     <p>✓ Vinculado à <strong>placa</strong></p>
                                     <p>✓ Baseado em alertas/elogios <strong>RECEBIDOS</strong></p>
                                     <p>✓ Reflete reputação do veículo</p>
@@ -52,12 +53,12 @@ const ScoreVsICC = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
                                 <h3 className="font-semibold mb-3 flex items-center gap-2">
                                     🏆 ICC do Usuário (CPF)
                                 </h3>
                                 <div className="space-y-2 text-sm text-muted-foreground">
-                                    <p>✓ Índice <strong className="text-red-500">PRIVADO 🔒</strong></p>
+                                    <p>✓ Índice <strong className="text-primary">PRIVADO 🔒</strong></p>
                                     <p>✓ Vinculado ao <strong>CPF</strong></p>
                                     <p>✓ Baseado em ações <strong>REALIZADAS</strong></p>
                                     <p>✓ Mede contribuição para rede</p>

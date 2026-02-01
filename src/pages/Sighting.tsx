@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Eye, MapPin, Calendar, Clock, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -147,8 +147,7 @@ const Sighting = () => {
                     <Button
                       onClick={handleReportSighting}
                       disabled={!isValid}
-                      className="w-full py-6"
-                      size="lg"
+                      className="w-full h-12 font-bold"
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Reportar Avistamento
@@ -165,3 +164,4 @@ const Sighting = () => {
 };
 
 export default Sighting;
+

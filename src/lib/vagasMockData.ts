@@ -5,45 +5,58 @@ import {
   DenunciaVaga, 
   AvaliacaoVaga, 
   UsuarioCondominio,
-  PagamentoReserva
+  PagamentoReserva,
+  ReportCondominio
 } from './vagasTypes';
 
 // Mock Condomínios
 export const mockCondominios: Condominio[] = [
   {
     id: 'cond-1',
+    codigo: 'CT-8F3K9A',
     nome: 'Edifício Solar das Palmeiras',
+    tipo: 'predio',
     endereco: 'Rua das Flores, 123',
     bairro: 'Jardim América',
     cidade: 'São Paulo',
     uf: 'SP',
     cep: '01310-100',
     criadoPor: 'user-1',
+    status: 'ativo',
     createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: 'cond-2',
+    codigo: 'CT-A72X9B',
     nome: 'Condomínio Vista Verde',
+    tipo: 'predio',
     endereco: 'Av. Brasil, 456',
     bairro: 'Centro',
     cidade: 'São Paulo',
     uf: 'SP',
     cep: '01020-000',
     criadoPor: 'user-2',
+    status: 'ativo',
     createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: 'cond-3',
+    codigo: 'CT-P4RK7C',
     nome: 'Residencial Park Avenue',
+    tipo: 'casas',
     endereco: 'Rua Augusta, 789',
     bairro: 'Consolação',
     cidade: 'São Paulo',
     uf: 'SP',
     cep: '01305-000',
     criadoPor: 'user-3',
+    status: 'ativo',
     createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
+
+// Mock Reports de Condomínio
+export const mockReportsCondominios: ReportCondominio[] = [];
 
 // Mock Vagas
 export const mockVagas: Vaga[] = [
@@ -56,6 +69,8 @@ export const mockVagas: Vaga[] = [
     placa: 'ABC1D23',
     observacao: 'Próxima ao elevador',
     status: 'disponivel',
+    precoDiario: 30,
+    precoMensal: 600,
     disponivelDe: new Date().toISOString().split('T')[0],
     disponivelAte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
@@ -68,6 +83,7 @@ export const mockVagas: Vaga[] = [
     tipo: 'descoberta',
     placa: 'XYZ9K87',
     status: 'disponivel',
+    precoDiario: 20,
     disponivelDe: new Date().toISOString().split('T')[0],
     disponivelAte: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -81,6 +97,8 @@ export const mockVagas: Vaga[] = [
     placa: 'DEF4G56',
     observacao: 'Vaga grande, cabe SUV',
     status: 'ocupada',
+    precoDiario: 35,
+    precoMensal: 700,
     createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];

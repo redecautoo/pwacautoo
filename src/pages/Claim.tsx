@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Flag, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -110,8 +110,7 @@ const Claim = () => {
               <Button
                 onClick={handleSubmitClaim}
                 disabled={!isValid}
-                className="w-full py-6"
-                size="lg"
+                className="w-full h-12 font-bold"
               >
                 <Flag className="w-4 h-4 mr-2" />
                 Enviar Reivindicação
@@ -135,3 +134,4 @@ const Claim = () => {
 };
 
 export default Claim;
+

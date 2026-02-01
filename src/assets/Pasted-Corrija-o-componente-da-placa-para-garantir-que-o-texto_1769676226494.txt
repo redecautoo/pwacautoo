@@ -1,0 +1,71 @@
+Corrija o componente da placa para garantir que o texto da identificação da placa tenha exatamente o mesmo tamanho, fonte, espaçamento e posicionamento tanto no layout padrão quanto no layout com skin.
+
+Problema atual:
+- Quando uma skin é aplicada, o texto da placa fica menor.
+- Isso acontece porque a skin está influenciando o layout, escala ou contexto do container.
+
+Objetivo:
+- O texto da placa deve ser completamente independente da skin.
+- A skin deve ser apenas uma camada visual (overlay), sem alterar o tamanho do texto.
+
+Regras obrigatórias:
+
+1) Definir um estilo fixo e único para o texto da placa (plate-text), que nunca pode ser alterado por skins:
+   - font-size: 48px (desktop) e 30px (mobile)
+   - font-weight: 800
+   - letter-spacing: 0.15em (desktop) e 0.12em (mobile)
+   - line-height: 1
+   - color: #111827
+   - text-align: center
+
+2) Garantir que a skin não altere o contexto de escala:
+   - remover qualquer transform, scale, zoom ou font-size herdado do container da skin
+   - garantir que a skin esteja em position: absolute
+   - garantir que o texto esteja em position: relative com z-index maior
+
+3) Estrutura correta do componente:
+
+   <div class="plate-body">
+     <div class="plate-skin"></div>
+     <input class="plate-text" />
+   </div>
+
+4) CSS obrigatório:
+
+   .plate-body {
+     position: relative;
+     background: white;
+     border-radius: 12px;
+   }
+
+   .plate-skin {
+     position: absolute;
+     inset: 0;
+     background-size: contain;
+     background-repeat: no-repeat;
+     background-position: center;
+     z-index: 1;
+     pointer-events: none;
+   }
+
+   .plate-text {
+     position: relative;
+     z-index: 2;
+     background: transparent;
+     border: none;
+     outline: none;
+     font-size: 48px !important;
+     font-weight: 800 !important;
+     letter-spacing: 0.15em !important;
+     line-height: 1 !important;
+     transform: none !important;
+     scale: 1 !important;
+   }
+
+5) Garantir que nenhuma classe Tailwind ou estilo da skin altere o font-size do texto:
+   - remover text-* do container da skin
+   - aplicar text-* apenas em .plate-text
+
+Resultado esperado:
+- O texto da placa com skin deve ter exatamente o mesmo tamanho visual da placa padrão.
+- A skin deve ser apenas decorativa, sem interferir na tipografia.

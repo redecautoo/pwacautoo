@@ -1,0 +1,118 @@
+We need to implement a Dynamic Verification Code system linked to user profiles (CPF-verified) and integrate it into both the User Profile and the "Alerta Solidário" flow.
+
+IMPORTANT RULES:
+- Do NOT expose CPF anywhere in the UI.
+- Do NOT use static or reusable codes.
+- The code must rotate automatically after each successful use.
+- Do NOT refactor unrelated features.
+- Implement changes only where required.
+
+========================
+1) USER PROFILE – VERIFICATION CODE DISPLAY
+========================
+
+Add a new section inside the User Profile:
+
+Title:
+"Código de Verificação"
+
+Content:
+- Display the user's CURRENT active verification code (alphanumeric, 6–8 characters).
+- Example:
+  "Seu código atual: K7A9Q2"
+
+Text below:
+"Este código confirma que seu perfil é real e muda automaticamente após cada uso."
+
+Actions:
+- Button: "Copiar código"
+- (Optional) Button: "Gerar novo código"
+  - This action must regenerate the code and invalidate the previous one.
+  - Apply rate limiting to avoid abuse.
+
+Rules:
+- Only the profile owner can see this code.
+- Only ONE active code per user at any time.
+
+========================
+2) DYNAMIC CODE GENERATION (BACKEND / SERVICE)
+========================
+
+For each user profile:
+
+- Generate a unique, random, non-predictable alphanumeric code (6–8 chars).
+- Store:
+  - userId
+  - verificationCode
+  - status (active / used)
+  - createdAt
+- Enforce uniqueness at database level.
+- Ensure only one active code exists per user.
+
+========================
+3) ALERTA SOLIDÁRIO – CODE INPUT REQUIREMENT
+========================
+
+Update the "Alerta Solidário" submission flow:
+
+Before sending an alert, require:
+- Vehicle plate
+- Verification code input field
+
+UI:
+- Add a required input field:
+  Label: "Código de verificação do motorista"
+  Placeholder: "Digite o código informado pelo motorista"
+
+Validation:
+- The code must match the ACTIVE verification code of the target user.
+- If invalid or expired:
+  - Block submission
+  - Show error message using the centralized modal alert system.
+
+========================
+4) AUTOMATIC CODE ROTATION
+========================
+
+When an Alerta Solidário is successfully submitted:
+
+- Immediately invalidate the used verification code.
+- Generate a NEW verification code for the same user.
+- Set the new code as ACTIVE.
+- The old code must never work again.
+
+========================
+5) SECURITY & ANTI-FRAUD RULES
+========================
+
+- Limit invalid code attempts (e.g., max 3 attempts).
+- Temporarily block the action if the limit is exceeded.
+- Log every attempt with:
+  - userId
+  - action type
+  - timestamp
+  - success or failure
+
+========================
+6) TECHNICAL REQUIREMENTS
+========================
+
+- Validation MUST be enforced server-side (not only frontend).
+- Prevent race conditions (double submission).
+- Do NOT allow manual code selection by users.
+- Keep UI consistent with the current Cautoo design system.
+- Use the existing centralized modal alert for feedback messages.
+
+========================
+7) DELIVERY REQUIREMENTS
+========================
+
+Before coding:
+- Identify the files responsible for:
+  - User Profile screen
+  - Alerta Solidário flow
+
+After implementation:
+- List all files changed
+- Describe what was changed in each file
+- Ensure the app builds and runs without errors

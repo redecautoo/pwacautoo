@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Users, Check, X, Car, Plus, Shield, Info, AlertOctagon, Phone, Mail, Trash2, Calendar, CreditCard, MessageSquare, PlusCircle, Instagram } from "lucide-react";
 import SealRequiredNotice from "@/components/SealRequiredNotice";
@@ -838,3 +838,4 @@ const Friends = () => {
 };
 
 export default Friends;
+

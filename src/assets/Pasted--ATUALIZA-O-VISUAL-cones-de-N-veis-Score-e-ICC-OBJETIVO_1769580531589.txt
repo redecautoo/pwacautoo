@@ -1,0 +1,268 @@
+# ATUALIZAÇÃO VISUAL: Ícones de Níveis (Score e ICC)
+
+## 🎯 OBJETIVO
+
+Substituir os ícones atuais (círculos ⚪🔵🟣 e diamante 💎) por **badges em formato de cápsula** com as cores especificadas, mantendo todas as regras e pontuações inalteradas.
+
+---
+
+## 📋 O QUE PRECISA SER MUDADO
+
+### ❌ REMOVER (atual):
+- Ícones de círculo (⚪ ⚫ 🔵 🟣 🟡 🟢)
+- Ícone de diamante (💎)
+
+### ✅ ADICIONAR (novo):
+- **Badges em formato de cápsula/pill** (formato arredondado horizontal)
+- Estilo similar à imagem de referência fornecida (Variações de Tamanho)
+
+---
+
+## 🎨 ESPECIFICAÇÃO DAS CORES
+
+### **ORDEM DAS CORES (de negativo para positivo):**
+```
+1. 🔴 Vermelho      → Nível negativo (< 0)
+2. ⚪ Cinza claro   → Nível inicial (0-199)
+3. 🔵 Azul          → Nível baixo (200-399)
+4. 🟠 Laranja       → Nível médio (400-649)
+5. 🟣 Roxo          → Nível alto (650-849)
+6. 🟡 Amarelo       → Nível muito alto (850-1000)
+7. 🟢 Verde         → Nível elite (1001+)
+```
+
+---
+
+## 🎨 ESPECIFICAÇÃO DE DESIGN
+
+### **Formato do Badge:**
+```css
+/* Estilo baseado na imagem de referência */
+.badge-capsula {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  border-radius: 50px; /* Cápsula completamente arredondada */
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* Efeito de brilho/glow sutil */
+.badge-capsula::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 40%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  filter: blur(10px);
+}
+```
+
+### **Cores Específicas (com gradiente sutil):**
+```css
+/* 1. VERMELHO - Negativo */
+.badge-vermelho {
+  background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+  color: #ffffff;
+  border: 2px solid rgba(255, 68, 68, 0.3);
+}
+
+/* 2. CINZA CLARO - Iniciante */
+.badge-cinza {
+  background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+  color: #424242;
+  border: 2px solid rgba(189, 189, 189, 0.3);
+}
+
+/* 3. AZUL - Baixo */
+.badge-azul {
+  background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+  color: #ffffff;
+  border: 2px solid rgba(66, 165, 245, 0.3);
+}
+
+/* 4. LARANJA - Médio */
+.badge-laranja {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #ffffff;
+  border: 2px solid rgba(255, 152, 0, 0.3);
+}
+
+/* 5. ROXO - Alto */
+.badge-roxo {
+  background: linear-gradient(135deg, #ab47bc 0%, #7b1fa2 100%);
+  color: #ffffff;
+  border: 2px solid rgba(171, 71, 188, 0.3);
+}
+
+/* 6. AMARELO - Muito Alto */
+.badge-amarelo {
+  background: linear-gradient(135deg, #ffeb3b 0%, #fbc02d 100%);
+  color: #1a1a1a;
+  border: 2px solid rgba(255, 235, 59, 0.3);
+}
+
+/* 7. VERDE - Elite */
+.badge-verde {
+  background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
+  color: #ffffff;
+  border: 2px solid rgba(102, 187, 106, 0.3);
+}
+```
+
+---
+
+## 📁 ARQUIVOS A SEREM MODIFICADOS
+
+### **1. `index.css` (estilos globais)**
+- Adicionar classes `.badge-capsula` e variações de cores
+- Remover estilos antigos de círculos/diamantes
+
+### **2. `pages/VehicleScore.tsx` (Score do Veículo)**
+- Substituir ícones atuais por badges de cápsula
+- Atualizar seção "7 CATEGORIAS DO SCORE"
+- Atualizar seção "COMO FUNCIONA O SCORE"
+
+### **3. `pages/Dashboard.tsx` (Meu Ranking ICC)**
+- Substituir ícones atuais por badges de cápsula
+- Atualizar seção "7 NÍVEIS DO ICC"
+
+### **4. Páginas Informativas:**
+- `pages/info/WhatIsVehicleScore.tsx`
+- `pages/info/WhatIsICC.tsx`
+- `pages/info/ScoreVsICC.tsx`
+- `pages/info/HowScoreWorks.tsx`
+- `pages/info/HowToEarnICC.tsx`
+
+Atualizar todas as referências visuais aos níveis/categorias.
+
+---
+
+## 🎯 MAPEAMENTO EXATO DOS NÍVEIS
+
+### **SCORE DO VEÍCULO (PLACA):**
+```
+Pontuação         | Cor      | Nome da Categoria
+------------------|----------|---------------------------
+< 0               | Vermelho | Placa em Alerta
+0 - 199           | Cinza    | Placa Neutra
+200 - 399         | Azul     | Placa Conhecida
+400 - 649         | Laranja  | Placa Confiável
+650 - 849         | Roxo     | Placa Distinta
+850 - 1000        | Amarelo  | Placa Exemplar
+1001+             | Verde    | Placa Ícone Cautoo
+```
+
+### **ICC DO USUÁRIO (CPF):**
+```
+Pontuação         | Cor      | Nome da Categoria
+------------------|----------|---------------------------
+< 0               | Vermelho | Contribuidor Negativo
+0 - 199           | Cinza    | Iniciante
+200 - 399         | Azul     | Colaborador Ativo
+400 - 649         | Laranja  | Cauteloso Engajado
+650 - 849         | Roxo     | Protetor da Rede
+850 - 1000        | Amarelo  | Embaixador Cautoo
+1001+             | Verde    | Guardião Elite
+```
+
+---
+
+## 📐 EXEMPLO DE IMPLEMENTAÇÃO (React/TSX)
+```tsx
+// Componente Badge de Cápsula
+interface BadgeCategoriaProps {
+  score: number;
+  tipo: 'score' | 'icc';
+}
+
+const BadgeCategoria: React.FC = ({ score, tipo }) => {
+  const getCategoria = () => {
+    if (score < 0) return { cor: 'vermelho', nome: tipo === 'score' ? 'Placa em Alerta' : 'Contribuidor Negativo' };
+    if (score < 200) return { cor: 'cinza', nome: tipo === 'score' ? 'Placa Neutra' : 'Iniciante' };
+    if (score < 400) return { cor: 'azul', nome: tipo === 'score' ? 'Placa Conhecida' : 'Colaborador Ativo' };
+    if (score < 650) return { cor: 'laranja', nome: tipo === 'score' ? 'Placa Confiável' : 'Cauteloso Engajado' };
+    if (score < 850) return { cor: 'roxo', nome: tipo === 'score' ? 'Placa Distinta' : 'Protetor da Rede' };
+    if (score <= 1000) return { cor: 'amarelo', nome: tipo === 'score' ? 'Placa Exemplar' : 'Embaixador Cautoo' };
+    return { cor: 'verde', nome: tipo === 'score' ? 'Placa Ícone Cautoo' : 'Guardião Elite' };
+  };
+
+  const categoria = getCategoria();
+
+  return (
+    
+      {categoria.nome}
+    
+  );
+};
+```
+
+---
+
+## ✅ CHECKLIST DE ATUALIZAÇÃO
+
+Por favor, confirme a conclusão de cada item:
+
+- [ ] Atualizar `index.css` com novos estilos de badge cápsula
+- [ ] Remover estilos antigos de círculos/diamantes
+- [ ] Atualizar `VehicleScore.tsx` (Score do Veículo)
+- [ ] Atualizar `Dashboard.tsx` (Meu Ranking ICC)
+- [ ] Atualizar página `WhatIsVehicleScore.tsx`
+- [ ] Atualizar página `WhatIsICC.tsx`
+- [ ] Atualizar página `ScoreVsICC.tsx`
+- [ ] Atualizar página `HowScoreWorks.tsx`
+- [ ] Atualizar página `HowToEarnICC.tsx`
+- [ ] Testar em todas as telas
+- [ ] Verificar responsividade mobile
+- [ ] Confirmar cores corretas conforme especificação
+
+---
+
+## 🎨 IMAGEM DE REFERÊNCIA
+
+**Formato desejado:** Cápsula arredondada horizontal (similar à imagem "Variações de Tamanho" fornecida)
+
+**Características:**
+- Bordas completamente arredondadas (border-radius: 50px)
+- Efeito de brilho/glow sutil
+- Gradiente suave de cor
+- Sombra leve para profundidade
+- Padding generoso (8px vertical, 20px horizontal)
+
+---
+
+## ⚠️ IMPORTANTE - NÃO MUDAR
+
+- ❌ **NÃO** alterar as faixas de pontuação
+- ❌ **NÃO** alterar os nomes das categorias
+- ❌ **NÃO** alterar as regras de cálculo
+- ❌ **NÃO** alterar a lógica de Score/ICC
+- ✅ **APENAS** mudar a aparência visual dos ícones/badges
+
+---
+
+## 📝 APÓS CONCLUIR
+
+Por favor:
+1. Marque todos os itens do checklist
+2. Forneça screenshots das telas atualizadas:
+   - Score do Veículo (lista de 7 categorias)
+   - Meu Ranking ICC (lista de 7 níveis)
+   - Pelo menos 2 páginas informativas
+3. Confirme que as cores estão corretas conforme especificação
+
+---
+
+**Confirmação de entendimento:**
+Por favor, responda "Entendi as especificações de design e vou atualizar apenas os ícones/badges conforme solicitado" antes de começar o trabalho.
+```
+
+---

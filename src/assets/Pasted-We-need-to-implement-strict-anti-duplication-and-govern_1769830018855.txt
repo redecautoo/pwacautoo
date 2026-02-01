@@ -1,0 +1,120 @@
+We need to implement strict anti-duplication and governance rules for the Garage → Condominium feature.
+
+IMPORTANT RULES:
+- Do NOT refactor unrelated features.
+- Do NOT change existing UI styles unless required.
+- Keep changes minimal and explicit.
+- Preserve existing data when possible.
+- Focus only on Condominium creation, validation, and reporting.
+
+========================
+1) CONDOMINIUM CREATION – ANTI DUPLICATION
+========================
+
+When a user attempts to create a new condominium, BEFORE saving:
+
+Perform a uniqueness check using:
+- Condominium name
+- Address (street)
+- Number
+- ZIP code (CEP)
+
+Normalization rules:
+- Case-insensitive comparison
+- Ignore accents and extra spaces
+
+If a matching condominium already exists:
+- Block the creation
+- Show the existing condominium profile
+- Display message:
+  "Este condomínio já está cadastrado."
+- Show button:
+  "Entrar neste condomínio"
+
+The user must NOT be allowed to create a duplicate condominium under any circumstance.
+
+========================
+2) CONDOMINIUM UNIQUE CODE
+========================
+
+When a condominium is successfully created:
+
+- Generate a permanent, unique, alphanumeric code
+- Example format:
+  "CT-8F3K9A" or "COND-A72X9"
+- The code must:
+  - Be immutable
+  - Be searchable
+  - Be visible in the condominium profile
+
+========================
+3) CONDOMINIUM GOVERNANCE RULES
+========================
+
+- Users can NEVER delete a condominium.
+- Users can NEVER edit critical data:
+  - Name
+  - Address
+  - Number
+  - CEP
+
+Only the Cautoo admin team can:
+- Delete a condominium
+- Correct address or name
+- Merge duplicate records (if any)
+
+The user who creates the condominium:
+- Is NOT an admin
+- Has no special permissions
+
+========================
+4) CONDOMINIUM PROFILE – REPORT TO CAUTOO
+========================
+
+Inside every condominium profile, add a visible action button:
+
+"Reportar à Cautoo"
+
+When clicked, open a report form with:
+
+Mandatory reason (single choice):
+- Condomínio duplicado
+- Endereço incorreto
+- Nome incorreto
+- Informações fraudulentas
+- Solicitar atualização de dados
+
+Mandatory description field:
+- User must explain the issue
+
+On submit:
+- Save the report linked to:
+  - Condominium ID
+  - Reporting user
+  - Timestamp
+- Mark the condominium as "under review" (no UI change required yet)
+
+========================
+5) TECHNICAL REQUIREMENTS
+========================
+
+- Implement uniqueness validation at both:
+  - Frontend (UX feedback)
+  - Backend / service layer (hard validation)
+- Prevent race conditions (double submit)
+- Ensure condominium code uniqueness at database level
+- Do NOT allow deletion via client-side logic
+
+========================
+6) DELIVERY REQUIREMENTS
+========================
+
+Before coding:
+- Identify the exact files responsible for:
+  - Condominium creation
+  - Condominium profile view
+
+After implementation:
+- List all files changed
+- Briefly describe what was changed in each file
+- Ensure the app builds without errors

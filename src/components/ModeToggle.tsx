@@ -1,3 +1,4 @@
+import React from 'react';
 import { Bell, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -46,3 +47,4 @@ const ModeToggle = ({ isMyPlate, onToggle }: ModeToggleProps) => {
 };
 
 export default ModeToggle;
+

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ParkingCircle, Check } from "lucide-react";
@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useVagas } from "@/contexts/VagasContext";
 import { useApp } from "@/contexts/AppContext";
 import { PageTransition } from "@/components/PageTransition";
-import { TipoVaga, StatusVaga } from "@/lib/vagasTypes";
+import { TipoVaga, StatusVaga, VALOR_DIARIA_PADRAO } from "@/lib/vagasTypes";
 
 const VagasNovaVaga = () => {
   const navigate = useNavigate();
@@ -26,6 +26,8 @@ const VagasNovaVaga = () => {
     placa: "",
     observacao: "",
     status: "ocupada" as StatusVaga,
+    precoDiario: VALOR_DIARIA_PADRAO.toString(),
+    precoMensal: "",
     disponivelDe: "",
     disponivelAte: "",
   });
@@ -55,6 +57,8 @@ const VagasNovaVaga = () => {
       placa: formData.placa.toUpperCase().replace(/[^A-Z0-9]/gi, ''),
       observacao: formData.observacao.trim() || undefined,
       status: formData.status,
+      precoDiario: parseFloat(formData.precoDiario) || VALOR_DIARIA_PADRAO,
+      precoMensal: formData.precoMensal ? parseFloat(formData.precoMensal) : undefined,
       disponivelDe: isDisponivel ? formData.disponivelDe : undefined,
       disponivelAte: isDisponivel ? formData.disponivelAte : undefined,
     });
@@ -115,9 +119,37 @@ const VagasNovaVaga = () => {
                 <div><Label htmlFor="disponivelDe">Disponível de *</Label><Input id="disponivelDe" type="date" value={formData.disponivelDe} onChange={(e) => handleChange("disponivelDe", e.target.value)} className="mt-1.5" /></div>
                 <div><Label htmlFor="disponivelAte">Disponível até *</Label><Input id="disponivelAte" type="date" value={formData.disponivelAte} onChange={(e) => handleChange("disponivelAte", e.target.value)} className="mt-1.5" /></div>
               </motion.div>)}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="precoDiario">Preço Diário (R$) *</Label>
+                  <Input 
+                    id="precoDiario" 
+                    type="number" 
+                    placeholder="25" 
+                    value={formData.precoDiario} 
+                    onChange={(e) => handleChange("precoDiario", e.target.value)} 
+                    min="1"
+                    className="mt-1.5" 
+                    data-testid="input-preco-diario"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="precoMensal">Preço Mensal (R$)</Label>
+                  <Input 
+                    id="precoMensal" 
+                    type="number" 
+                    placeholder="500" 
+                    value={formData.precoMensal} 
+                    onChange={(e) => handleChange("precoMensal", e.target.value)} 
+                    min="1"
+                    className="mt-1.5" 
+                    data-testid="input-preco-mensal"
+                  />
+                </div>
+              </div>
               <div><Label htmlFor="observacao">Observação (opcional)</Label><Textarea id="observacao" placeholder="Informações extras..." value={formData.observacao} onChange={(e) => handleChange("observacao", e.target.value)} maxLength={120} className="mt-1.5 resize-none" rows={3} /></div>
             </div>
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-xs text-blue-400"><strong>💡 Dica:</strong> Vagas marcadas como "Disponível" podem ser alugadas por outros moradores.</div>
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-xs text-blue-400"><strong>Dica:</strong> Vagas marcadas como "Disponível" podem ser alugadas por outros moradores. Você define o preço!</div>
             <Button onClick={handleSubmit} disabled={!isValid || !datasValidas || isSubmitting} className="w-full h-12 font-bold" size="lg">
               {isSubmitting ? <motion.div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} /> : <><ParkingCircle className="w-4 h-4 mr-2" />Cadastrar Vaga</>}
             </Button>
@@ -129,3 +161,4 @@ const VagasNovaVaga = () => {
 };
 
 export default VagasNovaVaga;
+

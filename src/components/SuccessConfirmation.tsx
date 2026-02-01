@@ -1,6 +1,6 @@
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
-import { useEffect } from "react";
 
 interface SuccessConfirmationProps {
   isOpen: boolean;

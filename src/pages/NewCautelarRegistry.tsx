@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -289,8 +289,7 @@ const NewCautelarRegistry = () => {
 
                   <Button
                     onClick={handleStep1Continue}
-                    className="w-full py-6"
-                    size="lg"
+                    className="w-full h-12 font-bold"
                     data-testid="button-next-step1"
                   >
                     Continuar
@@ -380,8 +379,7 @@ const NewCautelarRegistry = () => {
                   <Button
                     onClick={() => setStep(3)}
                     disabled={!canProceedStep2}
-                    className="w-full py-6"
-                    size="lg"
+                    className="w-full h-12 font-bold"
                     data-testid="button-next-step2"
                   >
                     Continuar
@@ -466,8 +464,7 @@ const NewCautelarRegistry = () => {
                   <Button
                     onClick={handleSubmit}
                     disabled={!canSubmit}
-                    className="w-full py-6 bg-gradient-to-r from-primary to-primary/80"
-                    size="lg"
+                    className="w-full h-12 bg-gradient-to-r from-primary to-primary/80 font-bold"
                     data-testid="button-submit"
                   >
                     <FileText className="w-5 h-5 mr-2" />
@@ -492,3 +489,4 @@ const NewCautelarRegistry = () => {
 };
 
 export default NewCautelarRegistry;
+

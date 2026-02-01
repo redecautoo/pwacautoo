@@ -7,9 +7,14 @@ import {
   AvaliacaoVaga,
   UsuarioCondominio,
   PagamentoReserva,
+  ReportCondominio,
+  MotivoReportCondominio,
   calcularValorReserva,
+  calcularComissao,
   gerarLinkAcesso,
+  gerarCodigoCondominioUnico,
   isUsuarioSuspenso,
+  VALOR_DIARIA_PADRAO,
 } from '@/lib/vagasTypes';
 import {
   mockCondominios,
@@ -19,6 +24,7 @@ import {
   mockAvaliacoes,
   mockUsuariosCondominios,
   mockPagamentos,
+  mockReportsCondominios,
 } from '@/lib/vagasMockData';
 import { useApp } from '@/contexts/AppContext';
 
@@ -26,11 +32,15 @@ interface VagasContextType {
   // Condomínios
   condominios: Condominio[];
   meusCondominios: Condominio[];
-  criarCondominio: (data: Omit<Condominio, 'id' | 'criadoPor' | 'createdAt'>) => Condominio;
+  criarCondominio: (data: Omit<Condominio, 'id' | 'codigo' | 'criadoPor' | 'status' | 'createdAt'>) => Condominio;
   buscarCondominios: (termo: string) => Condominio[];
   entrarCondominio: (condominioId: string) => void;
   sairCondominio: (condominioId: string) => void;
   isMembroCondominio: (condominioId: string) => boolean;
+  
+  // Reports de Condomínio
+  reportsCondominios: ReportCondominio[];
+  reportarCondominio: (condominioId: string, motivo: MotivoReportCondominio, descricao: string) => void;
   
   // Vagas
   vagas: Vaga[];
@@ -88,6 +98,7 @@ interface VagasStorage {
   denuncias: DenunciaVaga[];
   avaliacoes: AvaliacaoVaga[];
   usuariosCondominios: UsuarioCondominio[];
+  reportsCondominios: ReportCondominio[];
 }
 
 function readStoredData(): VagasStorage | null {
@@ -101,10 +112,11 @@ function readStoredData(): VagasStorage | null {
 }
 
 export function VagasProvider({ children, userId }: { children: ReactNode; userId?: string }) {
-  const currentUserId = userId || 'mock-user';
-  
   // Usar CauCash unificado do AppContext
-  const { cauCashBalance, addTransaction, getCurrentCauCashBalance } = useApp();
+  const { cauCashBalance, addTransaction, getCurrentCauCashBalance, currentUser } = useApp();
+  
+  // Usar o ID do usuário do AppContext se disponível, senão fallback
+  const currentUserId = currentUser?.id || userId || 'user-1';
   
   const stored = readStoredData();
   
@@ -117,6 +129,9 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
   const [usuariosCondominios, setUsuariosCondominios] = useState<UsuarioCondominio[]>(
     stored?.usuariosCondominios || mockUsuariosCondominios
   );
+  const [reportsCondominios, setReportsCondominios] = useState<ReportCondominio[]>(
+    stored?.reportsCondominios || mockReportsCondominios
+  );
 
   // Persistir dados (exceto CauCash que é gerenciado pelo AppContext)
   useEffect(() => {
@@ -128,20 +143,23 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
       denuncias,
       avaliacoes,
       usuariosCondominios,
+      reportsCondominios,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [condominios, vagas, reservas, pagamentos, denuncias, avaliacoes, usuariosCondominios]);
+  }, [condominios, vagas, reservas, pagamentos, denuncias, avaliacoes, usuariosCondominios, reportsCondominios]);
 
   // Condomínios
   const meusCondominios = condominios.filter(c => 
     usuariosCondominios.some(uc => uc.condominioId === c.id && uc.userId === currentUserId && !uc.excluido)
   );
 
-  const criarCondominio = useCallback((data: Omit<Condominio, 'id' | 'criadoPor' | 'createdAt'>): Condominio => {
+  const criarCondominio = useCallback((data: Omit<Condominio, 'id' | 'codigo' | 'criadoPor' | 'status' | 'createdAt'>): Condominio => {
     const novoCondominio: Condominio = {
       ...data,
       id: `cond-${Date.now()}`,
+      codigo: gerarCodigoCondominioUnico(condominios),
       criadoPor: currentUserId,
+      status: 'ativo',
       createdAt: new Date().toISOString(),
     };
     setCondominios(prev => [...prev, novoCondominio]);
@@ -158,6 +176,24 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
     setUsuariosCondominios(prev => [...prev, novaAssociacao]);
     
     return novoCondominio;
+  }, [currentUserId, condominios]);
+
+  // Report de Condomínio
+  const reportarCondominio = useCallback((condominioId: string, motivo: MotivoReportCondominio, descricao: string) => {
+    const novoReport: ReportCondominio = {
+      id: `report-${Date.now()}`,
+      condominioId,
+      userId: currentUserId,
+      motivo,
+      descricao,
+      createdAt: new Date().toISOString(),
+    };
+    setReportsCondominios(prev => [...prev, novoReport]);
+    
+    // Marcar condomínio como em revisão (opcional - pode ser feito apenas no backend real)
+    setCondominios(prev => prev.map(c => 
+      c.id === condominioId ? { ...c, status: 'em_revisao' as const } : c
+    ));
   }, [currentUserId]);
 
   const buscarCondominios = useCallback((termo: string): Condominio[] => {
@@ -251,7 +287,12 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
   const criarReserva = useCallback((
     data: Omit<Reserva, 'id' | 'userId' | 'valorTotal' | 'status' | 'linkAcesso' | 'createdAt'>
   ): Reserva => {
-    const valorTotal = calcularValorReserva(data.dataInicio, data.dataFim);
+    // Buscar a vaga para obter o preço diário
+    const vaga = vagas.find(v => v.id === data.vagaId);
+    const precoDiario = vaga?.precoDiario || VALOR_DIARIA_PADRAO;
+    const valorTotal = calcularValorReserva(data.dataInicio, data.dataFim, precoDiario);
+    const { comissaoCautoo, valorProprietario } = calcularComissao(valorTotal);
+    
     const novaReserva: Reserva = {
       ...data,
       id: `reserva-${Date.now()}`,
@@ -265,7 +306,7 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
     };
     setReservas(prev => [...prev, novaReserva]);
     
-    // Criar pagamento retido
+    // Criar pagamento retido com informação de comissão
     const novoPagamento: PagamentoReserva = {
       id: `pag-${Date.now()}`,
       reservaId: novaReserva.id,
@@ -275,8 +316,11 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
     };
     setPagamentos(prev => [...prev, novoPagamento]);
     
+    // Log da comissão (para debugging)
+    console.log(`Reserva criada - Total: R$${valorTotal} | Comissão Cautoo (20%): R$${comissaoCautoo} | Proprietário (80%): R$${valorProprietario}`);
+    
     return novaReserva;
-  }, [currentUserId]);
+  }, [currentUserId, vagas]);
 
   const confirmarReserva = useCallback((reservaId: string) => {
     setReservas(prev => prev.map(r => 
@@ -352,11 +396,29 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
 
   // Pagamentos
   const liberarPagamento = useCallback((reservaId: string) => {
+    const reserva = reservas.find(r => r.id === reservaId);
+    if (!reserva) return;
+    
+    // Calcular comissão
+    const { comissaoCautoo, valorProprietario } = calcularComissao(reserva.valorTotal);
+    
+    // Creditar 80% ao proprietário da vaga
+    const vaga = vagas.find(v => v.id === reserva.vagaId);
+    if (vaga) {
+      addTransaction({
+        type: 'credit',
+        amount: valorProprietario,
+        description: `Aluguel Vaga ${vaga.numero} (80%)`,
+        category: 'Garagem'
+      });
+      console.log(`Pagamento liberado - Proprietário recebe: R$${valorProprietario} | Comissão Cautoo: R$${comissaoCautoo}`);
+    }
+    
     setPagamentos(prev => prev.map(p => 
       p.reservaId === reservaId ? { ...p, status: 'liberado' } : p
     ));
     concluirReserva(reservaId);
-  }, [concluirReserva]);
+  }, [reservas, vagas, concluirReserva, addTransaction]);
 
   const disputarPagamento = useCallback((reservaId: string) => {
     setPagamentos(prev => prev.map(p => 
@@ -468,6 +530,8 @@ export function VagasProvider({ children, userId }: { children: ReactNode; userI
     entrarCondominio,
     sairCondominio,
     isMembroCondominio,
+    reportsCondominios,
+    reportarCondominio,
     vagas,
     minhasVagas,
     vagasDisponiveis,

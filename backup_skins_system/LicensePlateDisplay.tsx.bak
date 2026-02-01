@@ -1,0 +1,166 @@
+import skinFUT1234 from "@assets/FUT1234_1769672505248.png";
+import skinBAT1234 from "@assets/BAT1234_1769674073278.png";
+import skinPOK1234 from "@assets/POK1234_1769674661003.png";
+import skinARA1234 from "@assets/ARA1234_1769674661003.png";
+import skinROS1234 from "@assets/ROS1234_1769835958080.png";
+import skinBunnyReal from "@assets/skins/bunny_skin_real.png";
+
+interface SkinConfig {
+  image?: string;
+  component?: React.ComponentType<{ plateText?: string; showText?: boolean }>;
+  textPosition: {
+    top: string;
+    left: string;
+    right: string;
+    bottom: string;
+  };
+  textColor?: string;
+}
+
+const defaultTextPosition = {
+  top: '28%',
+  left: '12%',
+  right: '12%',
+  bottom: '22%'
+};
+
+const plateSkinConfigs: Record<string, SkinConfig> = {
+  "FUT1234": { image: skinFUT1234, textPosition: defaultTextPosition },
+  "BAT1234": { image: skinBAT1234, textPosition: defaultTextPosition },
+  "POK1234": { image: skinPOK1234, textPosition: defaultTextPosition },
+  "ARA1234": { image: skinARA1234, textPosition: defaultTextPosition },
+  "ROS1234": {
+    image: skinROS1234,
+    textPosition: { top: '42%', left: '14%', right: '14%', bottom: '18%' },
+    textColor: '#4a2040'
+  },
+  "ROS1A11": {
+    image: skinBunnyReal,
+    textPosition: { top: '42%', left: '15%', right: '15%', bottom: '13%' },
+    textColor: '#1a1a1a'
+  },
+};
+
+interface LicensePlateDisplayProps {
+  plate: string;
+  size?: "sm" | "md" | "lg";
+  isStolen?: boolean;
+}
+
+export const LicensePlateDisplay = ({
+  plate,
+  size = "md",
+  isStolen = false
+}: LicensePlateDisplayProps) => {
+  const skinConfig = plateSkinConfigs[plate] || null;
+
+  const sizeClasses = {
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg"
+  };
+
+  // Largura fixa para garantir que ambas placas (padrão e skin) tenham o mesmo tamanho
+  const containerClasses = {
+    sm: "w-[120px]",
+    md: "w-[160px]",
+    lg: "w-[200px]"
+  };
+
+  // Component-based skin
+  if (skinConfig?.component) {
+    const SkinComponent = skinConfig.component;
+    return (
+      <div className={`relative ${containerClasses[size]}`}>
+        <SkinComponent plateText={plate} showText={true} />
+        {isStolen && (
+          <div className="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full z-10">
+            ROUBADO
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Image-based skin
+  if (skinConfig?.image) {
+    return (
+      <div className={`relative ${containerClasses[size]}`}>
+        <img
+          src={skinConfig.image}
+          alt="Skin da placa"
+          className="w-full h-auto block"
+        />
+        <div
+          className="absolute flex items-center justify-center"
+          style={skinConfig.textPosition || defaultTextPosition}
+        >
+          <span
+            className={`${sizeClasses[size]} font-black tracking-[0.1em] text-center`}
+            style={{
+              fontFamily: "'FE-Schrift', 'Oswald', sans-serif",
+              color: skinConfig.textColor || '#1a1a1a',
+              textShadow: '1px 1px 0 rgba(0,0,0,0.1)'
+            }}
+          >
+            {plate}
+          </span>
+        </div>
+        {isStolen && (
+          <div className="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
+            ROUBADO
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Altura proporcional à largura para manter aspecto de placa real
+  const heightClasses = {
+    sm: "h-[48px]",
+    md: "h-[64px]",
+    lg: "h-[80px]"
+  };
+
+  const textPaddingClasses = {
+    sm: "py-1.5",
+    md: "py-2",
+    lg: "py-3"
+  };
+
+  return (
+    <div className={`relative ${containerClasses[size]}`}>
+      <div className={`rounded-lg overflow-hidden border-2 shadow-md ${heightClasses[size]} flex flex-col ${isStolen ? 'border-red-500' : 'border-border'}`}>
+        <div className="bg-[#003399] px-2 py-0.5 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-white/20 flex items-center justify-center">
+              <span className="text-[6px]">🇧🇷</span>
+            </div>
+            <span className="text-[7px] font-bold text-white tracking-wider">BRASIL</span>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <div className="w-1 h-1 rounded-full bg-green-400"></div>
+            <div className="w-1 h-1 rounded-full bg-yellow-400"></div>
+          </div>
+        </div>
+        <div className={`bg-[#f5f5f5] px-3 ${textPaddingClasses[size]} flex-1 flex items-center justify-center`}>
+          <span
+            className={`${sizeClasses[size]} font-black tracking-[0.08em] text-gray-900 block text-center`}
+            style={{
+              fontFamily: "'FE-Schrift', 'Oswald', sans-serif",
+              textShadow: '1px 1px 0 rgba(0,0,0,0.1)'
+            }}
+          >
+            {plate}
+          </span>
+        </div>
+        <div className="h-0.5 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 flex-shrink-0"></div>
+      </div>
+      {isStolen && (
+        <div className="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
+          ROUBADO
+        </div>
+      )}
+    </div>
+  );
+};

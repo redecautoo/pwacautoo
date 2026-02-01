@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -133,8 +133,7 @@ const CautelarRegistry = () => {
 
                 <Button
                   onClick={() => navigate("/cautelar-registry/new")}
-                  className="w-full py-6 bg-gradient-to-r from-primary to-primary/80"
-                  size="lg"
+                  className="w-full h-12 bg-gradient-to-r from-primary to-primary/80 font-bold"
                   data-testid="button-new-registry"
                 >
                   <Plus className="w-5 h-5 mr-2" />
@@ -269,3 +268,4 @@ const CautelarRegistry = () => {
 };
 
 export default CautelarRegistry;
+

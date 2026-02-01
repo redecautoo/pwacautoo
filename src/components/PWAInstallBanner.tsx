@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Download, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,38 +16,76 @@ const PWAInstallBanner = () => {
 
   useEffect(() => {
     // Check if already installed (standalone mode)
-    const standalone = window.matchMedia("(display-mode: standalone)").matches 
+    const standalone = window.matchMedia("(display-mode: standalone)").matches
       || (window.navigator as any).standalone === true;
     setIsStandalone(standalone);
+
+    console.log('[PWA] Standalone mode:', standalone);
+    console.log('[PWA] Display mode:', window.matchMedia("(display-mode: standalone)").matches);
 
     // Check if iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     setIsIOS(iOS);
 
-    // Check if banner was dismissed recently (24h)
+    console.log('[PWA] iOS detected:', iOS);
+    console.log('[PWA] User Agent:', navigator.userAgent);
+
+    // Check if already installed via getInstalledRelatedApps (if supported)
+    if ('getInstalledRelatedApps' in navigator) {
+      (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
+        console.log('[PWA] Installed related apps:', apps);
+        if (apps.length > 0) {
+          console.log('[PWA] App already installed!');
+        }
+      });
+    }
+
+    // Check if banner was dismissed recently (1h instead of 24h for easier testing)
     const dismissedAt = localStorage.getItem("pwa_banner_dismissed");
     if (dismissedAt) {
       const dismissedTime = parseInt(dismissedAt, 10);
       const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60);
-      if (hoursSinceDismissed < 24) {
-        return; // Don't show if dismissed within 24h
+      console.log('[PWA] Hours since dismissed:', hoursSinceDismissed);
+      if (hoursSinceDismissed < 1) {
+        console.log('[PWA] Banner dismissed recently, not showing');
+        return; // Don't show if dismissed within 1h
       }
     }
 
     // For Android/Chrome - listen for beforeinstallprompt
     const handleBeforeInstall = (e: Event) => {
+      console.log('[PWA] ✅ beforeinstallprompt event fired!');
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowBanner(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    console.log('[PWA] Listening for beforeinstallprompt...');
 
-    // For iOS - show banner after 3 seconds if not standalone
+    // For iOS - show banner after 1 second if not standalone (faster than 3s)
     if (iOS && !standalone) {
+      console.log('[PWA] Setting iOS banner timer (1s)');
       const timer = setTimeout(() => {
+        console.log('[PWA] Showing iOS banner');
         setShowBanner(true);
-      }, 3000);
+      }, 1000);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      };
+    }
+
+    // For Android - also show after 1 second if no beforeinstallprompt fired
+    if (!iOS && !standalone) {
+      console.log('[PWA] Setting Android banner timer (1s)');
+      const timer = setTimeout(() => {
+        console.log('[PWA] Timer fired. deferredPrompt:', deferredPrompt ? 'available' : 'null');
+        if (!deferredPrompt) {
+          console.log('[PWA] ⚠️ Showing Android banner (no beforeinstallprompt received)');
+        }
+        setShowBanner(true);
+      }, 1000);
       return () => {
         clearTimeout(timer);
         window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
@@ -61,12 +99,55 @@ const PWAInstallBanner = () => {
 
   const handleInstall = async () => {
     if (deferredPrompt) {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        setShowBanner(false);
+      console.log('[PWA] Installing via prompt...');
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('[PWA] User choice:', outcome);
+        if (outcome === "accepted") {
+          setShowBanner(false);
+        }
+        setDeferredPrompt(null);
+      } catch (error) {
+        console.error('[PWA] Install error:', error);
       }
-      setDeferredPrompt(null);
+    } else {
+      // Tentar forçar o prompt manualmente
+      console.log('[PWA] No prompt available, trying alternative methods...');
+
+      // Verificar se já está instalado
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        alert('✅ O app já está instalado!\n\nVocê pode encontrá-lo na tela inicial do seu celular.');
+        setShowBanner(false);
+        return;
+      }
+
+      // Para Chrome/Edge - tentar recarregar e esperar o evento
+      if (!isIOS) {
+        const shouldReload = confirm(
+          '📱 Para instalar automaticamente:\n\n' +
+          '1. Vou recarregar a página\n' +
+          '2. Aguarde o banner aparecer novamente\n' +
+          '3. Clique em "Instalar agora"\n\n' +
+          'Deseja continuar?'
+        );
+
+        if (shouldReload) {
+          // Limpar o cache de dismissal
+          localStorage.removeItem('pwa_banner_dismissed');
+          // Recarregar
+          window.location.reload();
+        }
+      } else {
+        // Para iOS - mostrar instruções
+        alert(
+          '📱 Para instalar no iPhone:\n\n' +
+          '1. Toque no ícone Compartilhar (⬆️)\n' +
+          '2. Role para baixo\n' +
+          '3. Toque em "Adicionar à Tela de Início"\n' +
+          '4. Toque em "Adicionar"'
+        );
+      }
     }
   };
 
@@ -101,7 +182,7 @@ const PWAInstallBanner = () => {
                   Instalar Cautoo
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {isIOS 
+                  {isIOS
                     ? "Adicione à tela inicial para acesso rápido"
                     : "Instale o app para uma experiência melhor"
                   }

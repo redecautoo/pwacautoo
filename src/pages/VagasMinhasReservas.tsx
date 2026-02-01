@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -78,7 +79,7 @@ const VagasMinhasReservas = () => {
                 <CalendarDays className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="font-medium mb-2">Nenhuma reserva</h3>
                 <p className="text-sm text-muted-foreground mb-4">Você ainda não possui reservas.</p>
-                <Button onClick={() => navigate("/garagem/buscar")}>Buscar Vagas</Button>
+                <Button onClick={() => navigate("/garagem/condominios")}>Meus Condomínios</Button>
               </motion.div>
             ) : (
               <motion.div className="space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
@@ -131,3 +132,4 @@ const VagasMinhasReservas = () => {
 };
 
 export default VagasMinhasReservas;
+

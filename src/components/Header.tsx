@@ -1,3 +1,4 @@
+import React from "react";
 import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -10,16 +11,16 @@ const Header = () => {
     <header className="w-full pt-4 pb-6 px-4 safe-area-top">
       <div className="flex items-center justify-between max-w-lg mx-auto">
         <div className="flex items-center gap-3">
-          <img 
-            src={cautooLogo} 
-            alt="Cautoo" 
+          <img
+            src={cautooLogo}
+            alt="Cautoo"
             className="h-9 w-auto"
           />
         </div>
 
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant="outline"
+          size="sm"
           className="flex-shrink-0 h-9 px-4 text-sm border-border"
           onClick={() => navigate('/login')}
         >

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, MapPin, Calendar, Clock, Car, CreditCard, Award } from "lucide-react";
+import { ArrowLeft, AlertTriangle, MapPin, Calendar, Clock, Car, CreditCard, Award, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useApp } from "@/contexts/AppContext";
 import { useVagas } from "@/contexts/VagasContext";
 import { PageTransition } from "@/components/PageTransition";
@@ -28,10 +29,41 @@ const ReportStolen = () => {
 
   const saldoTotal = cauCashBalance + saldoVagas;
 
-  const [location, setLocation] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [cep, setCep] = useState("");
+  const [gpsStatus, setGpsStatus] = useState("Não detectado");
+  const [referencia, setReferencia] = useState("");
+  const [observacoes, setObservacoes] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
+  const [isLoadingGps, setIsLoadingGps] = useState(false);
+
+  const formatCep = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    if (cleaned.length <= 5) return cleaned;
+    return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
+  };
+
+  const handleGetGps = () => {
+    if (!navigator.geolocation) {
+      setGpsStatus("GPS não suportado");
+      return;
+    }
+    setIsLoadingGps(true);
+    setGpsStatus("Buscando...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGpsStatus(`${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`);
+        setIsLoadingGps(false);
+      },
+      () => {
+        setGpsStatus("Não detectado");
+        setIsLoadingGps(false);
+      },
+      { timeout: 10000 }
+    );
+  };
 
   const vehicle = vehicles.find(v => v.id === vehicleId);
   const isVerified = currentUser?.isVerified || false;
@@ -83,7 +115,7 @@ const ReportStolen = () => {
   }
 
   const handleRequestPayment = () => {
-    if (location && date && time) {
+    if (endereco && referencia && date && time) {
       if (hasFreeAlert) {
         handleConfirmPayment();
       } else {
@@ -124,7 +156,8 @@ const ReportStolen = () => {
       }
     }
 
-    markAsStolen(vehicle.id, { location, date, time });
+    const locationData = `${endereco}${cep ? ` - CEP: ${cep}` : ''}${gpsStatus !== 'Não detectado' ? ` - GPS: ${gpsStatus}` : ''} - Ref: ${referencia}${observacoes ? ` - Obs: ${observacoes}` : ''}`;
+    markAsStolen(vehicle.id, { location: locationData, date, time });
     setShowPaymentConfirm(false);
     showAlert(
       "Alerta de Roubo Ativado!",
@@ -174,18 +207,77 @@ const ReportStolen = () => {
               <div className="space-y-1"><p className="text-sm font-bold text-white">Aviso Importante</p><p className="text-xs text-white/[0.78] leading-relaxed">Ao reportar o roubo, seu veículo será exibido para toda a rede Cautoo. Usuários verificados poderão enviar avistamentos para ajudar na localização.</p></div>
             </div>
 
-            <motion.div className="bg-card border border-border rounded-2xl p-6 space-y-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <motion.div className="bg-card border border-border rounded-2xl p-6 space-y-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <h2 className="text-sm font-bold text-white mb-4">Informações do Roubo</h2>
-              <div><label className="block text-sm text-muted-foreground mb-2">Local do roubo</label><div className="relative"><MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Ex: Av. Paulista, 1000 - São Paulo" className="pl-10" /></div></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm text-muted-foreground mb-2">Data</label><div className="relative"><Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="pl-10" /></div></div>
-                <div><label className="block text-sm text-muted-foreground mb-2">Horário</label><div className="relative"><Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="pl-10" /></div></div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-foreground">Localização *</label>
+                  <button
+                    onClick={handleGetGps}
+                    disabled={isLoadingGps}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Navigation className="w-4 h-4" />
+                    GPS
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">Endereço completo *</label>
+                  <Input 
+                    value={endereco} 
+                    onChange={(e) => setEndereco(e.target.value)} 
+                    placeholder="Rua, número, bairro..." 
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-2">CEP</label>
+                    <Input 
+                      value={cep} 
+                      onChange={(e) => setCep(formatCep(e.target.value))} 
+                      placeholder="00000-000" 
+                      maxLength={9}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-2">GPS</label>
+                    <p className="text-sm text-muted-foreground py-2">{gpsStatus}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">Referência *</label>
+                  <Input 
+                    value={referencia} 
+                    onChange={(e) => setReferencia(e.target.value)} 
+                    placeholder="Ex: Próximo ao posto..." 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">Observações facilitadoras</label>
+                  <Textarea 
+                    value={observacoes} 
+                    onChange={(e) => setObservacoes(e.target.value)} 
+                    placeholder="Cor do portão, local exato (calçada, meio da via)..." 
+                    className="resize-none"
+                    rows={2}
+                  />
+                </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/50">
+                <div><label className="block text-xs text-muted-foreground mb-2">Data *</label><div className="relative"><Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="pl-10" /></div></div>
+                <div><label className="block text-xs text-muted-foreground mb-2">Horário *</label><div className="relative"><Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="pl-10" /></div></div>
+              </div>
+
               <Button
                 onClick={handleRequestPayment}
-                disabled={!location || !date || !time}
-                className="w-full h-14 text-white font-bold bg-[#E53935] hover:bg-[#D32F2F] rounded-xl shadow-lg transition-all"
-                size="lg"
+                disabled={!endereco || !referencia || !date || !time}
+                className="w-full h-12 text-white font-bold bg-[#E53935] hover:bg-[#D32F2F] shadow-lg"
               >
                 {hasFreeAlert ? (
                   <><Award className="w-5 h-5 mr-1" />Ativar Alerta Gratuito (Selo Verde)</>

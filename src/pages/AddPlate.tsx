@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Car, Info, Building2, Shield, Calendar, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -217,7 +217,7 @@ const AddPlate = () => {
                   <Input placeholder="Placa (ex: ABC1D23)" value={newPlate} onChange={(e) => setNewPlate(e.target.value.toUpperCase())} maxLength={7} className="text-center text-xl font-bold tracking-wider" />
                   <p className="text-xs text-muted-foreground text-center mt-2">Formato: ABC1D23 (Mercosul) ou ABC1234 (antigo)</p>
                 </div>
-                <Button className="w-full" onClick={() => setStep('ownership')} disabled={!isPlateValid}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
+                <Button className="w-full h-12 font-bold" onClick={() => setStep('ownership')} disabled={!isPlateValid}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
               </motion.div>
             )}
 
@@ -238,7 +238,7 @@ const AddPlate = () => {
                     </button>
                   </div>
                 </div>
-                <Button className="w-full" onClick={() => ownershipType === 'assinatura' ? setStep('subscription') : setStep('insurance')} disabled={!ownershipType}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
+                <Button className="w-full h-12 font-bold" onClick={() => ownershipType === 'assinatura' ? setStep('subscription') : setStep('insurance')} disabled={!ownershipType}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
               </motion.div>
             )}
 
@@ -253,7 +253,7 @@ const AddPlate = () => {
                     <div><label className="text-sm font-medium text-foreground mb-2 block">Término do contrato *</label><div className="relative"><Input type="date" value={subscriptionEndDate} onChange={(e) => setSubscriptionEndDate(e.target.value)} className="pl-10" /><Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /></div></div>
                   </div>
                 </div>
-                <Button className="w-full" onClick={() => setStep('details')} disabled={!subscriptionCompany || !subscriptionEndDate}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
+                <Button className="w-full h-12 font-bold" onClick={() => setStep('details')} disabled={!subscriptionCompany || !subscriptionEndDate}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
               </motion.div>
             )}
 
@@ -279,7 +279,7 @@ const AddPlate = () => {
                     <div><label className="text-sm font-medium text-foreground mb-2 block">Validade *</label><div className="relative"><Input type="date" value={insuranceEndDate} onChange={(e) => setInsuranceEndDate(e.target.value)} className="pl-10" /><Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /></div></div>
                   </div>
                 )}
-                <Button className="w-full" onClick={() => setStep('details')} disabled={hasInsurance === null || (hasInsurance === true && (!insuranceCompany || !insuranceEndDate))}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
+                <Button className="w-full h-12 font-bold" onClick={() => setStep('details')} disabled={hasInsurance === null || (hasInsurance === true && (!insuranceCompany || !insuranceEndDate))}>Continuar<ChevronRight className="w-4 h-4 ml-2" /></Button>
               </motion.div>
             )}
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -83,7 +83,7 @@ export default function VagasVisitanteAlerta() {
               <Label htmlFor="plate" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Placa do Veículo</Label>
               <Input id="plate" placeholder="ABC1D23" value={plate} onChange={(e) => setPlate(e.target.value.toUpperCase())} className="text-center text-3xl font-black tracking-[0.2em] h-16 border-2 border-primary/20 focus:border-primary shadow-inner" maxLength={7} />
             </div>
-            <Button className="w-full h-14 text-lg font-bold" onClick={handleNext}>Continuar</Button>
+            <Button className="w-full h-12 font-bold" onClick={handleNext}>Continuar</Button>
           </motion.div>
         );
       case "alert":
@@ -97,7 +97,7 @@ export default function VagasVisitanteAlerta() {
                 </Button>
               ))}
             </div>
-            <Button className="w-full h-14 text-lg font-bold mt-4 shadow-xl" onClick={handleNext}>Enviar Alerta Anonimamente</Button>
+            <Button className="w-full h-12 font-bold mt-4 shadow-xl" onClick={handleNext}>Enviar Alerta Anonimamente</Button>
           </motion.div>
         );
       case "validation":
@@ -109,7 +109,7 @@ export default function VagasVisitanteAlerta() {
               <Button variant={method === "email" ? "default" : "outline"} className="h-28 flex-col gap-3 font-bold" onClick={() => setMethod("email")}><Mail className="w-8 h-8" />E-MAIL</Button>
             </div>
             {method && <div className="space-y-2"><Label className="text-[10px] font-bold uppercase tracking-widest">{method === "sms" ? "Celular" : "E-mail"}</Label><Input placeholder={method === "sms" ? "(00) 00000-0000" : "nome@exemplo.com"} value={contact} onChange={(e) => setContact(e.target.value)} className="h-12" /></div>}
-            <Button className="w-full h-14 text-lg font-bold shadow-lg" onClick={handleNext}>Enviar Código</Button>
+            <Button className="w-full h-12 font-bold shadow-lg" onClick={handleNext}>Enviar Código</Button>
           </motion.div>
         );
       case "code":
@@ -117,7 +117,7 @@ export default function VagasVisitanteAlerta() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             <div className="text-center space-y-3"><h2 className="text-xl font-bold">Insira o Código</h2><p className="text-xs text-muted-foreground">Código enviado para <strong>{contact}</strong></p></div>
             <Input value={code} onChange={(e) => setCode(e.target.value)} className="text-center text-4xl font-black tracking-[0.6em] h-20 border-2 border-primary" maxLength={6} placeholder="000000" />
-            <Button className="w-full h-14 text-lg font-bold shadow-lg" onClick={handleNext}>Validar e Enviar</Button>
+            <Button className="w-full h-12 font-bold shadow-lg" onClick={handleNext}>Validar e Enviar</Button>
             <Button variant="ghost" className="w-full text-muted-foreground text-xs" onClick={() => setStep("validation")}>Alterar forma de contato</Button>
           </motion.div>
         );
@@ -126,7 +126,7 @@ export default function VagasVisitanteAlerta() {
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-8 py-6">
             <div className="relative mx-auto w-24 h-24"><motion.div initial={{ scale: 0 }} animate={{ scale: 1.2, opacity: 0 }} transition={{ repeat: Infinity, duration: 2 }} className="absolute inset-0 bg-primary/20 rounded-full" /><div className="relative z-10 w-full h-full bg-primary/10 rounded-full flex items-center justify-center border-4 border-primary/20 shadow-2xl"><CheckCircle2 className="w-12 h-12 text-primary" /></div></div>
             <div className="space-y-3 px-4"><h2 className="text-2xl font-black text-foreground">ALERTA ENVIADO!</h2><p className="text-sm text-muted-foreground">A notificação foi disparada anonimamente para o proprietário de <strong>{plate}</strong>.</p></div>
-            <Button className="w-full h-14 text-lg font-bold shadow-xl" onClick={() => navigate("/")}>Voltar ao Início</Button>
+            <Button className="w-full h-12 font-bold shadow-xl" onClick={() => navigate("/")}>Voltar ao Início</Button>
           </motion.div>
         );
     }
@@ -149,3 +149,4 @@ export default function VagasVisitanteAlerta() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from "framer-motion";
 import { Shield } from "lucide-react";
 import { SealType } from "@/lib/types";
@@ -7,6 +8,7 @@ interface SealBadgeProps {
   size?: "sm" | "md" | "lg";
   showLabel?: boolean;
   animated?: boolean;
+  variant?: "default" | "simple"; // simple = solid color, no shadow/border (like Seals page)
 }
 
 // PADRONIZAÇÃO: Usar SEMPRE o mesmo ícone de escudo (Shield)
@@ -23,8 +25,8 @@ const sealConfig = {
   yellow: {
     name: "Guardião Viário",
     icon: Shield,
-    gradient: "from-yellow-400 via-amber-500 to-orange-500",
-    glow: "shadow-amber-500/50",
+    gradient: "from-yellow-400 via-yellow-500 to-amber-500",
+    glow: "shadow-yellow-500/50",
     ring: "ring-yellow-400/30",
     bg: "bg-yellow-500",
   },
@@ -37,12 +39,12 @@ const sealConfig = {
     bg: "bg-green-500",
   },
   none: {
-    name: "",
+    name: "Sem selo",
     icon: Shield,
-    gradient: "",
-    glow: "",
-    ring: "",
-    bg: "bg-muted",
+    gradient: "from-gray-400 via-gray-500 to-gray-600",
+    glow: "shadow-gray-500/20",
+    ring: "ring-gray-400/20",
+    bg: "bg-gray-500",
   },
 };
 
@@ -64,28 +66,27 @@ const sizes = {
   },
 };
 
-export function SealBadge({ seal, size = "md", showLabel = false, animated = true }: SealBadgeProps) {
-  if (seal === "none") return null;
-
+export function SealBadge({ seal, size = "md", showLabel = false, animated = true, variant = "default" }: SealBadgeProps) {
   const config = sealConfig[seal];
+  const isNone = seal === "none";
   const sizeConfig = sizes[size];
   const Icon = config.icon;
+  const isSimple = variant === "simple";
 
   const badge = (
-    <div className={`relative ${showLabel ? 'flex items-center gap-2' : ''}`}>
+    <div className={`relative ${showLabel ? 'flex items-center gap-2' : ''} ${isNone ? 'opacity-40' : ''}`}>
       <div
         className={`
           ${sizeConfig.container} 
           rounded-full 
           bg-gradient-to-br ${config.gradient}
-          ${sizeConfig.ring} ${config.ring}
-          shadow-lg ${config.glow}
+          ${!isSimple ? `${sizeConfig.ring} ${config.ring} shadow-lg ${config.glow}` : ''}
           flex items-center justify-center
           relative overflow-hidden
         `}
       >
-        {/* Shimmer effect */}
-        {animated && (
+        {/* Shimmer effect - only on default variant */}
+        {animated && !isNone && !isSimple && (
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
             animate={{
@@ -100,7 +101,7 @@ export function SealBadge({ seal, size = "md", showLabel = false, animated = tru
           />
         )}
         
-        <Icon className={`${sizeConfig.icon} text-white drop-shadow-sm relative z-10`} strokeWidth={3} />
+        <Icon className={`${sizeConfig.icon} text-white ${!isSimple ? 'drop-shadow-sm' : ''} relative z-10`} strokeWidth={2.5} />
       </div>
       
       {showLabel && (
@@ -127,3 +128,4 @@ export function SealBadge({ seal, size = "md", showLabel = false, animated = tru
 }
 
 export default SealBadge;
+

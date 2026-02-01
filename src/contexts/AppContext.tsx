@@ -37,7 +37,9 @@ import {
   ScoreCategory,
   ICCCategory,
   PlateClaimRequest,
-  ScoreHistoryEntry
+  ScoreHistoryEntry,
+  generateVerificationCode,
+  verifyCode
 } from '@/lib/types';
 import {
   mockCurrentUser,
@@ -116,13 +118,13 @@ export function getScoreCategoryInfo(score: number) {
   const category = getScoreCategory(score);
 
   const categoryMap = {
-    'alerta': { label: 'Placa em Alerta', icon: '🔴', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-    'neutra': { label: 'Placa Neutra', icon: '⚪', color: 'text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
-    'conhecida': { label: 'Placa Conhecida', icon: '🔵', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    'confiavel': { label: 'Placa Confiável', icon: '🟣', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    'distinta': { label: 'Placa Distinta', icon: '🟡', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-    'exemplar': { label: 'Placa Exemplar', icon: '🟢', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    'icone': { label: 'Placa Ícone Cautoo', icon: '💎', color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/20' }
+    'alerta': { label: 'Placa em Alerta', badgeClass: 'badge-vermelho', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+    'neutra': { label: 'Placa Neutra', badgeClass: 'badge-cinza', color: 'text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
+    'conhecida': { label: 'Placa Conhecida', badgeClass: 'badge-azul', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+    'confiavel': { label: 'Placa Confiável', badgeClass: 'badge-laranja', color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
+    'distinta': { label: 'Placa Distinta', badgeClass: 'badge-roxo', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+    'exemplar': { label: 'Placa Exemplar', badgeClass: 'badge-amarelo', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+    'icone': { label: 'Placa Ícone Cautoo', badgeClass: 'badge-verde', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' }
   };
 
   return { category, ...categoryMap[category] };
@@ -135,13 +137,13 @@ export function getICCCategoryInfo(icc: number) {
   const category = getICCCategory(icc);
 
   const categoryMap = {
-    'negativo': { label: 'Contribuidor Negativo', icon: '🔴', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-    'iniciante': { label: 'Iniciante', icon: '⚪', color: 'text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
-    'ativo': { label: 'Colaborador Ativo', icon: '🔵', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    'engajado': { label: 'Cauteloso Engajado', icon: '🟣', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    'protetor': { label: 'Protetor da Rede', icon: '🟡', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-    'embaixador': { label: 'Embaixador Cautoo', icon: '🟢', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    'guardiao': { label: 'Guardião Elite', icon: '💎', color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/20' }
+    'negativo': { label: 'Contribuidor Negativo', badgeClass: 'badge-vermelho', color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+    'iniciante': { label: 'Iniciante', badgeClass: 'badge-cinza', color: 'text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
+    'ativo': { label: 'Colaborador Ativo', badgeClass: 'badge-azul', color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+    'engajado': { label: 'Cauteloso Engajado', badgeClass: 'badge-laranja', color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
+    'protetor': { label: 'Protetor da Rede', badgeClass: 'badge-roxo', color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
+    'embaixador': { label: 'Embaixador Cautoo', badgeClass: 'badge-amarelo', color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+    'guardiao': { label: 'Guardião Elite', badgeClass: 'badge-verde', color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' }
   };
 
   return { category, ...categoryMap[category] };
@@ -222,6 +224,11 @@ interface AppContextType {
   purchasePlateInfo: (vehicleId: string, skipBalanceCheck?: boolean) => void;
   addAdditionalPlate: (vehicle: Omit<Vehicle, 'id' | 'ownerId' | 'score' | 'isStolen' | 'createdAt' | 'hasCompleteInfo'>, isAdditional?: boolean) => void;
 
+  // Verification Code (Código de Verificação Dinâmico)
+  generateNewVerificationCode: () => string;
+  validateVerificationCode: (inputCode: string) => boolean;
+  rotateVerificationCode: () => string;
+
   // Help Requests (Socorro)
   helpRequests: HelpRequest[];
   addHelpRequest: (data: Omit<HelpRequest, 'id' | 'userId' | 'userCpf' | 'status'>) => void;
@@ -298,6 +305,7 @@ interface AppContextType {
     approximateTime: string;
     driverWithoutSignal: boolean;
     additionalPhone?: string;
+    victimVerificationCode?: string;
   }) => { success: boolean; error?: string; hasCoverage?: boolean };
   getSolidaryAlertsForUser: (userId: string, type?: 'sent' | 'received') => SolidaryAlert[];
   respondToSolidaryAlert: (alertId: string, response: 'acionado' | 'ja_resolvido') => void;
@@ -310,8 +318,8 @@ interface AppContextType {
   getPlateMetrics: (plate: string) => {
     score: number;
     category: ScoreCategory;
-    categoryLabel: string;
-    categoryIcon: string;
+    label: string;
+    badgeClass: string;
     categoryColor: string;
     categoryBg: string;
     categoryBorder: string;
@@ -687,7 +695,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Auth actions
   const login = useCallback((cpf: string) => {
-    setCurrentUser(prev => (prev?.cpf === cpf ? prev : { ...mockCurrentUser, cpf }));
+    const user = { ...mockCurrentUser, cpf };
+    // Auto-gerar código de verificação se não existir
+    if (!user.verificationCode) {
+      user.verificationCode = generateVerificationCode();
+      user.verificationCodeCreatedAt = new Date().toISOString();
+    }
+    setCurrentUser(prev => (prev?.cpf === cpf ? prev : user));
     setVehicles(mockVehicles);
     setIsLoggedIn(true);
   }, []);
@@ -758,7 +772,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const testProfile = getTestProfile(cpf, cleanCpf.charAt(0).repeat(6));
       if (testProfile) {
         // Aplicar recompensas pendentes de ICC
-        const userWithRewards = applyPendingICCRewards(testProfile.user);
+        let userWithRewards = applyPendingICCRewards(testProfile.user);
+        // Auto-gerar código de verificação se não existir
+        if (!userWithRewards.verificationCode) {
+          userWithRewards = {
+            ...userWithRewards,
+            verificationCode: generateVerificationCode(),
+            verificationCodeCreatedAt: new Date().toISOString()
+          };
+        }
         setCurrentUser(userWithRewards);
         setVehicles(testProfile.vehicles);
         setIsLoggedIn(true);
@@ -774,7 +796,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Login bem sucedido para novos usuários
     const newUser = { ...mockCurrentUser, cpf, password };
-    const userWithRewards = applyPendingICCRewards(newUser);
+    let userWithRewards = applyPendingICCRewards(newUser);
+    // Auto-gerar código de verificação se não existir
+    if (!userWithRewards.verificationCode) {
+      userWithRewards = {
+        ...userWithRewards,
+        verificationCode: generateVerificationCode(),
+        verificationCodeCreatedAt: new Date().toISOString()
+      };
+    }
     setCurrentUser(userWithRewards);
     setVehicles(mockVehicles);
     setIsLoggedIn(true);
@@ -807,6 +837,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       positiveActionsLast90Days: 0,
       cauCashBalance: 150.00,
       isVerified: false,
+      verificationCode: generateVerificationCode(),
+      verificationCodeCreatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };
     setCurrentUser(newUser);
@@ -1211,6 +1243,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // User profile actions
   const updateUserProfile = useCallback((data: Partial<User>) => {
     setCurrentUser(prev => prev ? { ...prev, ...data } : null);
+  }, []);
+
+  // Verification Code Management
+  const generateNewVerificationCode = useCallback((): string => {
+    const newCode = generateVerificationCode(6);
+    const now = new Date().toISOString();
+    setCurrentUser(prev => prev ? {
+      ...prev,
+      verificationCode: newCode,
+      verificationCodeCreatedAt: now
+    } : null);
+    return newCode;
+  }, []);
+
+  const validateVerificationCode = useCallback((inputCode: string): boolean => {
+    if (!currentUser?.verificationCode) return false;
+    return verifyCode(inputCode, currentUser.verificationCode);
+  }, [currentUser]);
+
+  const rotateVerificationCode = useCallback((): string => {
+    const newCode = generateVerificationCode(6);
+    const now = new Date().toISOString();
+    setCurrentUser(prev => prev ? {
+      ...prev,
+      verificationCode: newCode,
+      verificationCodeCreatedAt: now
+    } : null);
+    return newCode;
   }, []);
 
   // Verificar se selo verificado está expirado
@@ -2050,10 +2110,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     approximateTime: string;
     driverWithoutSignal: boolean;
     additionalPhone?: string;
+    victimVerificationCode?: string;
   }): { success: boolean; error?: string; hasCoverage?: boolean } => {
     if (!currentUser) return { success: false, error: 'Usuário não autenticado' };
 
     const cleanPlate = data.targetPlate.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+
+    // Código de verificação é OBRIGATÓRIO (mínimo 6 caracteres)
+    const cleanVictimCode = data.victimVerificationCode?.trim().toUpperCase() || '';
+    if (!cleanVictimCode || cleanVictimCode.length < 6) {
+      return { success: false, error: 'Código de verificação do motorista é obrigatório (mínimo 6 caracteres).' };
+    }
+
+    // Buscar veículo para verificar o código da vítima
+    const targetVehicle = vehicles.find(v => v.plate.replace(/[^A-Za-z0-9]/g, '').toUpperCase() === cleanPlate);
+
+    // Validar formato do código (6-8 chars alfanuméricos)
+    if (!/^[A-Z0-9]{6,8}$/.test(cleanVictimCode)) {
+      return { success: false, error: 'Formato de código inválido. Use 3 letras + 3 números (ex: ABC123).' };
+    }
+
+    // Para veículos cadastrados, validar código contra proprietário
+    if (targetVehicle) {
+      // Buscar o dono do veículo para validar o código
+      if (targetVehicle.ownerId === currentUser.id) {
+        // Não pode enviar alerta solidário para si mesmo
+        return { success: false, error: 'Você não pode enviar alerta solidário para seu próprio veículo' };
+      }
+
+      const victimOwner = mockUsersById[targetVehicle.ownerId];
+
+      // Se proprietário existe e tem código, validar correspondência
+      if (victimOwner?.verificationCode) {
+        if (!verifyCode(cleanVictimCode, victimOwner.verificationCode)) {
+          return { success: false, error: 'Código de verificação inválido. Confirme o código com o motorista.' };
+        }
+      }
+      // Se proprietário não tem código, aceita qualquer código válido no formato (modo teste)
+    }
+    // Se veículo não está cadastrado, aceita qualquer código válido no formato (modo teste)
 
     // Verificar limite de 2 alertas por hora
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
@@ -2063,9 +2158,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (recentAlerts.length >= 2) {
       return { success: false, error: 'Limite de 2 alertas por hora atingido' };
     }
-
-    // Buscar veículo e verificar cobertura
-    const targetVehicle = vehicles.find(v => v.plate.replace(/[^A-Za-z0-9]/g, '').toUpperCase() === cleanPlate);
 
     // Verificar cobertura baseado no veículo
     let hasCoverage = false;
@@ -2138,6 +2230,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [solidaryAlerts, vehicles]);
 
   const respondToSolidaryAlert = useCallback((alertId: string, response: 'acionado' | 'ja_resolvido') => {
+    const alert = solidaryAlerts.find(a => a.id === alertId);
+
     setSolidaryAlerts(prev => prev.map(a => {
       if (a.id !== alertId) return a;
       return {
@@ -2147,7 +2241,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         resolvedAt: new Date().toISOString()
       };
     }));
-  }, []);
+
+    // Rotacionar código da vítima após atendimento (quando é o currentUser que recebeu ajuda)
+    if (alert?.targetVehicleId && response === 'acionado') {
+      const targetVehicle = vehicles.find(v => v.id === alert.targetVehicleId);
+      if (targetVehicle && targetVehicle.ownerId === currentUser?.id) {
+        // Gerar novo código para a vítima (currentUser)
+        const newCode = generateVerificationCode();
+        setCurrentUser(prev => prev ? {
+          ...prev,
+          verificationCode: newCode,
+          verificationCodeCreatedAt: new Date().toISOString()
+        } : prev);
+      }
+    }
+  }, [solidaryAlerts, vehicles, currentUser]);
 
   const markSolidaryAlertAsUseful = useCallback((alertId: string, isUseful: boolean) => {
     const alert = solidaryAlerts.find(a => a.id === alertId);
@@ -2256,8 +2364,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Dados PÚBLICOS
       score: finalScore,
       category: categoryInfo.category,
-      categoryLabel: categoryInfo.label,
-      categoryIcon: categoryInfo.icon,
+      label: categoryInfo.label,
+      badgeClass: categoryInfo.badgeClass,
       categoryColor: categoryInfo.color,
       categoryBg: categoryInfo.bg,
       categoryBorder: categoryInfo.border,
@@ -2281,7 +2389,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     logout,
     register,
     vehicles,
-    addVehicle,
+    addVehicle: addAdditionalPlate, // mapped to the implementation
     updateVehicle,
     markAsStolen,
     markAsRecovered,
@@ -2320,6 +2428,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isVerifiedSealExpired: isVerifiedSealExpiredFn,
     purchasePlateInfo,
     addAdditionalPlate,
+    generateNewVerificationCode,
+    validateVerificationCode,
+    rotateVerificationCode,
     helpRequests,
     addHelpRequest,
     useGreenSealCall,

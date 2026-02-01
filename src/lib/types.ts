@@ -211,6 +211,10 @@ export interface User {
   iccGracePeriodEndsAt?: string; // 30 dias de graça para novos usuários
   lastICCUpdate?: string; // Para controle de decaimento mensal
 
+  // Código de Verificação Dinâmico (para Alerta Solidário)
+  verificationCode?: string; // Código ativo atual (6-8 caracteres alfanuméricos)
+  verificationCodeCreatedAt?: string; // Quando o código foi gerado
+
   createdAt: string;
 }
 
@@ -708,4 +712,54 @@ export function checkVehicleCoverage(vehicle?: Vehicle | null, user?: User | nul
   if (vehicle.hasActivePlan) return true;
   if (user?.seal === 'green' && user.isVerified) return true;
   return false;
+}
+
+// ===== CÓDIGO DE VERIFICAÇÃO DINÂMICO =====
+
+// Caracteres seguros para código (sem I, O, 0, 1 para evitar confusão)
+const VERIFICATION_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+/**
+ * Gera um código de verificação único alfanumérico
+ * @param length Tamanho do código (6-8 caracteres)
+ */
+export function generateVerificationCode(length: number = 6): string {
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += VERIFICATION_CODE_CHARS.charAt(
+      Math.floor(Math.random() * VERIFICATION_CODE_CHARS.length)
+    );
+  }
+  return result;
+}
+
+/**
+ * Valida se um código de verificação é válido (formato correto)
+ * Para testes: aceita formato 3 letras + 3 números (ex: ABC123)
+ */
+export function isValidVerificationCode(code: string): boolean {
+  if (!code) return false;
+  const cleanCode = code.trim().toUpperCase();
+
+  // Aceita formato: 3 letras + 3 números (ABC123) para testes
+  if (cleanCode.length === 6) {
+    const lettersOnly = /^[A-Z]{3}[0-9]{3}$/;
+    if (lettersOnly.test(cleanCode)) return true;
+  }
+
+  // Também aceita formato alfanumérico padrão (6-8 chars)
+  if (cleanCode.length >= 6 && cleanCode.length <= 8) {
+    const validChars = new Set(VERIFICATION_CODE_CHARS.split(''));
+    return cleanCode.split('').every(char => validChars.has(char));
+  }
+
+  return false;
+}
+
+/**
+ * Verifica se o código fornecido corresponde ao código ativo do usuário
+ */
+export function verifyCode(inputCode: string, userCode?: string): boolean {
+  if (!inputCode || !userCode) return false;
+  return inputCode.toUpperCase().trim() === userCode.toUpperCase().trim();
 }

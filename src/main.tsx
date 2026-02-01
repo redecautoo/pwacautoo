@@ -1,9 +1,8 @@
+import React, { Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { Component, ErrorInfo, ReactNode } from "react";
-import App from "./App.tsx";
+import App from "./App";
 import "./index.css";
 
-// Error Boundary Component
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean, error: Error | null }> {
   constructor(props: { children: ReactNode }) {
     super(props);
@@ -39,19 +38,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
     return this.props.children;
   }
-}
-
-// Service Worker Logic
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('ServiceWorker registrado:', registration.scope);
-      })
-      .catch((error) => {
-        console.log('Erro ao registrar ServiceWorker:', error);
-      });
-  });
 }
 
 createRoot(document.getElementById("root")!).render(

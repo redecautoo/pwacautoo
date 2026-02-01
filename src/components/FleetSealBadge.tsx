@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from "framer-motion";
 import { Users } from "lucide-react";
 
@@ -84,3 +85,4 @@ export function FleetSealBadge({ size = "md", showLabel = false, animated = true
 }
 
 export default FleetSealBadge;
+

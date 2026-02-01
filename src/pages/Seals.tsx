@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Lock, Shield, Info, Gift, RefreshCw, AlertTriangle, Car, Clock, Zap, Star, Crown, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -259,7 +259,7 @@ const Seals = () => {
           </div>
 
           <Button
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+            className="w-full h-12 font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
             onClick={() => handleActivateSeal(false)}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -298,7 +298,7 @@ const Seals = () => {
           </div>
 
           <Button
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+            className="w-full h-12 font-bold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
             onClick={() => handleActivateSeal(true)}
           >
             <Gift className="w-4 h-4 mr-2" />
@@ -337,7 +337,7 @@ const Seals = () => {
         </div>
 
         <Button
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+          className="w-full h-12 font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
           onClick={() => handleActivateSeal(false)}
         >
           <Shield className="w-4 h-4 mr-2" />
@@ -734,7 +734,7 @@ const Seals = () => {
                   </div>
 
                   <Button
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
+                    className="w-full h-12 font-bold bg-gradient-to-r from-blue-500 to-blue-600"
                     onClick={() => handlePurchasePlan('cautela', 189)}
                     data-testid="button-purchase-cautela"
                   >
@@ -805,7 +805,7 @@ const Seals = () => {
                   </div>
 
                   <Button
-                    className="w-full bg-gradient-to-r from-yellow-500 to-amber-500"
+                    className="w-full h-12 font-bold bg-gradient-to-r from-yellow-500 to-amber-500"
                     onClick={() => handlePurchasePlan('certo', 391.50)}
                     data-testid="button-purchase-certo"
                   >
@@ -876,7 +876,7 @@ const Seals = () => {
                   </div>
 
                   <Button
-                    className="w-full bg-gradient-to-r from-emerald-500 to-green-600"
+                    className="w-full h-12 font-bold bg-gradient-to-r from-emerald-500 to-green-600"
                     onClick={() => handlePurchasePlan('ciente', 786)}
                     data-testid="button-purchase-ciente"
                   >
@@ -895,3 +895,4 @@ const Seals = () => {
 };
 
 export default Seals;
+

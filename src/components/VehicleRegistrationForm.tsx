@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { User, Phone, Car, Palette, Save, AlertTriangle, FileWarning, Building2, Shield, ChevronRight, ArrowLeft, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -514,3 +514,4 @@ const VehicleRegistrationForm = ({ plateValue, onRegister }: VehicleRegistration
 };
 
 export default VehicleRegistrationForm;
+

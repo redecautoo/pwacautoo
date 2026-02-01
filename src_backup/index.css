@@ -1,0 +1,281 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cautoo Design System - Dark Theme with Teal Accent */
+
+@layer base {
+  :root {
+    --background: 213 32% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 213 35% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 213 35% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 213 30% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 213 25% 20%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 160 84% 39%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 77% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 213 25% 20%;
+    --input: 213 30% 15%;
+    --ring: 160 84% 39%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --plate-header: 210 100% 30%;
+    --plate-body: 213 35% 18%;
+    --success: 160 84% 39%;
+    --warning: 45 93% 47%;
+
+    /* Category colors */
+    --category-security: 0 77% 55%;
+    --category-external: 25 95% 53%;
+    --category-traffic: 45 93% 47%;
+    --category-parking: 200 98% 39%;
+    --category-mechanical: 280 87% 58%;
+    --category-environmental: 142 76% 36%;
+    --category-inspection: 330 81% 60%;
+
+    --sidebar-background: 213 32% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 160 84% 39%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 213 30% 18%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 213 25% 20%;
+    --sidebar-ring: 160 84% 39%;
+  }
+
+  .light {
+    --background: 213 32% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 213 35% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 213 35% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 213 30% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 213 25% 20%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 160 84% 39%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 77% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 213 25% 20%;
+    --input: 213 30% 15%;
+    --ring: 160 84% 39%;
+  }
+
+  .dark {
+    --background: 213 32% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 213 35% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 213 35% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 213 30% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 213 25% 20%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 160 84% 39%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 77% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 213 25% 20%;
+    --input: 213 30% 15%;
+    --ring: 160 84% 39%;
+
+    --sidebar-background: 213 32% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 160 84% 39%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 213 30% 18%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 213 25% 20%;
+    --sidebar-ring: 160 84% 39%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-background text-foreground antialiased;
+    width: 100%;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* PWA App-like behavior - Relaxed for better scrolling */
+  html {
+    /* Allow natural height */
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* Removed overscroll-behavior-y: none to allow refresh if needed, and removed fixed height locks */
+  }
+
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* display: flex; flex-direction: column; -> Removed to allow natural flow */
+  }
+
+  /* Hide scrollbar but allow scroll */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area for notch devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Premium Glassmorphism */
+  .glass-panel {
+    @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-md border border-white/5 shadow-xl transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply bg-card/60 border-white/10 shadow-emerald-500/5;
+  }
+
+  .premium-gradient {
+    @apply bg-gradient-to-br from-emerald-500/20 via-transparent to-teal-500/20;
+  }
+}
+
+/* Custom plate input styling */
+.plate-input {
+  font-family: 'FE-Schrift', 'Roboto Mono', monospace;
+  letter-spacing: 0.15em;
+}
+
+  /* Category color classes */
+  .category-icon-container {
+    @apply flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-150 ease-in-out cursor-pointer;
+  }
+  
+  .category-icon-container:hover {
+    @apply scale-105 -translate-y-0.5 shadow-md;
+  }
+
+  .category-security {
+    background-color: #FFEBEE;
+    color: #E53935;
+    border-color: rgba(229, 57, 53, 0.2);
+  }
+  .category-security-icon {
+    background-color: rgba(229, 57, 53, 0.15);
+    color: #E53935;
+  }
+
+  .category-external {
+    background-color: #FFF8E1;
+    color: #FFB300;
+    border-color: rgba(255, 179, 0, 0.2);
+  }
+  .category-external-icon {
+    background-color: rgba(255, 179, 0, 0.15);
+    color: #FFB300;
+  }
+
+  .category-traffic {
+    background-color: #E3F2FD;
+    color: #1E88E5;
+    border-color: rgba(30, 136, 229, 0.2);
+  }
+  .category-traffic-icon {
+    background-color: rgba(30, 136, 229, 0.15);
+    color: #1E88E5;
+  }
+
+  .category-parking {
+    background-color: #FFF3E0;
+    color: #F57C00;
+    border-color: rgba(245, 124, 0, 0.2);
+  }
+  .category-parking-icon {
+    background-color: rgba(245, 124, 0, 0.15);
+    color: #F57C00;
+  }
+
+  .category-mechanical {
+    background-color: #EFEBE9;
+    color: #8D6E63;
+    border-color: rgba(141, 110, 99, 0.2);
+  }
+  .category-mechanical-icon {
+    background-color: rgba(141, 110, 99, 0.15);
+    color: #8D6E63;
+  }
+
+  .category-environmental {
+    background-color: #E8F5E9;
+    color: #43A047;
+    border-color: rgba(67, 160, 71, 0.2);
+  }
+  .category-environmental-icon {
+    background-color: rgba(67, 160, 71, 0.15);
+    color: #43A047;
+  }
+
+  .category-inspection {
+    background-color: #F3E5F5;
+    color: #8E24AA;
+    border-color: rgba(142, 36, 170, 0.2);
+  }
+  .category-inspection-icon {
+    background-color: rgba(142, 36, 170, 0.15);
+    color: #8E24AA;
+  }

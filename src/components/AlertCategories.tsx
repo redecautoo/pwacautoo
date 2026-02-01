@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { alertCategories, AlertMessage } from "@/lib/alertCategories";
 import { useApp } from "@/contexts/AppContext";
 import { isValidPlate } from "@/components/LicensePlateInput";

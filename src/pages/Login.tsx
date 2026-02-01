@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, User, Phone, Mail, FileText, Car, Building2, Shield, Calendar, ChevronRight } from "lucide-react";
@@ -287,7 +287,7 @@ const Login = () => {
                             <label htmlFor="terms" className="text-sm text-muted-foreground leading-tight">Li e aceito os <span className="text-primary">Termos de Uso</span> e a <span className="text-primary">Política de Privacidade</span></label>
                           </div>
 
-                          <Button onClick={handleInfoContinue} disabled={!name || cpf.length < 14 || phone.length < 14 || registerPassword.length !== 6 || registerPassword !== confirmPassword || !acceptTerms || !plateIsValid} className="w-full py-6 mt-4" size="lg">Continuar <ChevronRight className="w-4 h-4 ml-2" /></Button>
+                          <Button onClick={handleInfoContinue} disabled={!name || cpf.length < 14 || phone.length < 14 || registerPassword.length !== 6 || registerPassword !== confirmPassword || !acceptTerms || !plateIsValid} className="w-full h-12 mt-4 font-bold">Continuar <ChevronRight className="w-4 h-4 ml-2" /></Button>
                         </motion.div>
                       )}
 
@@ -368,7 +368,7 @@ const Login = () => {
                       <Input type="password" value={password} onChange={(e) => setPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Senha (6 dígitos)" className="pl-10 text-center text-xl tracking-[0.3em]" maxLength={6} />
                     </div>
                     {isTestCpf(cpf) && <p className="text-xs text-primary text-center">CPF de teste. Senha: 123456</p>}
-                    <Button onClick={handleLogin} disabled={cpf.length < 14 || password.length !== 6} className="w-full py-6 mt-4" size="lg">Entrar</Button>
+                    <Button onClick={handleLogin} disabled={cpf.length < 14 || password.length !== 6} className="w-full h-12 mt-4 font-bold">Entrar</Button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -381,3 +381,4 @@ const Login = () => {
 };
 
 export default Login;
+

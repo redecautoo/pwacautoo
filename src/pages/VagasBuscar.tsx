@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -7,21 +7,19 @@ import {
   Building2,
   MapPin,
   Users,
-  ParkingCircle,
   ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useVagas } from "@/contexts/VagasContext";
 import { PageTransition, staggerContainer, staggerItemVariants } from "@/components/PageTransition";
-import { VALOR_DIARIA } from "@/lib/vagasTypes";
 
 const VagasBuscar = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
-  const { buscarCondominios, vagasDisponiveis, usuariosCondominios, condominios } = useVagas();
+  const { buscarCondominios, usuariosCondominios } = useVagas();
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [hasSearched, setHasSearched] = useState(!!initialQuery);
 
@@ -39,15 +37,6 @@ const VagasBuscar = () => {
     return usuariosCondominios.filter(uc => uc.condominioId === condominioId && !uc.excluido).length;
   };
 
-  const getVagasCount = (condominioId: string) => {
-    return vagasDisponiveis(condominioId).length;
-  };
-
-  // Get all available spots for quick access
-  const allAvailableSpots = condominios.flatMap(c => 
-    vagasDisponiveis(c.id).map(v => ({ ...v, condominio: c }))
-  ).slice(0, 5);
-
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
@@ -64,7 +53,7 @@ const VagasBuscar = () => {
               </Button>
               <div className="flex-1">
                 <h1 className="text-lg font-semibold text-foreground">Buscar</h1>
-                <p className="text-sm text-muted-foreground">Encontre condomínios e vagas</p>
+                <p className="text-sm text-muted-foreground">Encontre seu condomínio</p>
               </div>
             </div>
           </div>
@@ -143,11 +132,7 @@ const VagasBuscar = () => {
                               <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Users className="w-3 h-3" />
-                                  {getMembrosCount(cond.id)}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <ParkingCircle className="w-3 h-3" />
-                                  {getVagasCount(cond.id)} disponível
+                                  {getMembrosCount(cond.id)} morador(es)
                                 </span>
                               </div>
                             </div>
@@ -161,67 +146,11 @@ const VagasBuscar = () => {
               </div>
             )}
 
-            {/* Quick Access: Available Spots */}
-            {!hasSearched && allAvailableSpots.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                  Vagas Disponíveis Agora
-                </h3>
-                <motion.div 
-                  className="space-y-3"
-                  variants={staggerContainer}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {allAvailableSpots.map((vaga, index) => (
-                    <motion.button
-                      key={vaga.id}
-                      onClick={() => navigate(`/garagem/vaga/${vaga.id}`)}
-                      className="w-full bg-card border border-border rounded-xl p-4 text-left transition-colors hover:bg-secondary/50"
-                      variants={staggerItemVariants}
-                      custom={index}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                            vaga.tipo === 'coberta' ? 'bg-green-500/20' : 'bg-amber-500/20'
-                          }`}>
-                            <ParkingCircle className={`w-6 h-6 ${
-                              vaga.tipo === 'coberta' ? 'text-green-400' : 'text-amber-400'
-                            }`} />
-                          </div>
-                          <div>
-                            <span className="font-medium text-foreground block">
-                              Vaga {vaga.numero}
-                              <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${
-                                vaga.tipo === 'coberta' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
-                              }`}>
-                                {vaga.tipo}
-                              </span>
-                            </span>
-                            <p className="text-sm text-muted-foreground">{vaga.condominio.nome}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {vaga.disponivelDe} → {vaga.disponivelAte}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-primary">R$ {VALOR_DIARIA}</div>
-                          <div className="text-xs text-muted-foreground">/dia</div>
-                        </div>
-                      </div>
-                    </motion.button>
-                  ))}
-                </motion.div>
-              </div>
-            )}
-
             {/* Tip */}
             {!hasSearched && (
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
                 <p className="text-sm text-blue-400">
-                  <strong>💡 Dica:</strong> Busque pelo nome do condomínio, bairro ou cidade 
-                  para encontrar vagas disponíveis perto de você.
+                  Busque pelo nome do condomínio, bairro ou cidade para encontrar e entrar no seu condomínio.
                 </p>
               </div>
             )}
@@ -234,3 +163,4 @@ const VagasBuscar = () => {
 };
 
 export default VagasBuscar;
+

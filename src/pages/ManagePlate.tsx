@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Car, Check, Clock, Send, Inbox, X, UserPlus, Flag, CheckCircle, XCircle, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -166,7 +166,7 @@ const ManagePlate = () => {
                         {selectedVehicle && (
                           <div className="space-y-4">
                             <div><label className="block text-sm text-muted-foreground mb-2">CPF do novo dono</label><Input value={cpf} onChange={(e) => setCpf(formatCPF(e.target.value))} placeholder="000.000.000-00" /></div>
-                            <Button onClick={handleInitiateTransfer} disabled={cpf.length < 14} className="w-full py-6 bg-cyan-600 hover:bg-cyan-700" size="lg"><Send className="w-4 h-4 mr-2" />Enviar Transferência</Button>
+                            <Button onClick={handleInitiateTransfer} disabled={cpf.length < 14} className="w-full h-12 bg-cyan-600 hover:bg-cyan-700 font-bold"><Send className="w-4 h-4 mr-2" />Enviar Transferência</Button>
                           </div>
                         )}
                       </motion.div>
@@ -175,7 +175,7 @@ const ManagePlate = () => {
                         <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-3"><p className="text-sm text-pink-400">Reivindique a posse de uma placa que já está cadastrada em outro CPF.</p></div>
                         <LicensePlateInput value={claimPlate} onChange={setClaimPlate} />
                         <div><label className="block text-sm text-muted-foreground mb-2">Motivo</label><Textarea value={claimReason} onChange={(e) => setClaimReason(e.target.value)} placeholder="Mínimo 20 caracteres" rows={4} /></div>
-                        <Button onClick={handleSubmitClaim} disabled={!claimIsValid} className="w-full py-6 bg-pink-600 hover:bg-pink-700" size="lg"><Flag className="w-4 h-4 mr-2" />Enviar Reivindicação</Button>
+                        <Button onClick={handleSubmitClaim} disabled={!claimIsValid} className="w-full h-12 bg-pink-600 hover:bg-pink-700 font-bold"><Flag className="w-4 h-4 mr-2" />Enviar Reivindicação</Button>
                       </motion.div>
                     )}
                   </TabsContent>
@@ -214,3 +214,4 @@ const ManagePlate = () => {
 };
 
 export default ManagePlate;
+

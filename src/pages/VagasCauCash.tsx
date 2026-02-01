@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -163,3 +163,4 @@ const VagasCauCash = () => {
 };
 
 export default VagasCauCash;
+

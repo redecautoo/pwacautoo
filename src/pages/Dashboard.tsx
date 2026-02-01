@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,7 +12,7 @@ import {
   Gift,
   Settings,
   LogOut,
-  Car,
+  Disc,
   ChevronRight,
   ChevronDown,
   Plus,
@@ -33,11 +33,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useApp } from "@/contexts/AppContext";
+import { useApp, getScoreCategoryInfo } from "@/contexts/AppContext";
 import { PageTransition, staggerContainer, staggerItemVariants, cardVariants } from "@/components/PageTransition";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { SealBadge } from "@/components/SealBadge";
-import LicensePlateInput from "@/components/LicensePlateInput";
+import LicensePlateInput, { isValidPlate } from "@/components/LicensePlateInput";
+import { LicensePlateDisplay } from "@/components/LicensePlateDisplay";
 
 // Modules
 import RatingForm from "@/components/modules/RatingForm";
@@ -58,22 +59,24 @@ const Dashboard = () => {
   const [plateValue, setPlateValue] = useState("");
   const [activeMode, setActiveMode] = useState<InteractionMode>(null);
   const [showLegacyActions, setShowLegacyActions] = useState(() => {
-    return localStorage.getItem("cautoo_show_legacy_actions") === "true";
+    // Usa sessionStorage: começa oculto em cada novo login, mas mantém estado durante navegação
+    return sessionStorage.getItem("cautoo_show_legacy_actions") === "true";
   });
   const [chatMessage, setChatMessage] = useState("");
   const legacyActionsRef = useRef<HTMLDivElement>(null);
 
-  // Sync showLegacyActions with localStorage
+  // Sync showLegacyActions with sessionStorage (persiste apenas durante a sessão)
   useEffect(() => {
-    localStorage.setItem("cautoo_show_legacy_actions", showLegacyActions.toString());
+    sessionStorage.setItem("cautoo_show_legacy_actions", showLegacyActions.toString());
   }, [showLegacyActions]);
 
-  // Handle scroll to legacy actions if they are shown on mount
+  // Scroll to dashboard grid when returning from a functionality
   useEffect(() => {
     if (showLegacyActions && legacyActionsRef.current) {
+      // Pequeno delay para garantir que o DOM está renderizado
       setTimeout(() => {
         legacyActionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 300); // Wait for animations
+      }, 100);
     }
   }, []);
 
@@ -161,38 +164,28 @@ const Dashboard = () => {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isBlocked ? 'bg-amber-500/20' : 'bg-primary/10'
-              }`}>
-              {isBlocked ? (
+            {isBlocked ? (
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-amber-500/20">
                 <Clock className="w-6 h-6 text-amber-500" />
-              ) : (
-                <Car className="w-6 h-6 text-primary" />
-              )}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-foreground tracking-wider">
-                  {vehicle.plate}
-                </span>
-                {isBlocked ? (
+              </div>
+            ) : (
+              <LicensePlateDisplay
+                plate={vehicle.plate}
+                size="sm"
+                isStolen={vehicle.isStolen}
+              />
+            )}
+            <div className="flex flex-col gap-1">
+              {isBlocked && (
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-foreground tracking-wider">
+                    {vehicle.plate}
+                  </span>
                   <span className="text-xs bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded flex items-center gap-1">
                     <Clock className="w-3 h-3" /> Em análise
                   </span>
-                ) : (
-                  <>
-                    {(currentUser?.seal && currentUser.seal !== 'none') ? (
-                      <SealBadge seal={currentUser.seal} size="sm" animated={false} />
-                    ) : (
-                      <VerifiedBadge isVerified={currentUser?.isVerified || false} size="sm" />
-                    )}
-                  </>
-                )}
-                {vehicle.isStolen && (
-                  <span className="text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded">
-                    ROUBADO
-                  </span>
-                )}
-              </div>
+                </div>
+              )}
               <div className="flex items-center gap-1 flex-wrap">
                 <p className="text-sm text-muted-foreground">
                   {isBlocked ? (
@@ -223,13 +216,9 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isBlocked ? (
+            {isBlocked && (
               <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Lock className="w-5 h-5 text-amber-500" />
-              </div>
-            ) : (
-              <div className="text-right">
-                <div className="text-xl font-bold text-primary">{vehicle.score}</div>
               </div>
             )}
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -248,21 +237,8 @@ const Dashboard = () => {
           <div className="max-w-lg mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border-2 border-primary/20">
-                    <span className="text-lg font-bold text-primary">
-                      {currentUser?.name?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  {(currentUser?.seal && currentUser.seal !== 'none') ? (
-                    <div className="absolute -bottom-1 -right-1">
-                      <SealBadge seal={currentUser.seal} size="sm" />
-                    </div>
-                  ) : currentUser?.isVerified && (
-                    <div className="absolute -bottom-1 -right-1">
-                      <VerifiedBadge isVerified={true} size="sm" />
-                    </div>
-                  )}
+                <div className="w-12 h-12 flex items-center justify-center">
+                  <SealBadge seal={currentUser?.seal || 'none'} size="lg" variant="simple" animated={false} />
                 </div>
                 <div>
                   <h1 className="text-lg font-semibold text-foreground">
@@ -315,7 +291,7 @@ const Dashboard = () => {
                     className="bg-card border border-border rounded-xl p-6 text-center"
                     variants={cardVariants}
                   >
-                    <Car className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                    <Disc className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                     <p className="text-sm text-muted-foreground">Nenhum veículo cadastrado</p>
                     <Button
                       variant="outline"
@@ -335,7 +311,7 @@ const Dashboard = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <Car className="w-5 h-5 text-primary" />
+                          <Disc className="w-5 h-5 text-primary" />
                         </div>
                         <div className="text-left">
                           <span className="font-medium text-foreground">
@@ -386,32 +362,16 @@ const Dashboard = () => {
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-3">
-                                    <Car className="w-5 h-5 text-muted-foreground" />
-                                    <div>
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-bold text-foreground tracking-wider">
-                                          {vehicle.plate}
-                                        </span>
-                                        {(currentUser?.seal && currentUser.seal !== 'none') ? (
-                                          <SealBadge seal={currentUser.seal} size="sm" animated={false} />
-                                        ) : (
-                                          <VerifiedBadge isVerified={currentUser?.isVerified || false} size="sm" />
-                                        )}
-                                        {vehicle.isStolen && (
-                                          <span className="text-xs bg-destructive text-destructive-foreground px-2 py-0.5 rounded">
-                                            ROUBADO
-                                          </span>
-                                        )}
-                                      </div>
-                                      <p className="text-xs text-muted-foreground mt-1">
-                                        {vehicle.model} • {vehicle.color}
-                                      </p>
-                                    </div>
+                                    <LicensePlateDisplay
+                                      plate={vehicle.plate}
+                                      size="sm"
+                                      isStolen={vehicle.isStolen}
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                      {vehicle.model} • {vehicle.color}
+                                    </p>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <div className="text-right">
-                                      <div className="text-lg font-bold text-primary">{vehicle.score}</div>
-                                    </div>
                                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                   </div>
                                 </div>
@@ -442,6 +402,74 @@ const Dashboard = () => {
                 </label>
                 <LicensePlateInput value={plateValue} onChange={setPlateValue} />
               </div>
+
+              {/* Vehicle Info Card - appears when plate is valid */}
+              <AnimatePresence>
+                {isValidPlate(plateValue) && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    {((): React.ReactNode => {
+                      const vehicleInfo = {
+                        marca: "Volkswagen",
+                        modelo: "Gol 1.0",
+                        cor: "Prata",
+                        ano: "2019/2020"
+                      };
+                      return (
+                        <div className="relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300">
+                          <div className="absolute inset-0 opacity-10">
+                            <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
+                          </div>
+                          <div className="relative">
+                            <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Disc className="w-4 h-4 text-primary" />
+                                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dados do Veículo</span>
+                              </div>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 font-medium">
+                                Verificado
+                              </span>
+                            </div>
+                            <div className="p-4 space-y-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-secondary/30 rounded-xl p-3">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Marca</p>
+                                  <p className="text-sm font-bold text-foreground">{vehicleInfo.marca}</p>
+                                </div>
+                                <div className="bg-secondary/30 rounded-xl p-3">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Modelo</p>
+                                  <p className="text-sm font-bold text-foreground">{vehicleInfo.modelo}</p>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-secondary/30 rounded-xl p-3">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Cor</p>
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-gray-400 border border-white/20" />
+                                    <p className="text-sm font-bold text-foreground">{vehicleInfo.cor}</p>
+                                  </div>
+                                </div>
+                                <div className="bg-secondary/30 rounded-xl p-3">
+                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ano</p>
+                                  <p className="text-sm font-bold text-foreground">{vehicleInfo.ano}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="px-4 pb-4">
+                              <p className="text-[10px] text-center text-muted-foreground/70">
+                                Confirme se as informações correspondem ao veículo
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Mode Selector - Only 3 buttons */}
               <div className="grid grid-cols-3 gap-2 p-1 bg-secondary/30 rounded-xl">
@@ -482,16 +510,17 @@ const Dashboard = () => {
                     exit={{ opacity: 0, height: 0 }}
                     className="space-y-4"
                   >
-                    <div className="bg-card border border-border rounded-xl p-4">
+                    <div className={`bg-card border rounded-xl p-4 transition-all ${isValidPlate(plateValue) ? 'border-border' : 'border-border/50 opacity-60'}`}>
                       <label className="text-sm font-medium text-foreground mb-2 block">
                         Mensagem para o motorista
                       </label>
                       <Textarea
-                        placeholder="Escreva uma mensagem..."
+                        placeholder={isValidPlate(plateValue) ? "Escreva uma mensagem..." : "Digite uma placa válida acima para enviar mensagem"}
                         className="resize-none min-h-[100px] text-base"
                         maxLength={140}
                         value={chatMessage}
                         onChange={(e) => setChatMessage(e.target.value)}
+                        disabled={!isValidPlate(plateValue)}
                       />
                       <div className="flex justify-between items-center mt-2">
                         <span className="text-xs text-muted-foreground">
@@ -500,9 +529,9 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <Button
-                      className="w-full"
+                      className="w-full h-12 font-bold"
                       onClick={handleSendMessage}
-                      disabled={chatMessage.trim().length === 0}
+                      disabled={!isValidPlate(plateValue) || chatMessage.trim().length === 0}
                     >
                       <Send className="w-4 h-4 mr-2" />
                       Enviar mensagem

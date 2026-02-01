@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRightLeft, Check, Clock, Send, Inbox, X, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -203,8 +203,7 @@ const Transfer = () => {
                         <Button
                           onClick={handleInitiateTransfer}
                           disabled={cpf.length < 14}
-                          className="w-full py-6 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90"
-                          size="lg"
+                          className="w-full h-12 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 font-bold"
                         >
                           <Send className="w-4 h-4 mr-2" />
                           Enviar Transferência
@@ -279,3 +278,4 @@ const Transfer = () => {
 };
 
 export default Transfer;
+

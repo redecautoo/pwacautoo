@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, Phone, AlertTriangle, Info, ChevronDown, HandHeart } from "lucide-react";
+import { MapPin, Clock, Phone, AlertTriangle, Info, ChevronDown, Key, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useApp } from "@/contexts/AppContext";
 import { isValidPlate } from "@/components/LicensePlateInput";
-import { SolidaryEmergencyType, getEmergencyTypeLabel } from "@/lib/types";
+import { SolidaryEmergencyType, getEmergencyTypeLabel, isValidVerificationCode } from "@/lib/types";
 import { canSendSolidaryAlert, recordSolidaryAlert } from "@/lib/plateInteractionControl";
 
 const emergencyTypes: { value: SolidaryEmergencyType; label: string }[] = [
@@ -37,6 +37,8 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
     const [additionalPhone, setAdditionalPhone] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showEmergencyDropdown, setShowEmergencyDropdown] = useState(false);
+    const [verificationCodeInput, setVerificationCodeInput] = useState("");
+    const [codeError, setCodeError] = useState("");
 
     const formatPhone = (value: string) => {
         const cleaned = value.replace(/\D/g, "");
@@ -47,13 +49,17 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
 
     const plateIsValid = isValidPlate(plateValue);
 
+    // O ajudante precisa informar o código da VÍTIMA (motorista que precisa de ajuda)
+    const isVictimCodeValid = isValidVerificationCode(verificationCodeInput.trim());
+
     const canSubmit =
         plateIsValid &&
         emergencyType !== "" &&
         (emergencyType !== 'outro' || otherDescription.trim()) &&
         description.trim() &&
         location.trim() &&
-        approximateTime.trim();
+        approximateTime.trim() &&
+        isVictimCodeValid;
 
     const checkAlertLimit = () => {
         if (!currentUser) return false;
@@ -65,6 +71,14 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
 
     const handleSubmit = async () => {
         if (!currentUser || !canSubmit) return;
+
+        // Validação do formato do código da vítima
+        if (!isVictimCodeValid) {
+            setCodeError("Código inválido. Peça o código correto ao motorista.");
+            showAlert("Código Inválido", "O código informado não está no formato correto. Confirme com o motorista.", "error");
+            return;
+        }
+        setCodeError("");
 
         // Check if can send solidary alert to this plate (one-time per plate)
         const { canSend, reason } = canSendSolidaryAlert(plateValue, currentUser.id);
@@ -89,6 +103,7 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
                 approximateTime,
                 driverWithoutSignal,
                 additionalPhone: additionalPhone || undefined,
+                victimVerificationCode: verificationCodeInput.trim(), // Código da vítima para validação
             };
 
             const result = sendSolidaryAlert?.(alertData);
@@ -96,14 +111,14 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
             if (result?.success) {
                 recordSolidaryAlert(plateValue, currentUser.id);
 
-                let successMsg = "Assim que o motorista Cautoo estiver acessível, ele será notificado.";
+                let successMsg = "Alerta enviado com sucesso! A Cautoo irá verificar e atender a solicitação.";
                 if (!result.hasCoverage) {
                     successMsg = "O motorista não possui cobertura Cautoo ativa. O alerta foi registrado mas não será encaminhado até que a cobertura esteja válida.";
                 }
 
                 showAlert("Alerta Registrado!", successMsg, "success");
+                setVerificationCodeInput("");
                 onSuccess?.();
-                // Reset form
             } else {
                 showAlert("Erro ao enviar", result?.error || "Não foi possível enviar o alerta.", "error");
             }
@@ -277,6 +292,38 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
                 </div>
             </div>
 
+            {/* Verification Code Section - Código da VÍTIMA */}
+            <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2 mb-2">
+                    <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                    <span className="text-sm font-medium text-foreground">Código do Motorista</span>
+                </div>
+                
+                <p className="text-xs text-muted-foreground">
+                    Digite o código de verificação que o motorista compartilhou com você.
+                </p>
+                <div className="relative">
+                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                        value={verificationCodeInput}
+                        onChange={(e) => {
+                            setVerificationCodeInput(e.target.value.toUpperCase());
+                            setCodeError("");
+                        }}
+                        placeholder="Ex: ABC123"
+                        className={`pl-10 font-mono tracking-widest uppercase ${codeError ? 'border-red-500' : ''}`}
+                        maxLength={8}
+                        data-testid="input-victim-verification-code"
+                    />
+                </div>
+                {codeError && (
+                    <p className="text-xs text-red-500">{codeError}</p>
+                )}
+                <p className="text-[10px] text-muted-foreground">
+                    Este código comprova que o motorista autorizou você a enviar este alerta.
+                </p>
+            </div>
+
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 flex gap-2 items-start">
                 <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground">
@@ -289,6 +336,7 @@ const SolidaryForm = ({ plateValue, onSuccess }: SolidaryFormProps) => {
                 disabled={!canSubmit || isSubmitting}
                 className="w-full bg-blue-500 hover:bg-blue-600"
                 size="lg"
+                data-testid="button-submit-solidary-alert"
             >
                 {isSubmitting ? "Enviando..." : "Enviar Alerta Solidário"}
             </Button>

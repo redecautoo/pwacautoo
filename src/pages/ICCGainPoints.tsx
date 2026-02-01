@@ -1,8 +1,10 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageTransition } from "@/components/PageTransition";
 import { motion } from "framer-motion";
+import { getICCCategoryInfo } from "@/contexts/AppContext";
 
 const ICCGainPoints = () => {
     const navigate = useNavigate();
@@ -45,22 +47,25 @@ const ICCGainPoints = () => {
                             <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Faixas de Pontuação do ICC</h3>
                             <div className="bg-card border border-border rounded-2xl divide-y divide-border">
                                 {[
-                                    { icon: '🔴', label: 'Contribuidor Negativo', range: '< 0' },
-                                    { icon: '⚪', label: 'Iniciante', range: '0 - 199' },
-                                    { icon: '🔵', label: 'Colaborador Ativo', range: '200 - 399' },
-                                    { icon: '🟣', label: 'Cauteloso Engajado', range: '400 - 649' },
-                                    { icon: '🟡', label: 'Protetor da Rede', range: '650 - 849' },
-                                    { icon: '🟢', label: 'Embaixador Cautoo', range: '850 - 1000' },
-                                    { icon: '💎', label: 'Guardião Elite', range: '1001+' }
-                                ].map((cat, idx) => (
-                                    <div key={idx} className="p-3 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-xl">{cat.icon}</span>
-                                            <span className="text-sm font-medium">{cat.label}</span>
+                                    { min: -999, label: 'Contribuidor Negativo', range: '< 0' },
+                                    { min: 0, label: 'Iniciante', range: '0 - 199' },
+                                    { min: 200, label: 'Colaborador Ativo', range: '200 - 399' },
+                                    { min: 400, label: 'Cauteloso Engajado', range: '400 - 649' },
+                                    { min: 650, label: 'Protetor da Rede', range: '650 - 849' },
+                                    { min: 850, label: 'Embaixador Cautoo', range: '850 - 1000' },
+                                    { min: 1001, label: 'Guardião Elite', range: '1001+' }
+                                ].map((cat, idx) => {
+                                    const info = getICCCategoryInfo(cat.min);
+                                    return (
+                                        <div key={idx} className="p-3 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`badge-capsula ${info.badgeClass} scale-75 -ml-4`} />
+                                                <span className="text-sm font-medium">{cat.label}</span>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground font-mono font-bold">{cat.range}</span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground font-mono font-bold">{cat.range}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </motion.section>
 
@@ -121,3 +126,4 @@ const ICCGainPoints = () => {
 };
 
 export default ICCGainPoints;
+

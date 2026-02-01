@@ -1,8 +1,10 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageTransition } from "@/components/PageTransition";
 import { motion } from "framer-motion";
+import { getScoreCategoryInfo } from "@/contexts/AppContext";
 
 const ScoreCalculation = () => {
     const navigate = useNavigate();
@@ -28,22 +30,25 @@ const ScoreCalculation = () => {
                             <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Faixas de Pontuação</h3>
                             <div className="bg-card border border-border rounded-2xl divide-y divide-border">
                                 {[
-                                    { icon: '🔴', label: 'Placa em Alerta', range: '< 0' },
-                                    { icon: '⚪', label: 'Placa Neutra', range: '0 - 199' },
-                                    { icon: '🔵', label: 'Placa Conhecida', range: '200 - 399' },
-                                    { icon: '🟣', label: 'Placa Confiável', range: '400 - 649' },
-                                    { icon: '🟡', label: 'Placa Distinta', range: '650 - 849' },
-                                    { icon: '🟢', label: 'Placa Exemplar', range: '850 - 1000' },
-                                    { icon: '💎', label: 'Placa Ícone', range: '1001+' }
-                                ].map((cat, idx) => (
-                                    <div key={idx} className="p-3 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-xl">{cat.icon}</span>
-                                            <span className="text-sm font-medium">{cat.label}</span>
+                                    { min: -999, label: 'Placa em Alerta', range: '< 0', type: 'score' },
+                                    { min: 0, label: 'Placa Neutra', range: '0 - 199', type: 'score' },
+                                    { min: 200, label: 'Placa Conhecida', range: '200 - 399', type: 'score' },
+                                    { min: 400, label: 'Placa Confiável', range: '400 - 649', type: 'score' },
+                                    { min: 650, label: 'Placa Distinta', range: '650 - 849', type: 'score' },
+                                    { min: 850, label: 'Placa Exemplar', range: '850 - 1000', type: 'score' },
+                                    { min: 1001, label: 'Placa Ícone', range: '1001+', type: 'score' }
+                                ].map((cat, idx) => {
+                                    const info = getScoreCategoryInfo(cat.min);
+                                    return (
+                                        <div key={idx} className="p-3 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`badge-capsula ${info.badgeClass} scale-75 -ml-4`} />
+                                                <span className="text-sm font-medium">{cat.label}</span>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground font-mono font-bold">{cat.range}</span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground font-mono font-bold">{cat.range}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </motion.section>
 
@@ -141,3 +146,4 @@ const ScoreCalculation = () => {
 };
 
 export default ScoreCalculation;
+

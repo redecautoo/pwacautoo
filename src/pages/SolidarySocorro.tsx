@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, HandHeart, Car, MapPin, Clock, Phone, AlertTriangle, CheckCircle, XCircle, Info, ChevronDown, Send, Inbox } from "lucide-react";
@@ -212,7 +212,7 @@ const SolidarySocorro = () => {
                           </div>
                           <div><label className="block text-sm font-medium mb-2"><Phone className="inline w-4 h-4 mr-1" />Telefone alternativo</label><Input value={additionalPhone} onChange={(e) => setAdditionalPhone(formatPhone(e.target.value))} placeholder="(00) 00000-0000" maxLength={15} /></div>
                         </div>
-                        <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 h-14 rounded-xl font-bold">{isSubmitting ? "Enviando..." : "Enviar Alerta Solidário"}</Button>
+                        <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 h-12 font-bold">{isSubmitting ? "Enviando..." : "Enviar Alerta Solidário"}</Button>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -284,3 +284,4 @@ const ReceivedAlertCard = ({ alert }: { alert: SolidaryAlert }) => {
 };
 
 export default SolidarySocorro;
+
