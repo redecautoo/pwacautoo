@@ -258,7 +258,7 @@ const Login = () => {
                                 value={registerPassword}
                                 onChange={(e) => setRegisterPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
                                 placeholder="******"
-                                className="pl-10 text-center text-xl tracking-[0.3em]"
+                                className="pl-10 text-center text-base tracking-[0.15em]"
                                 maxLength={6}
                               />
                             </div>
@@ -365,7 +365,7 @@ const Login = () => {
                     </div>
                     <div className="relative">
                       <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input type="password" value={password} onChange={(e) => setPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Senha (6 dígitos)" className="pl-10 text-center text-xl tracking-[0.3em]" maxLength={6} />
+                      <Input type="password" value={password} onChange={(e) => setPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Senha (6 dígitos)" className="pl-10 text-center text-base tracking-[0.15em]" maxLength={6} />
                     </div>
                     {isTestCpf(cpf) && <p className="text-xs text-primary text-center">CPF de teste. Senha: 123456</p>}
                     <Button onClick={handleLogin} disabled={cpf.length < 14 || password.length !== 6} className="w-full h-12 mt-4 font-bold">Entrar</Button>
