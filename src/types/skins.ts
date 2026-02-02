@@ -1,151 +1,139 @@
 // ============================================
 // TIPOS DO SISTEMA DE SKINS & COLEÇÃO
+// Seguindo especificação completa do prompt
 // ============================================
 
-export type SkinCategory = 'verde' | 'azul' | 'score' | 'mineracao';
-export type SkinRarity = 'comum' | 'rara' | 'epica' | 'lendaria';
-export type SkinStatus = 'bloqueada' | 'desbloqueada' | 'possui_layout' | 'vinculada' | 'a_venda';
+// IDs das 13 categorias oficiais
+export type SkinCategoryId =
+    | 'base_colors'           // 0. Cores livres
+    | 'score_skins'           // 1. Score
+    | 'icc_skins'             // 2. ICC
+    | 'referral_monthly'      // 3. Indicação mensal
+    | 'rewards_points'        // 4. Recompensa pontos
+    | 'benefit_ops'           // 5. Benefício operacional
+    | 'alert_skins'           // 6. Alerta roubo
+    | 'caution_record'        // 7. Registro cautelar
+    | 'ghost_challenge'       // 8. Fantasma desafio
+    | 'mining_skins'          // 9. Mineração
+    | 'value_skins'           // 10. Valor (10k-100k)
+    | 'surprise_skins'        // 11. Surpresa global
+    | 'rare_skins';           // 12. Raras
+
+export type SkinStatus =
+    | 'locked'                // Bloqueada
+    | 'unlocked'              // Desbloqueada (pode comprar layout)
+    | 'owned'                 // Layout comprado (na coleção)
+    | 'linked'                // Vinculada à placa
+    | 'in_cooldown'           // Em carência (7 dias)
+    | 'active'                // Benefício ativo
+    | 'expired'               // Expirada
+    | 'consumed';             // Benefício consumido
+
+export type BenefitType =
+    | 'none'                  // Sem benefício
+    | 'coverage'              // Cobertura assistencial
+    | 'priority'              // Prioridade em alertas
+    | 'credit'                // Crédito para serviços
+    | 'challenge_reward'      // Recompensa de desafio
+    | 'operational';          // Benefício operacional
 
 // ============================================
 // SKIN
 // ============================================
 export interface Skin {
     id: number;
-    nome: string;
-    categoria: SkinCategory;
-    raridade: SkinRarity;
-    bloqueada: boolean;
-    preco_layout: number;
-    descricao?: string;
+    name: string;
+    categoryId: SkinCategoryId;
 
-    // Propriedades visuais
-    cor_primaria?: string;
-    cor_secundaria?: string;
-    icone?: string;
+    // Visual
+    colorPrimary?: string;
+    colorSecondary?: string;
+    icon?: string;
 
-    // Se usuário possui
-    possui_layout?: boolean;
-    data_aquisicao?: string; // ISO date
+    // Estado
+    status: SkinStatus;
 
-    // Vinculação
-    vinculada_placa?: string; // ID da placa
-    data_vinculacao?: string; // ISO date
-    data_ativacao?: string; // ISO date (após carência)
-    data_expiracao?: string; // ISO date
+    // Economia
+    layoutCost: number;       // Custo para comprar layout
+    canSell: boolean;
+    canBuyLayout: boolean;
+    minSellPrice?: number;    // Preço mínimo de venda
 
-    // Benefício (se aplicável)
-    beneficio?: SkinBenefit;
+    // Benefício
+    benefitType: BenefitType;
+    benefitValue?: number;    // Ex: 50000 (R$ 50k)
+    benefitDescription?: string;
 
-    // Venda
-    a_venda?: boolean;
-    preco_venda?: number;
-    vendedor_id?: string;
+    // Datas (se aplicável)
+    linkedAt?: string;        // Data de vinculação
+    activatesAt?: string;     // Data de ativação (após carência)
+    expiresAt?: string;       // Data de expiração
+
+    // Requisitos para desbloquear
+    requiresScore?: number;
+    requiresICC?: number;
+    requiresReferrals?: number;
 }
 
 // ============================================
-// BENEFÍCIO DA SKIN
+// CATEGORIA
 // ============================================
-export interface SkinBenefit {
-    tipo: 'cobertura' | 'prioridade' | 'bloqueio' | 'desconto';
-    valor?: number; // Ex: 50000 (R$ 50k de cobertura)
-    descricao: string;
-    icone?: string;
+export interface SkinCategory {
+    id: SkinCategoryId;
+    name: string;
+    description: string;
+    icon: string;
 
-    // Status do benefício
-    ativo?: boolean;
-    usado?: boolean;
-    data_uso?: string;
-    valor_usado?: number;
-}
+    // Regras
+    unlockRules: string;      // Como desbloqueia
+    benefitRules?: string;    // Regras de benefício
 
-// ============================================
-// CATEGORIA DE SKINS
-// ============================================
-export interface SkinCategoryData {
-    id: SkinCategory;
-    nome: string;
-    descricao: string;
-    icone: string;
-    cor: string;
-    requisito: string;
+    // Configurações
+    allowLayoutPurchase: boolean;
+    allowSell: boolean;
+    addToCollection: boolean;
+
+    // Skins desta categoria
     skins: Skin[];
 }
 
 // ============================================
 // COLEÇÃO (PUZZLE)
 // ============================================
-export interface Collection {
-    posicoes: CollectionSlot[];
-    posicoes_corretas: number; // 0-7
-    puzzle_resolvido: boolean;
-    recompensa_recebida?: boolean;
-    data_resolucao?: string;
+export interface CollectionSlot {
+    position: number;         // 1-7
+    skinId: number | null;
+    isCorrect?: boolean;      // Se está na posição correta
 }
 
-export interface CollectionSlot {
-    posicao: number; // 1-7
-    skinId: number | null;
-    correta?: boolean; // Se está na posição certa
+export interface Collection {
+    slots: CollectionSlot[];  // 7 slots fixos
+    ownedSkins: number[];     // IDs de todas as skins possuídas
+    correctCount: number;     // Quantas posições corretas
+    hintsUsed: number;        // Dicas usadas
+    canReorder: boolean;      // >= 15 skins
 }
 
 // ============================================
 // MINERAÇÃO
 // ============================================
-export interface MiningState {
-    tentativas_restantes: number; // max 200/semana
-    tentativas_totais: number;
-    data_reset: string; // ISO date (próxima segunda-feira)
-
-    skins: MiningSkin[];
-    dicas_ativas: MiningHint[];
-
-    // Histórico
-    codigos_tentados: string[];
-    ultima_tentativa?: string; // ISO date
-}
-
-export interface MiningSkin {
-    skinId: number;
-    nome: string;
-    progresso: number; // 0-100
-    status: 'ativo' | 'bloqueado' | 'concluido';
-
-    // Dicas
-    proxima_dica?: number; // tentativas faltando
-    dicas_desbloqueadas: number;
-
-    // Ciclo
-    proximo_ciclo?: string; // ISO date
-    codigo_correto?: string; // Apenas para debug/mock
-}
-
-export interface MiningHint {
-    id: number;
-    texto: string;
-    desbloqueada: boolean;
-    tentativas_necessarias: number;
-}
-
-// ============================================
-// CAUCASH
-// ============================================
-export interface CauCashState {
-    saldo: number;
-    transacoes: CauCashTransaction[];
-    saldo_bloqueado?: number; // Skins à venda
-}
-
-export interface CauCashTransaction {
+export interface MiningPrize {
     id: string;
-    tipo: 'credito' | 'debito';
-    valor: number;
-    descricao: string;
-    categoria: 'compra_layout' | 'venda_skin' | 'recarga' | 'recompensa' | 'taxa';
-    data: string; // ISO date
+    name: string;
+    targetCode: string;       // Código secreto (7 chars)
+    bestGuess: string;        // Melhor palpite do usuário
+    correctChars: number;     // 0-7 caracteres corretos
+    progress: number;         // 0-100%
+    maxHints: number;         // Máximo de dicas
+    hintsUnlocked: number;    // Dicas desbloqueadas
+    categoryId: SkinCategoryId; // Categoria do prêmio
+}
 
-    // Referências
-    skin_id?: number;
-    relacionado_id?: string;
+export interface MiningState {
+    attemptsThisWeek: number; // Tentativas restantes
+    maxAttemptsPerWeek: number; // Limite semanal
+    prizes: MiningPrize[];    // Prêmios ativos do mês
+    lastResetDate: string;    // Última vez que resetou
 }
 
 // ============================================
@@ -153,59 +141,34 @@ export interface CauCashTransaction {
 // ============================================
 export interface MarketplaceListing {
     id: string;
-    skin_id: number;
-    vendedor_id: string;
-    vendedor_nome: string;
-    preco: number;
-    data_listagem: string;
-    status: 'ativa' | 'vendida' | 'cancelada';
+    skinId: number;
+    sellerId: string;
+    sellerName: string;
+    price: number;
+    listedAt: string;
+    expiresAt?: string;       // Para value skins (1 mês)
 }
 
 // ============================================
-// CORES LIVRES
+// ESTADO GLOBAL
 // ============================================
-export interface FreeColor {
-    id: string;
-    nome: string;
-    hex: string;
-    icone?: string;
-}
-
-// ============================================
-// ESTADO GLOBAL DE SKINS
-// ============================================
-export interface SkinsState {
+export interface SkinsGlobalState {
     // Cores livres
-    cores_livres: FreeColor[];
-    cor_selecionada: string; // hex
+    selectedColor: string;    // Hex da cor selecionada
 
-    // Skins
-    categorias: SkinCategoryData[];
-    skins_possuidas: number[]; // IDs
+    // Categorias e skins
+    categories: SkinCategory[];
 
     // Coleção
-    colecao: Collection;
+    collection: Collection;
 
     // Mineração
-    mineracao: MiningState;
-
-    // CauCash
-    caucash: CauCashState;
+    mining: MiningState;
 
     // Marketplace
-    marketplace_listings: MarketplaceListing[];
+    listings: MarketplaceListing[];
+    myListings: MarketplaceListing[];
 
     // UI
-    onboarding_completed: boolean;
-    tutorial_steps_completed: string[];
-}
-
-// ============================================
-// HELPERS
-// ============================================
-export interface SkinFilters {
-    categoria?: SkinCategory;
-    raridade?: SkinRarity;
-    bloqueada?: boolean;
-    possui?: boolean;
+    onboardingCompleted: boolean;
 }
