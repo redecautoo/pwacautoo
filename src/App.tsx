@@ -75,6 +75,9 @@ const ScoreVsICC = lazy(() => import("./pages/ScoreVsICC"));
 const ScoreCalculation = lazy(() => import("./pages/ScoreCalculation"));
 const ICCGainPoints = lazy(() => import("./pages/ICCGainPoints"));
 
+// Página de showcase de placas (demonstração)
+const PlateShowcase = lazy(() => import("./pages/PlateShowcase"));
+
 // Wrapper para rotas com lazy loading
 const LazyRoute = ({ component: Component }: { component: React.LazyExoticComponent<() => JSX.Element> }) => (
   <Suspense fallback={<PageLoader />}>
@@ -147,6 +150,9 @@ const App = () => (
                 <Route path="/score-vs-icc" element={<LazyRoute component={ScoreVsICC} />} />
                 <Route path="/score-calculation" element={<LazyRoute component={ScoreCalculation} />} />
                 <Route path="/icc-gain-points" element={<LazyRoute component={ICCGainPoints} />} />
+
+                {/* Showcase de placas (demonstração) */}
+                <Route path="/plate-showcase" element={<LazyRoute component={PlateShowcase} />} />
 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
