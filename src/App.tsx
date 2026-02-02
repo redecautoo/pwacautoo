@@ -76,7 +76,10 @@ const ScoreCalculation = lazy(() => import("./pages/ScoreCalculation"));
 const ICCGainPoints = lazy(() => import("./pages/ICCGainPoints"));
 
 // Página de showcase de placas (demonstração)
+// Página de showcase de placas (demonstração)
 const PlateShowcase = lazy(() => import("./pages/PlateShowcase"));
+// Página de Skins & Coleção
+const SkinsCollection = lazy(() => import("./pages/SkinsCollection"));
 
 // Wrapper para rotas com lazy loading
 const LazyRoute = ({ component: Component }: { component: React.LazyExoticComponent<() => JSX.Element> }) => (
@@ -141,6 +144,9 @@ const App = () => (
 
                 {/* Rotas de registro cautelar - lazy loading */}
                 <Route path="/cautelar-registry" element={<LazyRoute component={CautelarRegistry} />} />
+
+                {/* Skins & Coleção */}
+                <Route path="/skins-collection" element={<LazyRoute component={SkinsCollection} />} />
                 <Route path="/cautelar-registry/new" element={<LazyRoute component={NewCautelarRegistry} />} />
                 <Route path="/cautelar-registry/:id" element={<LazyRoute component={CautelarRegistryDetails} />} />
 

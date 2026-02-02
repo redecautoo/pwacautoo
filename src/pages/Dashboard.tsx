@@ -113,6 +113,18 @@ const Dashboard = () => {
     isHighlighted: true
   };
 
+  // Card de Skins & Coleção (FIXO NO TOPO)
+  const skinsItem = {
+    icon: Gift, // Temporário, depois trocar por Palette
+    label: "Skins & Coleção",
+    description: "Personalize sua placa, desbloqueie skins exclusivas, monte sua coleção e descubra recompensas.",
+    path: "/skins-collection",
+    color: "text-white",
+    bg: "bg-gradient-to-r from-purple-600 to-pink-600",
+    isHighlighted: true,
+    isFixed: true // Não pode ser reorganizado
+  };
+
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -603,6 +615,7 @@ const Dashboard = () => {
                     <DashboardGrid
                       menuItems={menuItems}
                       referralItem={referralItem}
+                      skinsItem={skinsItem}
                       isVerified={currentUser?.isVerified || false}
                     />
                   </motion.div>

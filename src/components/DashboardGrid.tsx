@@ -47,6 +47,7 @@ interface ReferralItem {
 interface Props {
     menuItems: MenuItem[];
     referralItem: ReferralItem;
+    skinsItem?: ReferralItem; // Card de Skins (opcional)
     isVerified: boolean;
 }
 
@@ -134,7 +135,7 @@ const SortableItem = ({
     );
 };
 
-export const DashboardGrid = ({ menuItems, referralItem, isVerified }: Props) => {
+export const DashboardGrid = ({ menuItems, referralItem, skinsItem, isVerified }: Props) => {
     const navigate = useNavigate();
     const [items, setItems] = useState<MenuItem[]>([]);
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -253,6 +254,31 @@ export const DashboardGrid = ({ menuItems, referralItem, isVerified }: Props) =>
                     ) : null}
                 </DragOverlay>
             </DndContext>
+
+            {/* Skins item is fixed at the top (if provided) */}
+            {skinsItem && (
+                <motion.button
+                    onClick={() => navigate(skinsItem.path)}
+                    className="relative w-full rounded-2xl p-5 text-left transition-all shadow-md hover:shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 border-0 mb-2"
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                            <Gift className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <span className="text-base font-semibold text-white block">
+                                {skinsItem.label}
+                            </span>
+                            <span className="text-sm text-white/80">
+                                Personalize sua placa, desbloqueie skins exclusivas
+                            </span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-white/80" />
+                    </div>
+                </motion.button>
+            )}
 
             {/* Referral item is fixed at the bottom */}
             <motion.button

@@ -331,6 +331,27 @@ interface AppContextType {
     alerts: number;
     solidaryActions: number;
   };
+
+  // ===== SKINS & COLEÇÃO (NOVA IMPLEMENTAÇÃO) =====
+  // Estado
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+  collection: import('@/types/skins').Collection;
+  miningState: import('@/types/skins').MiningState;
+
+  // Helpers
+  getSkinById: (id: number) => import('@/types/skins').Skin | undefined;
+  getSkinsByCategory: (categoryId: import('@/types/skins').SkinCategoryId) => import('@/types/skins').Skin[];
+
+  // Ações
+  buySkinLayout: (skinId: number) => { success: boolean; message: string };
+  sellSkin: (skinId: number, price: number) => { success: boolean; message: string };
+  mineSkin: (code: string) => { success: boolean; message: string; prize?: import('@/types/skins').MiningPrize };
+  linkSkinToPlate: (skinId: number, plateId: string) => { success: boolean; message: string };
+
+  // Onboarding
+  skinsOnboardingCompleted: boolean;
+  completeSkinsOnboarding: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -634,6 +655,146 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cautoo_solidary_v1', JSON.stringify(solidaryAlerts));
     } catch (e) { }
   }, [solidaryAlerts]);
+
+  /* BLOCO REMOVIDO PARA EVITAR DUPLICAÇÃO
+  // ===== SKINS & COLEÇÃO (LÓGICA) =====
+
+  // 1. Cores Livres
+  const [selectedColor, setSelectedColor] = useState<string>(() => {
+    try {
+      return localStorage.getItem('skins_selected_color') || '#2563EB';
+    } catch { return '#2563EB'; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('skins_selected_color', selectedColor);
+  }, [selectedColor]);
+
+  // 2. Coleção
+  const [collection, setCollection] = useState<import('@/types/skins').Collection>(() => {
+    try {
+      const stored = localStorage.getItem('skins_collection_v2');
+      if (stored) return JSON.parse(stored);
+      // Fallback para inicial
+      const { INITIAL_COLLECTION } = require('@/data/mockSkins');
+      return INITIAL_COLLECTION;
+    } catch {
+      const { INITIAL_COLLECTION } = require('@/data/mockSkins');
+      return INITIAL_COLLECTION;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('skins_collection_v2', JSON.stringify(collection));
+  }, [collection]);
+
+  // 3. Mineração
+  const [miningState, setMiningState] = useState<import('@/types/skins').MiningState>(() => {
+    try {
+      const stored = localStorage.getItem('skins_mining_v2');
+      if (stored) return JSON.parse(stored);
+      const { INITIAL_MINING } = require('@/data/mockSkins');
+      return INITIAL_MINING;
+    } catch {
+      const { INITIAL_MINING } = require('@/data/mockSkins');
+      return INITIAL_MINING;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('skins_mining_v2', JSON.stringify(miningState));
+  }, [miningState]);
+
+  // 4. Onboarding
+  const [skinsOnboardingCompleted, setSkinsOnboardingCompleted] = useState<boolean>(() => {
+    return localStorage.getItem('skins_onboarding_completed') === 'true';
+  });
+
+  const completeSkinsOnboarding = useCallback(() => {
+    setSkinsOnboardingCompleted(true);
+    localStorage.setItem('skins_onboarding_completed', 'true');
+  }, []);
+
+  // Helpers
+  const getSkinById = useCallback((id: number) => {
+    const { getSkinById } = require('@/data/mockSkins');
+    return getSkinById(id);
+  }, []);
+
+  const getSkinsByCategory = useCallback((categoryId: import('@/types/skins').SkinCategoryId) => {
+    const { getCategoryById } = require('@/data/mockSkins');
+    const cat = getCategoryById(categoryId);
+    return cat ? cat.skins : [];
+  }, []);
+
+  // Actions
+  const buySkinLayout = useCallback((skinId: number) => {
+    const skin = getSkinById(skinId);
+    if (!skin) return { success: false, message: 'Skin não encontrada' };
+
+    if (cauCashBalance < skin.layoutCost) {
+      return { success: false, message: `Saldo insuficiente. Necessário: R$ ${skin.layoutCost}` };
+    }
+
+    addTransaction({
+      type: 'debit',
+      amount: skin.layoutCost,
+      description: `Compra layout: ${skin.name}`,
+      category: 'compra_layout'
+    });
+
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: [...prev.ownedSkins, skinId]
+    }));
+
+    return { success: true, message: `Layout adquirida!` };
+  }, [cauCashBalance, addTransaction, getSkinById]);
+
+  const sellSkin = useCallback((skinId: number, price: number) => {
+    // Mock simples de venda
+    const skin = getSkinById(skinId);
+    if (!skin) return { success: false, message: 'Erro ao vender' };
+
+    // 85% para vendedor (mock)
+    const amount = price * 0.85;
+    addTransaction({
+      type: 'credit',
+      amount,
+      description: `Venda skin: ${skin.name}`,
+      category: 'venda_skin'
+    });
+
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: prev.ownedSkins.filter(id => id !== skinId)
+    }));
+
+    return { success: true, message: `Venda realizada! +R$ ${amount.toFixed(2)}` };
+  }, [addTransaction, getSkinById]);
+
+  const mineSkin = useCallback((code: string) => {
+    // Lógica simplificada de mineração
+    if (miningState.attemptsThisWeek <= 0) {
+      return { success: false, message: 'Sem tentativas restantes esta semana.' };
+    }
+
+    setMiningState(prev => ({
+      ...prev,
+      attemptsThisWeek: prev.attemptsThisWeek - 1
+    }));
+
+    // Simulação de acerto (hardcoded para testes: se código começar com "WIN")
+    if (code.toUpperCase().startsWith('WIN')) {
+      return { success: true, message: 'VOCÊ MINEROU UM PRÊMIO!' };
+    }
+
+    return { success: false, message: 'Código incorreto. Tente novamente.' };
+  }, [miningState]);
+
+  const linkSkinToPlate = useCallback((skinId: number, plateId: string) => {
+    return { success: true, message: 'Skin vinculada com sucesso (Mock)' };
+  }, []); */
 
   // Reconciliar alertas quando o usuário loga - recarregar do localStorage para refletir rewards aplicados
   // Este efeito garante que após qualquer login/restore, os alertas estejam sincronizados
@@ -1474,6 +1635,150 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : v
     ));
   }, [addTransaction]);
+
+  // ===== SKINS & COLEÇÃO (LÓGICA - POSIÇÃO CORRETA) =====
+
+  // 1. Cores Livres
+  const [selectedColor, setSelectedColor] = useState<string>(() => {
+    try {
+      return localStorage.getItem('skins_selected_color') || '#2563EB';
+    } catch { return '#2563EB'; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('skins_selected_color', selectedColor);
+  }, [selectedColor]);
+
+  // 2. Coleção
+  const [collection, setCollection] = useState<import('@/types/skins').Collection>(() => {
+    try {
+      const stored = localStorage.getItem('skins_collection_v2');
+      if (stored) return JSON.parse(stored);
+      // Fallback para inicial
+      const { INITIAL_COLLECTION } = require('@/data/mockSkins');
+      return INITIAL_COLLECTION;
+    } catch {
+      const { INITIAL_COLLECTION } = require('@/data/mockSkins');
+      return INITIAL_COLLECTION;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('skins_collection_v2', JSON.stringify(collection));
+  }, [collection]);
+
+  // 3. Mineração
+  const [miningState, setMiningState] = useState<import('@/types/skins').MiningState>(() => {
+    try {
+      const stored = localStorage.getItem('skins_mining_v2');
+      if (stored) return JSON.parse(stored);
+      const { INITIAL_MINING } = require('@/data/mockSkins');
+      return INITIAL_MINING;
+    } catch {
+      const { INITIAL_MINING } = require('@/data/mockSkins');
+      return INITIAL_MINING;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('skins_mining_v2', JSON.stringify(miningState));
+  }, [miningState]);
+
+  // 4. Onboarding
+  const [skinsOnboardingCompleted, setSkinsOnboardingCompleted] = useState<boolean>(() => {
+    return localStorage.getItem('skins_onboarding_completed') === 'true';
+  });
+
+  const completeSkinsOnboarding = useCallback(() => {
+    setSkinsOnboardingCompleted(true);
+    localStorage.setItem('skins_onboarding_completed', 'true');
+  }, []);
+
+  // Helpers
+  const getSkinById = useCallback((id: number) => {
+    const { getSkinById } = require('@/data/mockSkins');
+    if (getSkinById) return getSkinById(id);
+    return undefined;
+  }, []);
+
+  const getSkinsByCategory = useCallback((categoryId: import('@/types/skins').SkinCategoryId) => {
+    const { getCategoryById } = require('@/data/mockSkins');
+    if (getCategoryById) {
+      const cat = getCategoryById(categoryId);
+      return cat ? cat.skins : [];
+    }
+    return [];
+  }, []);
+
+  // Actions
+  const buySkinLayout = useCallback((skinId: number) => {
+    const skin = getSkinById(skinId);
+    if (!skin) return { success: false, message: 'Skin não encontrada' };
+
+    // IMPORTANTE: cauCashBalance já existe neste escopo agora
+    if (cauCashBalance < skin.layoutCost) {
+      return { success: false, message: `Saldo insuficiente. Necessário: R$ ${skin.layoutCost}` };
+    }
+
+    addTransaction({
+      type: 'debit',
+      amount: skin.layoutCost,
+      description: `Compra layout: ${skin.name}`,
+      category: 'compra_layout'
+    });
+
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: [...prev.ownedSkins, skinId]
+    }));
+
+    return { success: true, message: `Layout adquirida!` };
+  }, [cauCashBalance, addTransaction, getSkinById]);
+
+  const sellSkin = useCallback((skinId: number, price: number) => {
+    // Mock simples de venda
+    const skin = getSkinById(skinId);
+    if (!skin) return { success: false, message: 'Erro ao vender' };
+
+    // 85% para vendedor (mock)
+    const amount = price * 0.85;
+    addTransaction({
+      type: 'credit',
+      amount,
+      description: `Venda skin: ${skin.name}`,
+      category: 'venda_skin'
+    });
+
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: prev.ownedSkins.filter(id => id !== skinId)
+    }));
+
+    return { success: true, message: `Venda realizada! +R$ ${amount.toFixed(2)}` };
+  }, [addTransaction, getSkinById]);
+
+  const mineSkin = useCallback((code: string) => {
+    // Lógica simplificada de mineração
+    if (miningState.attemptsThisWeek <= 0) {
+      return { success: false, message: 'Sem tentativas restantes esta semana.' };
+    }
+
+    setMiningState(prev => ({
+      ...prev,
+      attemptsThisWeek: prev.attemptsThisWeek - 1
+    }));
+
+    // Simulação de acerto (hardcoded para testes: se código começar com "WIN")
+    if (code.toUpperCase().startsWith('WIN')) {
+      return { success: true, message: 'VOCÊ MINEROU UM PRÊMIO!' };
+    }
+
+    return { success: false, message: 'Código incorreto. Tente novamente.' };
+  }, [miningState]);
+
+  const linkSkinToPlate = useCallback((skinId: number, plateId: string) => {
+    return { success: true, message: 'Skin vinculada com sucesso (Mock)' };
+  }, []);
 
   // Help Requests (Socorro)
   const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
@@ -2487,7 +2792,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     alertModal,
     showAlert,
     hideAlert,
-    getPlateMetrics
+    getPlateMetrics,
+
+    // SKINS & COLEÇÃO
+    selectedColor,
+    setSelectedColor,
+    collection,
+    miningState,
+    getSkinById,
+    getSkinsByCategory,
+    buySkinLayout,
+    sellSkin,
+    mineSkin,
+    linkSkinToPlate,
+    skinsOnboardingCompleted,
+    completeSkinsOnboarding
   };
 
   return (
