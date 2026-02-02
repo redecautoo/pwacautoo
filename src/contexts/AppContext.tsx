@@ -331,6 +331,35 @@ interface AppContextType {
     alerts: number;
     solidaryActions: number;
   };
+
+  // ===== SKINS & COLEÇÃO =====
+  // Cores livres
+  selectedColor: string;
+  setSelectedColor: (color: string) => void;
+
+  // Skins possuídas
+  ownedSkins: number[]; // IDs das skins que o usuário possui
+  buySkinLayout: (skinId: number) => { success: boolean; message: string };
+  sellSkin: (skinId: number, price: number) => { success: boolean; message: string };
+
+  // Coleção (puzzle)
+  collectionSlots: Array<{ posicao: number; skinId: number | null }>;
+  updateCollectionSlot: (posicao: number, skinId: number | null) => void;
+  getCorrectPositions: () => number;
+
+  // Mineração
+  miningAttempts: number;
+  miningProgress: Array<{ skinId: number; progresso: number }>;
+  mineSkin: (code: string) => { success: boolean; message: string; progress?: any };
+
+  // Vinculação
+  linkedSkins: Map<string, number>; // plateId -> skinId
+  linkSkinToPlate: (skinId: number, plateId: string) => { success: boolean; message: string };
+  unlinkSkin: (plateId: string) => void;
+
+  // Onboarding
+  skinsOnboardingCompleted: boolean;
+  completeSkinsOnboarding: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -634,6 +663,146 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cautoo_solidary_v1', JSON.stringify(solidaryAlerts));
     } catch (e) { }
   }, [solidaryAlerts]);
+
+  // ===== SKINS & COLEÇÃO - Estados =====
+  // Cor selecionada (cores livres)
+  const [selectedColor, setSelectedColor] = useState<string>(() => {
+    try {
+      const stored = localStorage.getItem('skins_selected_color');
+      return stored || '#2563EB'; // Azul Brasil padrão
+    } catch (e) {
+      return '#2563EB';
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('skins_selected_color', selectedColor);
+    } catch (e) { }
+  }, [selectedColor]);
+
+  // Skins possuídas (IDs)
+  const [ownedSkins, setOwnedSkins] = useState<number[]>(() => {
+    try {
+      const stored = localStorage.getItem('skins_owned');
+      return stored ? JSON.parse(stored) : [3, 5]; // Mock inicial: Verde Neon, Azul Oceano
+    } catch (e) {
+      return [3, 5];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('skins_owned', JSON.stringify(ownedSkins));
+    } catch (e) { }
+  }, [ownedSkins]);
+
+  // Slots da coleção (puzzle)
+  const [collectionSlots, setCollectionSlots] = useState<Array<{ posicao: number; skinId: number | null }>>(() => {
+    try {
+      const stored = localStorage.getItem('skins_collection');
+      return stored ? JSON.parse(stored) : [
+        { posicao: 1, skinId: 3 },
+        { posicao: 2, skinId: null },
+        { posicao: 3, skinId: 5 },
+        { posicao: 4, skinId: null },
+        { posicao: 5, skinId: null },
+        { posicao: 6, skinId: null },
+        { posicao: 7, skinId: null },
+      ];
+    } catch (e) {
+      return [
+        { posicao: 1, skinId: 3 },
+        { posicao: 2, skinId: null },
+        { posicao: 3, skinId: 5 },
+        { posicao: 4, skinId: null },
+        { posicao: 5, skinId: null },
+        { posicao: 6, skinId: null },
+        { posicao: 7, skinId: null },
+      ];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('skins_collection', JSON.stringify(collectionSlots));
+    } catch (e) { }
+  }, [collectionSlots]);
+
+  // Progresso de mineração
+  const [miningProgress, setMiningProgress] = useState<Array<{ skinId: number; progresso: number; status?: string }>>(() => {
+    try {
+      const stored = localStorage.getItem('skins_mining_progress');
+      return stored ? JSON.parse(stored) : [
+        { skinId: 9, progresso: 45, status: 'ativo' },
+        { skinId: 10, progresso: 12, status: 'ativo' },
+        { skinId: 11, progresso: 0, status: 'bloqueado' },
+      ];
+    } catch (e) {
+      return [
+        { skinId: 9, progresso: 45, status: 'ativo' },
+        { skinId: 10, progresso: 12, status: 'ativo' },
+        { skinId: 11, progresso: 0, status: 'bloqueado' },
+      ];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('skins_mining_progress', JSON.stringify(miningProgress));
+    } catch (e) { }
+  }, [miningProgress]);
+
+  // Tentativas de mineração
+  const [miningAttempts, setMiningAttempts] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem('skins_mining_attempts');
+      return stored ? parseInt(stored) : 200;
+    } catch (e) {
+      return 200;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('skins_mining_attempts', miningAttempts.toString());
+    } catch (e) { }
+  }, [miningAttempts]);
+
+  // Skins vinculadas (plateId -> skinId)
+  const [linkedSkins, setLinkedSkins] = useState<Map<string, number>>(() => {
+    try {
+      const stored = localStorage.getItem('skins_linked');
+      if (stored) {
+        const obj = JSON.parse(stored);
+        return new Map(Object.entries(obj).map(([k, v]) => [k, v as number]));
+      }
+    } catch (e) { }
+    return new Map();
+  });
+
+  useEffect(() => {
+    try {
+      const obj = Object.fromEntries(linkedSkins);
+      localStorage.setItem('skins_linked', JSON.stringify(obj));
+    } catch (e) { }
+  }, [linkedSkins]);
+
+  // Onboarding de Skins
+  const [skinsOnboardingCompleted, setSkinsOnboardingCompleted] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('skins_onboarding_completed');
+      return stored === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('skins_onboarding_completed', skinsOnboardingCompleted.toString());
+    } catch (e) { }
+  }, [skinsOnboardingCompleted]);
 
   // Reconciliar alertas quando o usuário loga - recarregar do localStorage para refletir rewards aplicados
   // Este efeito garante que após qualquer login/restore, os alertas estejam sincronizados
@@ -2381,6 +2550,164 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [vehicles, sentAlerts, alerts, sentCritiques, praisesSent, praisesReceived, solidaryAlerts, isPlateRegistered]);
 
+  // ===== SKINS & COLEÇÃO - Funções =====
+
+  // Comprar layout de skin
+  const buySkinLayout = useCallback((skinId: number): { success: boolean; message: string } => {
+    // Importar dados mockados
+    const { getAllSkins } = require('@/data/mockSkins');
+    const allSkins = getAllSkins();
+    const skin = allSkins.find((s: any) => s.id === skinId);
+
+    if (!skin) {
+      return { success: false, message: 'Skin não encontrada' };
+    }
+
+    if (skin.bloqueada) {
+      return { success: false, message: 'Skin bloqueada. Desbloqueie primeiro!' };
+    }
+
+    if (ownedSkins.includes(skinId)) {
+      return { success: false, message: 'Você já possui esta skin' };
+    }
+
+    const preco = skin.preco_layout;
+
+    if (cauCashBalance < preco) {
+      return { success: false, message: `Saldo insuficiente. Você precisa de R$ ${preco.toFixed(2)}` };
+    }
+
+    // Debitar CauCash
+    addTransaction({
+      type: 'debit',
+      amount: preco,
+      description: `Compra de layout: ${skin.nome}`,
+      category: 'compra_layout'
+    });
+
+    // Adicionar skin às possuídas
+    setOwnedSkins(prev => [...prev, skinId]);
+
+    return { success: true, message: `Layout "${skin.nome}" adquirido com sucesso!` };
+  }, [ownedSkins, cauCashBalance, addTransaction]);
+
+  // Vender skin
+  const sellSkin = useCallback((skinId: number, price: number): { success: boolean; message: string } => {
+    if (!ownedSkins.includes(skinId)) {
+      return { success: false, message: 'Você não possui esta skin' };
+    }
+
+    if (price < 1000) {
+      return { success: false, message: 'Preço mínimo: R$ 1.000,00' };
+    }
+
+    // Taxa de 15%
+    const taxa = price * 0.15;
+    const valorRecebido = price - taxa;
+
+    // Creditar CauCash
+    addTransaction({
+      type: 'credit',
+      amount: valorRecebido,
+      description: `Venda de skin (ID: ${skinId})`,
+      category: 'venda_skin'
+    });
+
+    // Remover skin das possuídas
+    setOwnedSkins(prev => prev.filter(id => id !== skinId));
+
+    // Remover da coleção se estiver lá
+    setCollectionSlots(prev => prev.map(slot =>
+      slot.skinId === skinId ? { ...slot, skinId: null } : slot
+    ));
+
+    return {
+      success: true,
+      message: `Skin vendida! Você recebeu R$ ${valorRecebido.toFixed(2)} (taxa: R$ ${taxa.toFixed(2)})`
+    };
+  }, [ownedSkins, addTransaction]);
+
+  // Atualizar slot da coleção
+  const updateCollectionSlot = useCallback((posicao: number, skinId: number | null) => {
+    setCollectionSlots(prev => prev.map(slot =>
+      slot.posicao === posicao ? { ...slot, skinId } : slot
+    ));
+  }, []);
+
+  // Calcular posições corretas (mockado)
+  const getCorrectPositions = useCallback((): number => {
+    // Mock: sempre retorna 2 posições corretas
+    return 2;
+  }, []);
+
+  // Minerar skin
+  const mineSkin = useCallback((code: string): { success: boolean; message: string; progress?: any } => {
+    if (code.length !== 7) {
+      return { success: false, message: 'Código deve ter 7 caracteres' };
+    }
+
+    if (miningAttempts <= 0) {
+      return { success: false, message: 'Tentativas esgotadas esta semana' };
+    }
+
+    // Decrementar tentativas
+    setMiningAttempts(prev => prev - 1);
+
+    // Incrementar progresso aleatório (mock)
+    const progressUpdates: any[] = [];
+    setMiningProgress(prev => prev.map(item => {
+      if (item.status === 'ativo') {
+        const incremento = Math.floor(Math.random() * 8) + 2; // 2-10%
+        const novoProgresso = Math.min(100, item.progresso + incremento);
+        progressUpdates.push({ skinId: item.skinId, incremento, progresso: novoProgresso });
+        return { ...item, progresso: novoProgresso };
+      }
+      return item;
+    }));
+
+    return {
+      success: true,
+      message: 'Não foi dessa vez!',
+      progress: progressUpdates
+    };
+  }, [miningAttempts]);
+
+  // Vincular skin à placa
+  const linkSkinToPlate = useCallback((skinId: number, plateId: string): { success: boolean; message: string } => {
+    if (!ownedSkins.includes(skinId)) {
+      return { success: false, message: 'Você não possui esta skin' };
+    }
+
+    // Verificar se a placa existe
+    const vehicle = vehicles.find(v => v.id === plateId);
+    if (!vehicle) {
+      return { success: false, message: 'Placa não encontrada' };
+    }
+
+    // Vincular
+    setLinkedSkins(prev => {
+      const newMap = new Map(prev);
+      newMap.set(plateId, skinId);
+      return newMap;
+    });
+
+    return { success: true, message: `Skin vinculada à placa ${vehicle.plate}` };
+  }, [ownedSkins, vehicles]);
+
+  // Desvincular skin
+  const unlinkSkin = useCallback((plateId: string) => {
+    setLinkedSkins(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(plateId);
+      return newMap;
+    });
+  }, []);
+
+  // Completar onboarding
+  const completeSkinsOnboarding = useCallback(() => {
+    setSkinsOnboardingCompleted(true);
+  }, []);
+
   const value: AppContextType = {
     isLoggedIn,
     currentUser,
@@ -2487,7 +2814,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     alertModal,
     showAlert,
     hideAlert,
-    getPlateMetrics
+    getPlateMetrics,
+    // Skins & Coleção
+    selectedColor,
+    setSelectedColor,
+    ownedSkins,
+    buySkinLayout,
+    sellSkin,
+    collectionSlots,
+    updateCollectionSlot,
+    getCorrectPositions,
+    miningAttempts,
+    miningProgress,
+    mineSkin,
+    linkedSkins,
+    linkSkinToPlate,
+    unlinkSkin,
+    skinsOnboardingCompleted,
+    completeSkinsOnboarding
   };
 
   return (
