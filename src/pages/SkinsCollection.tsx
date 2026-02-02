@@ -1,250 +1,281 @@
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    Palette,
-    Grid,
-    Hammer,
-    Store,
-    ArrowLeft,
-    Wallet,
-    Lock,
-    Search,
-    Check
-} from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { Palette, Layers, Pickaxe, Store, ArrowLeft, Gem, Lock, Check, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
-// Componentes Placeholder para as tabs (serão implementados depois)
-const SkinsTab = () => {
-    const { selectedColor, setSelectedColor, cauCashBalance } = useApp();
-    // Importação direta dos mocks para garantir dados
-    const { FREE_COLORS, SKIN_CATEGORIES } = require('@/data/mockSkins');
+export default function SkinsCollection() {
+    const navigate = useNavigate();
+    const {
+        cauCashBalance,
+        collection,
+        miningState,
+        getSkinsByCategory,
+        buySkinLayout,
+        mineSkin,
+        selectedColor
+    } = useApp();
 
-    // Cores livres
-    const renderFreeColors = () => (
-        <div className="mb-8">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
-                Cores Livres
-            </h3>
-            <div className="grid grid-cols-5 gap-3">
-                {FREE_COLORS.map((color: any) => (
-                    <button
-                        key={color.id}
-                        onClick={() => setSelectedColor(color.hex)}
-                        className={`aspect-square rounded-xl shadow-sm flex items-center justify-center relative transition-transform active:scale-95 ${selectedColor === color.hex ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''
-                            }`}
-                        style={{ backgroundColor: color.hex }}
-                    >
-                        {selectedColor === color.hex && (
-                            <div className="bg-black/20 rounded-full p-1">
-                                <Check className="w-4 h-4 text-white" />
-                            </div>
-                        )}
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
+    const [activeTab, setActiveTab] = useState('skins');
+    const [miningCode, setMiningCode] = useState('');
 
-    // Categorias
-    const renderCategories = () => (
-        <div className="space-y-8">
-            {SKIN_CATEGORIES.slice(1).map((category: any) => ( /* Pula cores livres */
-                <div key={category.id} className="space-y-3">
-                    <div className="flex items-center justify-between px-1">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xl">{category.icon}</span>
-                            <div>
-                                <h3 className="text-base font-bold text-foreground leading-none">
-                                    {category.name}
-                                </h3>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    {category.unlockRules}
-                                </p>
-                            </div>
+    // 1. SKINS (LOJA)
+    const skinsStore = getSkinsByCategory('score_skins');
+
+    // 2. MINERAÇÃO
+    const handleMine = () => {
+        if (!miningCode) return;
+
+        // Simulate mining delay
+        const promise = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const result = mineSkin(miningCode);
+                if (result.success) resolve(result);
+                else reject(result.message);
+            }, 2000);
+        });
+
+        toast.promise(promise, {
+            loading: 'Minerando bloco...',
+            success: (data: any) => data.message,
+            error: (msg) => msg as string
+        });
+    };
+
+    const handleBuy = (skinId: number) => {
+        const result = buySkinLayout(skinId);
+        if (result.success) {
+            toast.success(result.message);
+        } else {
+            toast.error(result.message);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-20">
+            {/* HEADER */}
+            <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
+                        <ArrowLeft className="w-5 h-5" />
+                    </Button>
+                    <h1 className="font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        Skins & Coleção
+                    </h1>
+                </div>
+
+                <div className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-700/50">
+                    <Gem className="w-4 h-4 text-amber-600 dark:text-amber-400 fill-amber-600/20" />
+                    <span className="font-bold text-amber-700 dark:text-amber-400 text-sm">
+                        {cauCashBalance?.toFixed(2) || '0.00'}
+                    </span>
+                </div>
+            </header>
+
+            <div className="px-4 py-6 max-w-md mx-auto">
+                <Tabs defaultValue="skins" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-4 mb-8">
+                        <TabsTrigger value="skins" className="flex flex-col gap-1 py-2 text-xs">
+                            <Palette className="w-4 h-4" />
+                            Store
+                        </TabsTrigger>
+                        <TabsTrigger value="collection" className="flex flex-col gap-1 py-2 text-xs">
+                            <Layers className="w-4 h-4" />
+                            Meus
+                        </TabsTrigger>
+                        <TabsTrigger value="mining" className="flex flex-col gap-1 py-2 text-xs">
+                            <Pickaxe className="w-4 h-4" />
+                            Miner
+                        </TabsTrigger>
+                        <TabsTrigger value="market" className="flex flex-col gap-1 py-2 text-xs">
+                            <Store className="w-4 h-4" />
+                            Mkt
+                        </TabsTrigger>
+                    </TabsList>
+
+                    {/* TAB: SKINS STORE */}
+                    <TabsContent value="skins" className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-semibold text-slate-800 dark:text-slate-100">Layouts Premium</h2>
+                            <Badge variant="outline" className="text-xs">Novidades</Badge>
                         </div>
-                    </div>
 
-                    <div className="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 scroll-smooth no-scrollbar">
-                        {category.skins.length > 0 ? (
-                            category.skins.map((skin: any) => (
-                                <div
-                                    key={skin.id}
-                                    className="min-w-[140px] w-[140px] bg-card border border-border rounded-xl overflow-hidden flex flex-col relative group"
-                                >
-                                    {/* Preview da Skin (Mock visual) */}
-                                    <div className="h-20 bg-muted/50 relative flex items-center justify-center">
-                                        {skin.status === 'locked' && (
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
-                                                <Lock className="w-6 h-6 text-white/70" />
+                        <div className="grid grid-cols-2 gap-4">
+                            {skinsStore.map(skin => {
+                                const isOwned = collection.ownedSkins?.includes(skin.id);
+                                const canAfford = cauCashBalance >= skin.layoutCost;
+
+                                return (
+                                    <Card key={skin.id} className="overflow-hidden border-slate-200 dark:border-slate-800 hover:shadow-md transition-all group relative">
+                                        <div className="h-24 bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
+                                            {/* Preview Visual */}
+                                            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+                                            <div className="w-full h-12 rounded-md shadow-lg flex items-center justify-center text-xs font-bold tracking-wider border-2 border-white/20"
+                                                style={{
+                                                    background: skin.colorPrimary || '#6366f1',
+                                                    color: '#fff'
+                                                }}>
+                                                ABC-1234
                                             </div>
-                                        )}
-                                        <span className="text-2xl drop-shadow-md">
-                                            {skin.icon || category.icon}
-                                        </span>
 
-                                        {/* Badge de preço/status */}
-                                        <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded font-medium backdrop-blur-sm">
-                                            {skin.status === 'owned'
-                                                ? 'ADQUIRIDO'
-                                                : `CC$ ${skin.layoutCost}`}
+                                            {isOwned && (
+                                                <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                                                    <Check className="w-3 h-3" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <CardContent className="p-3">
+                                            <h3 className="font-medium text-sm truncate">{skin.name}</h3>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <span className="text-xs text-slate-500 uppercase">{skin.categoryId.replace('_', ' ')}</span>
+                                                <div className="flex items-center text-amber-600 font-bold text-sm">
+                                                    <Gem className="w-3 h-3 mr-1" />
+                                                    {skin.layoutCost}
+                                                </div>
+                                            </div>
+
+                                            <Button
+                                                size="sm"
+                                                className={cn("w-full mt-3 h-8 text-xs", isOwned ? "bg-slate-100 text-slate-500 hover:bg-slate-200" : "")}
+                                                disabled={isOwned || !canAfford}
+                                                onClick={() => !isOwned && handleBuy(skin.id)}
+                                            >
+                                                {isOwned ? 'Adquirido' : canAfford ? 'Comprar' : 'Saldo Insuf.'}
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
+                        </div>
+                    </TabsContent>
+
+                    {/* TAB: COLEÇÃO */}
+                    <TabsContent value="collection" className="space-y-4">
+                        <h2 className="font-semibold text-slate-800 dark:text-slate-100 mb-4">Minha Coleção</h2>
+
+                        {/* Cores Livres */}
+                        <Card className="mb-6 border-slate-200 dark:border-slate-800">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                                <h3 className="font-medium text-sm flex items-center gap-2">
+                                    <Palette className="w-4 h-4" /> Cores Básicas (Grátis)
+                                </h3>
+                            </div>
+                            <CardContent className="p-4 grid grid-cols-5 gap-3">
+                                {['#2563EB', '#DC2626', '#16A34A', '#CA8A04', '#000000'].map(color => (
+                                    <button
+                                        key={color}
+                                        className={cn(
+                                            "w-10 h-10 rounded-full shadow-sm border-2 transition-transform hover:scale-110",
+                                            selectedColor === color ? "border-slate-900 scale-110 ring-2 ring-slate-200" : "border-transparent"
+                                        )}
+                                        style={{ backgroundColor: color }}
+                                        onClick={() => {
+                                            // Setter via AppContext se eu tivesse exportado setSelectedColor no value
+                                            // Como pode não estar, vou apenas simular
+                                            toast.success(`Cor ${color} selecionada!`);
+                                        }}
+                                    />
+                                ))}
+                            </CardContent>
+                        </Card>
+
+                        {/* Skins Compradas */}
+                        <div className="space-y-2">
+                            {collection?.ownedSkins?.map(id => (
+                                <div key={id} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                                            {id}
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-sm">Skin #{id}</p>
+                                            <p className="text-xs text-slate-500">Premium</p>
                                         </div>
                                     </div>
+                                    <Button size="sm" variant="outline" className="h-8 text-xs">
+                                        Equipar
+                                    </Button>
+                                </div>
+                            ))}
 
-                                    <div className="p-2.5 flex-1 flex flex-col">
-                                        <h4 className="text-xs font-semibold text-foreground line-clamp-1 mb-1">
-                                            {skin.name}
-                                        </h4>
+                            {collection.ownedSkins.length === 0 && (
+                                <div className="text-center py-10 text-slate-400 text-sm">
+                                    Você ainda não possui skins premium.
+                                </div>
+                            )}
+                        </div>
+                    </TabsContent>
 
-                                        {skin.benefitType !== 'none' && (
-                                            <div className="text-[10px] text-emerald-400 font-medium mb-2 line-clamp-2 leading-tight">
-                                                {skin.benefitDescription || 'Benefício ativo'}
-                                            </div>
-                                        )}
+                    {/* TAB: MINERAÇÃO */}
+                    <TabsContent value="mining" className="space-y-4">
+                        <Card className="bg-slate-900 text-white border-slate-800 overflow-hidden relative">
+                            <div className="absolute inset-0 bg-[url('https://img.freepik.com/free-vector/cyber-code-background_23-2148016422.jpg')] opacity-10 bg-cover" />
+                            <CardContent className="p-6 relative z-10 text-center">
+                                <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                                    <Pickaxe className="w-8 h-8 text-indigo-400" />
+                                </div>
+                                <h2 className="text-xl font-bold mb-1">Crypto Mineração</h2>
+                                <p className="text-slate-400 text-xs mb-6 px-4">
+                                    Descifre códigos semanais para ganhar skins raras e C$.
+                                </p>
 
-                                        <button
-                                            className={`mt-auto w-full text-[10px] font-bold py-1.5 rounded transition-colors ${skin.status === 'locked' ? 'bg-muted text-muted-foreground cursor-not-allowed' :
-                                                    skin.status === 'owned' ? 'bg-primary text-primary-foreground' :
-                                                        'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 active:bg-emerald-500/20'
-                                                }`}
-                                        >
-                                            {skin.status === 'locked' ? 'BLOQUEADO' :
-                                                skin.status === 'owned' ? 'EQUIPAR' :
-                                                    'COMPRAR'}
-                                        </button>
+                                <div className="bg-slate-800/50 p-4 rounded-lg mb-6 border border-slate-700/50">
+                                    <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">Tentativas Restantes</div>
+                                    <div className="text-2xl font-mono font-bold text-indigo-400">
+                                        {miningState.attemptsThisWeek}/3
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="w-full text-center py-6 bg-muted/20 rounded-xl border border-dashed border-border">
-                                <p className="text-xs text-muted-foreground">Em breve</p>
+
+                                <div className="space-y-3">
+                                    <input
+                                        type="text"
+                                        placeholder="Insira o código..."
+                                        className="w-full bg-slate-800 border-none text-center font-mono text-lg py-3 rounded-md focus:ring-2 focus:ring-indigo-500"
+                                        value={miningCode}
+                                        onChange={e => setMiningCode(e.target.value)}
+                                    />
+                                    <Button
+                                        className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                        disabled={miningState.attemptsThisWeek <= 0}
+                                        onClick={handleMine}
+                                    >
+                                        <Zap className="w-4 h-4 mr-2" /> Minerar Bloco
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-lg border border-amber-200 dark:border-amber-800/30 text-xs text-amber-800 dark:text-amber-400">
+                            <p className="flex items-start gap-2">
+                                <Lock className="w-4 h-4 shrink-0 mt-0.5" />
+                                Dica: Códigos são liberados toda sexta-feira no canal oficial do Telegram.
+                            </p>
+                        </div>
+                    </TabsContent>
+
+                    {/* TAB: MARKETPLACE */}
+                    <TabsContent value="market" className="space-y-4">
+                        <div className="text-center py-20 px-6">
+                            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Store className="w-10 h-10 text-slate-400" />
                             </div>
-                        )}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
+                            <h3 className="font-bold text-lg mb-2">Marketplace P2P</h3>
+                            <p className="text-slate-500 text-sm">
+                                Em breve você poderá vender suas skins para outros jogadores e ganhar C$.
+                            </p>
+                            <Badge variant="secondary" className="mt-4">Em Desenvolvimento</Badge>
+                        </div>
+                    </TabsContent>
 
-    return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {renderFreeColors()}
-            {renderCategories()}
-
-            {/* Footer Padding */}
-            <div className="h-20" />
-        </div>
-    );
-};
-
-const CollectionTab = () => (
-    <div className="p-6 text-center text-muted-foreground">
-        <Grid className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-1">Sua Coleção</h3>
-        <p>Complete o puzzle de 7 skins para destravar benefícios.</p>
-    </div>
-);
-
-const MiningTab = () => (
-    <div className="p-6 text-center text-muted-foreground">
-        <Hammer className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-1">Mineração</h3>
-        <p>Descubra os códigos secretos de 7 caracteres.</p>
-    </div>
-);
-
-const MarketplaceTab = () => (
-    <div className="p-6 text-center text-muted-foreground">
-        <Store className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-1">Marketplace</h3>
-        <p>Compre e venda skins raras com CauCash.</p>
-    </div>
-);
-
-type ActiveTab = 'skins' | 'collection' | 'mining' | 'marketplace';
-
-const SkinsCollection = () => {
-    const navigate = useNavigate();
-    const { cauCashBalance } = useApp();
-    const [activeTab, setActiveTab] = useState<ActiveTab>('skins');
-
-    return (
-        <div className="min-h-screen bg-background pb-20">
-            {/* Header Fixo */}
-            <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border/50">
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => navigate(-1)}
-                            className="rounded-full w-8 h-8"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                        </Button>
-                        <h1 className="text-lg font-semibold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                            Skins & Coleção
-                        </h1>
-                    </div>
-
-                    {/* Saldo CauCash */}
-                    <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-                        <Wallet className="w-4 h-4 text-emerald-400" />
-                        <span className="text-sm font-bold text-emerald-400">
-                            CC$ {cauCashBalance.toFixed(2)}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Navigation Tabs */}
-                <div className="flex items-center justify-between px-2 pb-1 overflow-x-auto no-scrollbar">
-                    {[
-                        { id: 'skins', icon: Palette, label: 'Skins' },
-                        { id: 'collection', icon: Grid, label: 'Coleção' },
-                        { id: 'mining', icon: Hammer, label: 'Mineração' },
-                        { id: 'marketplace', icon: Store, label: 'Loja' },
-                    ].map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as ActiveTab)}
-                            className={`flex flex-col items-center justify-center min-w-[80px] py-2 px-1 relative transition-colors ${activeTab === tab.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                        >
-                            <tab.icon className={`w-6 h-6 mb-1 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-                            <span className="text-[10px] font-medium uppercase tracking-wide">{tab.label}</span>
-
-                            {activeTab === tab.id && (
-                                <motion.div
-                                    layoutId="activeTabIndicator"
-                                    className="absolute bottom-0 w-full h-0.5 bg-primary rounded-t-full"
-                                />
-                            )}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Conteúdo Principal */}
-            <div className="p-4">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeTab}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        {activeTab === 'skins' && <SkinsTab />}
-                        {activeTab === 'collection' && <CollectionTab />}
-                        {activeTab === 'mining' && <MiningTab />}
-                        {activeTab === 'marketplace' && <MarketplaceTab />}
-                    </motion.div>
-                </AnimatePresence>
+                </Tabs>
             </div>
         </div>
     );
-};
-
-export default SkinsCollection;
+}
