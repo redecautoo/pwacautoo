@@ -218,6 +218,31 @@ export const DashboardGrid = ({ menuItems, referralItem, skinsItem, isVerified }
                 </Button>
             </div>
 
+            {/* Skins item is fixed at the top (if provided) */}
+            {skinsItem && (
+                <motion.button
+                    onClick={() => navigate(skinsItem.path)}
+                    className="relative w-full rounded-2xl p-5 text-left transition-all shadow-md hover:shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 border-0 mb-2 group"
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform">
+                            <skinsItem.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <span className="text-lg font-bold text-white block leading-tight">
+                                {skinsItem.label}
+                            </span>
+                            <span className="text-sm text-white/80 leading-snug mt-1 block">
+                                Personalize sua placa, colecione skins e desbloqueie exclusividades
+                            </span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-white/50 group-hover:text-white transition-all group-hover:translate-x-1" />
+                    </div>
+                </motion.button>
+            )}
+
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -255,30 +280,7 @@ export const DashboardGrid = ({ menuItems, referralItem, skinsItem, isVerified }
                 </DragOverlay>
             </DndContext>
 
-            {/* Skins item is fixed at the top (if provided) */}
-            {skinsItem && (
-                <motion.button
-                    onClick={() => navigate(skinsItem.path)}
-                    className="relative w-full rounded-2xl p-5 text-left transition-all shadow-md hover:shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 border-0 mb-2"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                            <Gift className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                            <span className="text-base font-semibold text-white block">
-                                {skinsItem.label}
-                            </span>
-                            <span className="text-sm text-white/80">
-                                Personalize sua placa, desbloqueie skins exclusivas
-                            </span>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-white/80" />
-                    </div>
-                </motion.button>
-            )}
+
 
             {/* Referral item is fixed at the bottom */}
             <motion.button
