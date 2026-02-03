@@ -28,7 +28,9 @@ import {
   ThumbsUp,
   HeartHandshake,
   LayoutGrid,
-  Lock
+  Lock,
+  Layers,
+  Palette
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,17 +115,7 @@ const Dashboard = () => {
     isHighlighted: true
   };
 
-  // Card de Skins & Coleção (FIXO NO TOPO)
-  const skinsItem = {
-    icon: Gift, // Temporário, depois trocar por Palette
-    label: "Skins & Coleção",
-    description: "Personalize sua placa, desbloqueie skins exclusivas, monte sua coleção e descubra recompensas.",
-    path: "/skins-collection",
-    color: "text-white",
-    bg: "bg-gradient-to-r from-purple-600 to-pink-600",
-    isHighlighted: true,
-    isFixed: true // Não pode ser reorganizado
-  };
+
 
   const handleLogout = () => {
     logout();
@@ -275,6 +267,30 @@ const Dashboard = () => {
 
         <main className="px-4 py-6">
           <div className="max-w-lg mx-auto space-y-8">
+
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-5 shadow-lg shadow-purple-500/20 cursor-pointer group"
+              onClick={() => navigate("/skins-collection")}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform duration-300">
+                    <Palette className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                      Skins & Coleção
+                    </h2>
+                    <p className="text-sm text-white/80 leading-snug">
+                      Personalize sua placa, colecione skins e desbloqueie exclusividades
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-6 h-6 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              </div>
+            </motion.section>
 
             {/* 1. MEUS VEÍCULOS (TOPO) */}
             <section>
@@ -615,7 +631,6 @@ const Dashboard = () => {
                     <DashboardGrid
                       menuItems={menuItems}
                       referralItem={referralItem}
-                      skinsItem={skinsItem}
                       isVerified={currentUser?.isVerified || false}
                     />
                   </motion.div>
