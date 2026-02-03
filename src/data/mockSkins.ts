@@ -169,7 +169,10 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 40, name: 'Recompensa Bronze', categoryId: 'rewards_points', status: 'locked', layoutCost: 30, canSell: true, canBuyLayout: true, benefitType: 'none' },
+            { id: 41, name: 'Recompensa Prata', categoryId: 'rewards_points', status: 'locked', layoutCost: 60, canSell: true, canBuyLayout: true, benefitType: 'none' },
+        ],
     },
 
     // 5. BENEFÍCIO OPERACIONAL
@@ -183,7 +186,10 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 50, name: 'Guincho S.O.S', categoryId: 'benefit_ops', status: 'locked', layoutCost: 80, canSell: true, canBuyLayout: true, benefitType: 'operational' },
+            { id: 51, name: 'KM Livre Plus', categoryId: 'benefit_ops', status: 'locked', layoutCost: 120, canSell: true, canBuyLayout: true, benefitType: 'operational' },
+        ],
     },
 
     // 6. ALERTA ROUBO
@@ -197,7 +203,9 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 60, name: 'Alerta Neon Red', categoryId: 'alert_skins', status: 'locked', layoutCost: 200, canSell: true, canBuyLayout: true, benefitType: 'priority' },
+        ],
     },
 
     // 7. REGISTRO CAUTELAR
@@ -211,7 +219,9 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 70, name: 'Cautelar 1500', categoryId: 'caution_record', status: 'locked', layoutCost: 150, canSell: true, canBuyLayout: true, benefitType: 'coverage' },
+        ],
     },
 
     // 8. FANTASMA DESAFIO
@@ -225,7 +235,9 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 80, name: 'Fantasma Invisível', categoryId: 'ghost_challenge', status: 'locked', layoutCost: 300, canSell: true, canBuyLayout: true, benefitType: 'none' },
+        ],
     },
 
     // 9. MINERAÇÃO
@@ -245,6 +257,16 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
                 categoryId: 'mining_skins',
                 status: 'locked',
                 layoutCost: 100,
+                canSell: true,
+                canBuyLayout: true,
+                benefitType: 'none',
+            },
+            {
+                id: 91,
+                name: 'Mineiro Profundo',
+                categoryId: 'mining_skins',
+                status: 'locked',
+                layoutCost: 200,
                 canSell: true,
                 canBuyLayout: true,
                 benefitType: 'none',
@@ -284,7 +306,9 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 110, name: 'Misteriosa JAN/26', categoryId: 'surprise_skins', status: 'locked', layoutCost: 500, canSell: true, canBuyLayout: true, benefitType: 'none' },
+        ],
     },
 
     // 12. RARAS
@@ -297,7 +321,10 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowLayoutPurchase: true,
         allowSell: true,
         addToCollection: true,
-        skins: [],
+        skins: [
+            { id: 120, name: 'Aurora Neon', categoryId: 'rare_skins', status: 'locked', layoutCost: 400, canSell: true, canBuyLayout: true, benefitType: 'none' },
+            { id: 121, name: 'Cyberpunk 2077', categoryId: 'rare_skins', status: 'locked', layoutCost: 800, canSell: true, canBuyLayout: true, benefitType: 'none' },
+        ],
     },
 ];
 
