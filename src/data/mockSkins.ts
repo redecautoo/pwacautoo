@@ -343,21 +343,21 @@ export const INITIAL_COLLECTION: Collection = {
     ],
     ownedSkins: [], // Vazio inicialmente (PARA TESTES: pode adicionar [10, 11])
     correctCount: 0,
-    hintsUsed: 0,
     canReorder: false, // Precisa >= 15 skins
 };
 
 // ============================================
-// ESTADO INICIAL DA MINERAÇÃO
+// ESTADO INICIAL DA MINERAÇÃO (Decisão Final)
 // ============================================
 export const INITIAL_MINING: MiningState = {
-    attemptsThisWeek: 5, // 5 tentativas por semana
-    maxAttemptsPerWeek: 5,
+    attemptsThisWeek: 200, // 200 tentativas por semana (Decisão Final)
+    maxAttemptsPerWeek: 200,
     prizes: [
+        // 7 Prêmios VALUE (10k-100k)
         {
             id: 'value_10k',
             name: 'Valor 10k',
-            targetCode: 'ABC1D23', // Código secreto
+            targetCode: 'ABC1D23', // Código secreto (7 chars)
             bestGuess: '',
             correctChars: 0,
             progress: 0,
@@ -366,9 +366,53 @@ export const INITIAL_MINING: MiningState = {
             categoryId: 'value_skins',
         },
         {
+            id: 'value_15k',
+            name: 'Valor 15k',
+            targetCode: 'XYZ4W89',
+            bestGuess: '',
+            correctChars: 0,
+            progress: 0,
+            maxHints: 3,
+            hintsUnlocked: 0,
+            categoryId: 'value_skins',
+        },
+        {
+            id: 'value_20k',
+            name: 'Valor 20k',
+            targetCode: 'QWE7R56',
+            bestGuess: '',
+            correctChars: 0,
+            progress: 0,
+            maxHints: 2,
+            hintsUnlocked: 0,
+            categoryId: 'value_skins',
+        },
+        {
+            id: 'value_25k',
+            name: 'Valor 25k',
+            targetCode: 'ASD3F12',
+            bestGuess: '',
+            correctChars: 0,
+            progress: 0,
+            maxHints: 2,
+            hintsUnlocked: 0,
+            categoryId: 'value_skins',
+        },
+        {
+            id: 'value_30k',
+            name: 'Valor 30k',
+            targetCode: 'ZXC9V45',
+            bestGuess: '',
+            correctChars: 0,
+            progress: 0,
+            maxHints: 2,
+            hintsUnlocked: 0,
+            categoryId: 'value_skins',
+        },
+        {
             id: 'value_50k',
             name: 'Valor 50k',
-            targetCode: 'XYZ9W87',
+            targetCode: 'RTY6U78',
             bestGuess: '',
             correctChars: 0,
             progress: 0,
@@ -379,7 +423,7 @@ export const INITIAL_MINING: MiningState = {
         {
             id: 'value_100k',
             name: 'Valor 100k',
-            targetCode: 'QWE4R56',
+            targetCode: 'FGH2J90',
             bestGuess: '',
             correctChars: 0,
             progress: 0,
@@ -387,6 +431,7 @@ export const INITIAL_MINING: MiningState = {
             hintsUnlocked: 0,
             categoryId: 'value_skins',
         },
+        // Surpresa Global (1 vencedor/mês)
         {
             id: 'surprise_global',
             name: 'Surpresa Global',
@@ -394,7 +439,7 @@ export const INITIAL_MINING: MiningState = {
             bestGuess: '',
             correctChars: 0,
             progress: 0,
-            maxHints: 0,
+            maxHints: 0, // Sem dicas!
             hintsUnlocked: 0,
             categoryId: 'surprise_skins',
         },
@@ -416,3 +461,70 @@ export const getSkinById = (id: number) => {
 export const getCategoryById = (id: SkinCategoryId) => {
     return SKIN_CATEGORIES.find(cat => cat.id === id);
 };
+
+// ============================================
+// RARIDADES (Decisão Final)
+// ============================================
+export const getSkinRarity = (skinId: number): import('@/types/skins').SkinRarity => {
+    // Lógica simplificada por categoria
+    const skin = getSkinById(skinId);
+    if (!skin) return 'comum';
+
+    // Cores livres = não tem raridade
+    if (skin.categoryId === 'base_colors') return 'comum';
+
+    // Value skins por tier
+    if (skin.categoryId === 'value_skins') {
+        if (skinId === 106) return 'lendaria'; // 100k
+        if (skinId === 105) return 'epica';    // 50k
+        if (skinId >= 103) return 'rara';      // 25k-30k
+        return 'incomum';                      // 10k-20k
+    }
+
+    // Surpresa = única
+    if (skin.categoryId === 'surprise_skins') return 'unica';
+
+    // Raras
+    if (skin.categoryId === 'rare_skins') return 'rara';
+
+    // Ghost Challenge
+    if (skin.categoryId === 'ghost_challenge') return 'epica';
+
+    // Resto = comum/incomum
+    return skin.layoutCost > 100 ? 'incomum' : 'comum';
+};
+
+// ============================================
+// DNA MOCK (Apenas para skins mineradas)
+// ============================================
+export const generateMockDNA = (skinId: number, userId: string): import('@/types/skins').DNA => {
+    // Gerar genes pseudo-aleatórios baseados no skinId
+    const seed = skinId * 123456;
+    const random = (min: number, max: number) => {
+        const x = Math.sin(seed) * 10000;
+        return min + (x - Math.floor(x)) * (max - min);
+    };
+
+    return {
+        id: `dna_${skinId}_${Date.now()}`,
+        genes: {
+            fire: random(0, 1),
+            water: random(0, 1),
+            earth: random(0, 1),
+            air: random(0, 1),
+            rarity_base: random(0.5, 1),
+            evolution_potential: random(0.7, 1)
+        },
+        metadata: {
+            genesis_block: new Date().toISOString(),
+            miner_id: userId,
+            attempts_until_mined: Math.floor(random(10, 150)),
+            month_cycle: 'FEV/2026',
+            moon_phase: ['New', 'Waxing', 'Full', 'Waning'][Math.floor(random(0, 4))],
+            temperature_sp: random(18, 35),
+            active_plates_moment: Math.floor(random(1000, 50000)),
+            serial_number: `${skinId}k_${String(Math.floor(random(1, 9999))).padStart(6, '0')}`
+        }
+    };
+};
+

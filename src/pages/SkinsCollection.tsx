@@ -413,29 +413,68 @@ export default function SkinsCollection() {
                             <section className="space-y-4">
                                 <div className="flex items-center justify-between px-1">
                                     <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Prêmios da Temporada</h3>
-                                    <Badge variant="outline" className="text-[9px] font-bold">CICLO JAN/2026</Badge>
+                                    <Badge variant="outline" className="text-[9px] font-bold">CICLO FEV/2026</Badge>
                                 </div>
                                 <div className="grid grid-cols-1 gap-3">
-                                    {miningState.prizes.map((prize) => (
-                                        <Card key={prize.id} className="bg-card border-border overflow-hidden">
-                                            <CardContent className="p-4 flex items-center justify-between">
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-black uppercase italic">{prize.name}</span>
-                                                        <Badge variant="outline" className="h-4 text-[8px] font-black border-primary/20 px-1 bg-primary/5 uppercase">Mineração</Badge>
+                                    {miningState.prizes.map((prize) => {
+                                        // Destaque visual (Decisão Final)
+                                        const isClose = prize.correctChars >= 5;
+                                        const isMedium = prize.correctChars >= 3;
+
+                                        return (
+                                            <Card
+                                                key={prize.id}
+                                                className={cn(
+                                                    "bg-card border-border overflow-hidden transition-all",
+                                                    isClose && "border-2 border-emerald-500/50 shadow-lg shadow-emerald-500/20 animate-pulse"
+                                                )}
+                                            >
+                                                <CardContent className="p-4 flex items-center justify-between">
+                                                    <div className="flex-1 space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-black uppercase italic">{prize.name}</span>
+                                                            <Badge
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    "h-4 text-[8px] font-black px-1 uppercase",
+                                                                    isClose ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500" :
+                                                                        isMedium ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500" :
+                                                                            "border-primary/20 bg-primary/5 text-primary"
+                                                                )}
+                                                            >
+                                                                {isClose ? "🔥 QUASE!" : "Mineração"}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Progress
+                                                                value={prize.progress}
+                                                                className={cn(
+                                                                    "h-1.5 flex-1",
+                                                                    isClose ? "bg-emerald-500/20" : "bg-secondary"
+                                                                )}
+                                                            />
+                                                            <span className={cn(
+                                                                "text-[10px] font-black min-w-[30px]",
+                                                                isClose ? "text-emerald-500" :
+                                                                    isMedium ? "text-yellow-500" :
+                                                                        "text-muted-foreground"
+                                                            )}>
+                                                                {prize.correctChars}/7
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[9px] text-muted-foreground uppercase font-black">
+                                                                Melhor: {prize.bestGuess || "---"}
+                                                            </span>
+                                                            <span className="text-[9px] text-primary uppercase font-black">
+                                                                Dicas: {prize.hintsUnlocked}/{prize.maxHints}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Progress value={prize.progress} className="h-1.5 flex-1 bg-secondary" />
-                                                        <span className="text-[10px] font-black text-muted-foreground min-w-[30px]">{prize.correctChars}/7</span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-[9px] text-muted-foreground uppercase font-black uppercase">Melhor acerto: 0/7</span>
-                                                        <span className="text-[9px] text-primary uppercase font-black uppercase">Dicas: {prize.hintsUnlocked}/{prize.maxHints}</span>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    })}
                                 </div>
                             </section>
                         </TabsContent>

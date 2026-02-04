@@ -110,7 +110,6 @@ export interface Collection {
     slots: CollectionSlot[];  // 7 slots fixos
     ownedSkins: number[];     // IDs de todas as skins possuídas
     correctCount: number;     // Quantas posições corretas
-    hintsUsed: number;        // Dicas usadas
     canReorder: boolean;      // >= 15 skins
 }
 
@@ -150,6 +149,159 @@ export interface MarketplaceListing {
 }
 
 // ============================================
+// DNA ÚNICO (Apenas skins mineradas)
+// ============================================
+export interface DNA {
+    id: string;
+
+    // Genes (0-1)
+    genes: {
+        fire: number;
+        water: number;
+        earth: number;
+        air: number;
+        rarity_base: number;
+        evolution_potential: number;
+    };
+
+    // Metadata (momento da mineração)
+    metadata: {
+        genesis_block: string;        // ISO timestamp
+        miner_id: string;
+        attempts_until_mined: number;
+        month_cycle: string;           // "FEV/2026"
+        moon_phase: string;            // "New", "Full", etc
+        temperature_sp: number;        // Mock: 18-35°C
+        active_plates_moment: number;
+        serial_number: string;         // "25k_000847"
+    };
+}
+
+// Badge alternativo para skins não-mineradas
+export interface SkinBadge {
+    type: 'purchased' | 'achievement' | 'reward';
+    label: string;              // "Colecionador #00847"
+    acquiredAt: string;
+    serial?: string;
+}
+
+// ============================================
+// EVOLUÇÃO (5 Níveis)
+// ============================================
+export type SkinLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface EvolutionLevel {
+    level: SkinLevel;
+    name: 'Base' | 'Plus' | 'Ultra' | 'Master' | 'GENESIS';
+    xp_required: number;
+    time_estimate: string;
+    benefit_multiplier: number;  // 1.0, 1.3, 1.6, 2.0, permanente
+    visual_effect: string;
+}
+
+export const EVOLUTION_LEVELS: EvolutionLevel[] = [
+    { level: 1, name: 'Base', xp_required: 0, time_estimate: '0', benefit_multiplier: 1.0, visual_effect: 'none' },
+    { level: 2, name: 'Plus', xp_required: 5000, time_estimate: '1-2 meses', benefit_multiplier: 1.3, visual_effect: 'glow' },
+    { level: 3, name: 'Ultra', xp_required: 20000, time_estimate: '4-6 meses', benefit_multiplier: 1.6, visual_effect: 'particles' },
+    { level: 4, name: 'Master', xp_required: 70000, time_estimate: '12-18 meses', benefit_multiplier: 2.0, visual_effect: 'animation' },
+    { level: 5, name: 'GENESIS', xp_required: 200000, time_estimate: '2-3 anos', benefit_multiplier: 999, visual_effect: 'holographic' }
+];
+
+// ============================================
+// MARKETPLACE (Taxas Inversas - Decisão GPT)
+// ============================================
+export type SkinRarity = 'comum' | 'incomum' | 'rara' | 'epica' | 'lendaria' | 'unica';
+
+export const MARKETPLACE_FEES: Record<SkinRarity, number> = {
+    comum: 15,      // Taxa MAIOR para itens comuns
+    incomum: 12,
+    rara: 10,
+    epica: 8,
+    lendaria: 5,    // Taxa MENOR para itens raros
+    unica: 3        // Taxa MÍNIMA para únicos
+};
+
+// ============================================
+// SISTEMA DE DICAS (Puzzle)
+// ============================================
+export type HintType = 'category' | 'exact' | 'negation' | 'visual' | 'relational';
+
+export interface PuzzleHint {
+    id: string;
+    type: HintType;
+    message: string;
+    earnedAt: string;
+    usedAt: string | null;
+    condition: string;  // Como foi ganha
+}
+
+export const HINT_CONDITIONS: Record<HintType, { requirement: string; reward: string }> = {
+    category: {
+        requirement: "30 dias sem crítica válida",
+        reward: "Dica de categoria (ex: Selo no topo)"
+    },
+    exact: {
+        requirement: "50 alertas úteis",
+        reward: "Revela 1 posição exata"
+    },
+    negation: {
+        requirement: "ICC ≥ 850",
+        reward: "Elimina 3 posições incorretas"
+    },
+    visual: {
+        requirement: "Score 1000+ por 7 dias",
+        reward: "Mostra silhueta borrada"
+    },
+    relational: {
+        requirement: "Completar 5 desafios",
+        reward: "Dica de ordem (X vem antes de Y)"
+    }
+};
+
+// ============================================
+// SKIN ESTENDIDA (com DNA e Evolução)
+// ============================================
+export interface OwnedSkin extends Skin {
+    // Identificação única
+    uniqueId: string;
+    userId: string;
+
+    // Aquisição
+    acquiredAt: string;
+    acquisitionMethod: 'mining' | 'purchase' | 'achievement' | 'reward';
+
+    // DNA (apenas se minerada)
+    dna?: DNA;
+
+    // Badge (se não minerada)
+    badge?: SkinBadge;
+
+    // Evolução
+    level: SkinLevel;
+    xp: number;
+
+    // Vínculo
+    linkedPlate: string | null;
+    linkedAt: string | null;
+    lastSwitchAt: string | null;  // Para cooldown 12h
+
+    // Marketplace
+    listedForSale: boolean;
+    salePrice: number | null;
+    rarity: SkinRarity;
+}
+
+// ============================================
+// COLEÇÃO ESTENDIDA (com dicas)
+// ============================================
+export interface CollectionExtended extends Collection {
+    hintsEarned: PuzzleHint[];
+    hintsUsed: PuzzleHint[];
+    completed: boolean;
+    completedAt: string | null;
+}
+
+// ============================================
 // ESTADO GLOBAL
 // ============================================
 export interface SkinsGlobalState {
@@ -158,9 +310,10 @@ export interface SkinsGlobalState {
 
     // Categorias e skins
     categories: SkinCategory[];
+    ownedSkins: OwnedSkin[];  // Skins do usuário
 
     // Coleção
-    collection: Collection;
+    collection: CollectionExtended;
 
     // Mineração
     mining: MiningState;

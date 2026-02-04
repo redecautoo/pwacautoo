@@ -351,6 +351,15 @@ interface AppContextType {
   mineSkin: (code: string) => { success: boolean; message: string; prize?: MiningPrize };
   linkSkinToPlate: (skinId: number, plateId: string) => { success: boolean; message: string };
 
+  // Evolução XP (NOVA - Decisão Claude)
+  addXP: (skinId: number, amount: number) => void;
+  calculateLevel: (xp: number) => number;
+
+  // Troca de Skin (NOVA - Cooldown 12h)
+  switchLinkedSkin: (oldSkinId: number, newSkinId: number) => { success: boolean; message: string };
+  unlinkSkin: (skinId: number) => { success: boolean; message: string };
+  canSwitchSkin: (skinId: number) => boolean;
+
   // Onboarding
   skinsOnboardingCompleted: boolean;
   completeSkinsOnboarding: () => void;
@@ -2520,24 +2529,159 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { success: false, message: 'Você não tem mais tentativas esta semana' };
     }
 
-    setMiningState(prev => ({
-      ...prev,
-      attemptsThisWeek: prev.attemptsThisWeek - 1
-    }));
-
-    // Verificar se o código bate com algum prêmio
-    const prize = miningState.prizes.find(p => p.targetCode.toUpperCase() === code.toUpperCase());
-
-    if (prize) {
-      return { success: true, message: `PARABÉNS! Você minerou: ${prize.name}`, prize };
+    // Validar código (7 caracteres, A-Z0-9)
+    if (code.length !== 7 || !/^[A-Z0-9]{7}$/.test(code)) {
+      return { success: false, message: 'Código inválido! Use 7 caracteres (A-Z, 0-9)' };
     }
 
-    return { success: false, message: 'Código incorreto. Tente novamente!' };
-  }, [miningState]);
+    // ===== CALCULAR MATCHES SIMULTÂNEOS (Decisão Final) =====
+    const updatedPrizes = miningState.prizes.map(prize => {
+      const targetCode = prize.targetCode.toUpperCase();
+      const userCode = code.toUpperCase();
+
+      // Calcular caracteres corretos (posição exata)
+      let correctChars = 0;
+      for (let i = 0; i < 7; i++) {
+        if (targetCode[i] === userCode[i]) {
+          correctChars++;
+        }
+      }
+
+      // Atualizar progresso
+      const progress = (correctChars / 7) * 100;
+      const isNewBest = correctChars > prize.correctChars;
+
+      return {
+        ...prize,
+        bestGuess: isNewBest ? userCode : prize.bestGuess,
+        correctChars: Math.max(correctChars, prize.correctChars),
+        progress: Math.max(progress, prize.progress)
+      };
+    });
+
+    // Verificar se minerou algum prêmio (7/7)
+    const minedPrize = updatedPrizes.find(p => p.correctChars === 7);
+
+    // Atualizar estado
+    setMiningState(prev => ({
+      ...prev,
+      attemptsThisWeek: prev.attemptsThisWeek - 1,
+      prizes: updatedPrizes
+    }));
+
+    // Se minerou, gerar DNA e adicionar à coleção
+    if (minedPrize) {
+      // TODO: Gerar DNA e adicionar skin à coleção
+      // const dna = generateMockDNA(minedPrize.skinId, currentUser.id);
+
+      return {
+        success: true,
+        message: `🎉 MINERADO! ${minedPrize.name}`,
+        prize: minedPrize
+      };
+    }
+
+    // Verificar melhor progresso
+    const bestProgress = Math.max(...updatedPrizes.map(p => p.correctChars));
+
+    if (bestProgress >= 5) {
+      return {
+        success: false,
+        message: `🔥 QUASE LÁ! ${bestProgress}/7 em algum prêmio!`
+      };
+    } else if (bestProgress >= 3) {
+      return {
+        success: false,
+        message: `💪 Progredindo! ${bestProgress}/7 em algum prêmio`
+      };
+    }
+
+    return { success: false, message: `Tentativa registrada. Melhor: ${bestProgress}/7` };
+  }, [miningState, currentUser]);
 
   const linkSkinToPlate = useCallback((skinId: number, plateId: string) => {
     return { success: true, message: 'Skin vinculada à placa com sucesso!' };
   }, []);
+
+  // ===== EVOLUÇÃO XP (Decisão Claude: Apenas vinculada) =====
+  const calculateLevel = useCallback((xp: number): number => {
+    if (xp < 5000) return 1;
+    if (xp < 20000) return 2;
+    if (xp < 70000) return 3;
+    if (xp < 200000) return 4;
+    return 5; // GENESIS
+  }, []);
+
+  const addXP = useCallback((skinId: number, amount: number) => {
+    setCollection(prev => {
+      const skinIndex = prev.ownedSkins.indexOf(skinId);
+      if (skinIndex === -1) return prev; // Skin não encontrada
+
+      // ⚠️ CRÍTICO: XP apenas se skin estiver VINCULADA
+      const isLinked = prev.slots.some(slot => slot.skinId === skinId);
+      if (!isLinked) {
+        console.log(`[XP] Skin ${skinId} não vinculada. XP não adicionado.`);
+        return prev;
+      }
+
+      // Adicionar XP (mock - na implementação real, atualizar OwnedSkin)
+      console.log(`[XP] +${amount} XP para skin ${skinId}`);
+
+      return prev;
+    });
+  }, []);
+
+  // ===== TROCA DE SKIN (Cooldown 12h) =====
+  const canSwitchSkin = useCallback((skinId: number): boolean => {
+    // Mock: verificar lastSwitchAt
+    // Na implementação real, verificar OwnedSkin.lastSwitchAt
+    const now = new Date();
+    const COOLDOWN_HOURS = 12;
+
+    // TODO: Implementar verificação real quando OwnedSkin estiver no estado
+    return true; // Por enquanto sempre permite
+  }, []);
+
+  const switchLinkedSkin = useCallback((oldSkinId: number, newSkinId: number) => {
+    // Verificar cooldown
+    if (!canSwitchSkin(oldSkinId)) {
+      const hoursLeft = 12; // Mock
+      return {
+        success: false,
+        message: `Aguarde ${hoursLeft}h para trocar de skin novamente`
+      };
+    }
+
+    // Desvincular antiga
+    setCollection(prev => ({
+      ...prev,
+      slots: prev.slots.map(slot =>
+        slot.skinId === oldSkinId ? { ...slot, skinId: null } : slot
+      )
+    }));
+
+    // Vincular nova (mock - na implementação real, atualizar lastSwitchAt)
+    setCollection(prev => ({
+      ...prev,
+      slots: prev.slots.map((slot, idx) =>
+        idx === 0 && !slot.skinId ? { ...slot, skinId: newSkinId } : slot
+      )
+    }));
+
+    return { success: true, message: 'Skin trocada com sucesso!' };
+  }, [canSwitchSkin]);
+
+  const unlinkSkin = useCallback((skinId: number) => {
+    setCollection(prev => ({
+      ...prev,
+      slots: prev.slots.map(slot =>
+        slot.skinId === skinId ? { ...slot, skinId: null } : slot
+      )
+    }));
+
+    return { success: true, message: 'Skin desvinculada' };
+  }, []);
+
 
   const value: AppContextType = {
     isLoggedIn,
@@ -2658,6 +2802,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     sellSkin,
     mineSkin,
     linkSkinToPlate,
+    // Evolução XP
+    addXP,
+    calculateLevel,
+    // Troca de Skin
+    switchLinkedSkin,
+    unlinkSkin,
+    canSwitchSkin,
     skinsOnboardingCompleted,
     completeSkinsOnboarding
   };
