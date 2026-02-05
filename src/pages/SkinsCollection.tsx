@@ -301,64 +301,16 @@ export default function SkinsCollection() {
 
                         {/* TAB CONTENT: COLEÇÃO */}
                         <TabsContent value="colecao" className="mt-0 px-4 space-y-8 pb-8 focus-visible:outline-none">
-                            <div className="bg-card/50 border border-border rounded-[32px] p-6 space-y-6">
-                                <div className="text-center">
-                                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black mb-2 px-3">PUZZLE DA COLEÇÃO</Badge>
-                                    <h3 className="text-xl font-black uppercase italic">7 Posicionamentos Estratégicos</h3>
-                                    <p className="text-xs text-muted-foreground mt-1">Sua coleção é a sua identidade na rede</p>
-                                </div>
-
-                                {/* Puzzle Grid - 7 Slots */}
-                                <div className="grid grid-cols-4 gap-3">
-                                    {collection.slots.map((slot) => {
-                                        const skin = slot.skinId ? getSkinById(slot.skinId) : null;
-                                        return (
-                                            <div
-                                                key={slot.position}
-                                                className={cn(
-                                                    "aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center relative overflow-hidden transition-all",
-                                                    slot.skinId ? "border-solid border-primary/50 bg-primary/5 shadow-lg" : "hover:border-primary/30 group",
-                                                    slot.position > 4 && !slot.skinId ? "bg-black/10 backdrop-blur-sm" : ""
-                                                )}
-                                            >
-                                                {slot.skinId ? (
-                                                    <div className="scale-75">
-                                                        <StandardPlate skin={skin} isLocked={false} size="sm" />
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <span className="text-2xl font-black text-muted-foreground/30 group-hover:text-primary/30">{slot.position}</span>
-                                                        {slot.position > 4 && (
-                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
-                                                                <Lock className="w-4 h-4 text-muted-foreground/40" />
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                    {/* Placeholder to keep 2nd row full */}
-                                    <div className="aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center opacity-20">
-                                        <Plus className="w-6 h-6" />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between p-4 bg-secondary/10 rounded-2xl border border-border/50">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                            <Sparkles className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black uppercase">Progresso da Coleção</p>
-                                            <p className="text-[10px] text-muted-foreground italic">15 skins para liberar o reordenamento livre</p>
-                                        </div>
-                                    </div>
-                                    <span className="text-sm font-black text-primary">0 / 15</span>
-                                </div>
-                            </div>
-
                             <div className="space-y-4">
+                                <div className="flex items-end justify-between px-1">
+                                    <div className="space-y-1">
+                                        <h3 className="text-sm font-black uppercase tracking-tight italic">Meu Inventário</h3>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black">Gerencie e evolua suas skins</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-[10px] font-black border-primary/20 bg-primary/5 text-primary h-6 px-2 uppercase">
+                                        Total: {collection.ownedSkins.length}
+                                    </Badge>
+                                </div>
                                 <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Minhas Skins Adquiridas</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     {collection.ownedSkins.length > 0 ? (
@@ -420,6 +372,7 @@ export default function SkinsCollection() {
                                 onSlotChange={updatePuzzleSlot}
                                 onUseHint={useHint}
                                 onComplete={completePuzzle}
+                                getSkinById={getSkinById}
                                 correctCount={collection.correctCount}
                                 isCompleted={collection.correctCount === 7}
                             />

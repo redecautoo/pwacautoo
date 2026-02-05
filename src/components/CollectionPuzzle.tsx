@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,63 @@ import {
     Sparkles,
     Trophy,
     Lock,
-    Info
+    Info,
+    Layers,
+    Grab
 } from 'lucide-react';
 import { CollectionSlot } from '@/types/skins';
+
+// Simulating StandardPlate for inside the puzzle to avoid dependency health issues or heavy imports if needed, 
+// but we'll try to use a simplified version that looks even more like a puzzle piece.
+const MiniPlateSlot = ({
+    skin,
+    position,
+    isSelected,
+    onClick,
+    onRemove,
+    onDrop
+}: {
+    skin: any,
+    position: number,
+    isSelected?: boolean,
+    onClick?: () => void,
+    onRemove?: () => void,
+    onDrop?: () => void
+}) => {
+    return (
+        <div
+            onClick={onClick}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={onDrop}
+            className={cn(
+                "relative w-full aspect-[3.2/1] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden",
+                isSelected ? "border-primary bg-primary/10 ring-2 ring-primary/20 scale-[1.02]" : "border-border hover:border-primary/50 bg-muted/5",
+                skin && "border-solid shadow-sm"
+            )}
+        >
+            {skin ? (
+                <div className="w-full h-full flex flex-col bg-white">
+                    <div className="h-[25%] bg-[#003399] flex items-center px-1">
+                        <span className="text-[5px] font-black text-white tracking-widest uppercase truncate">BRASIL • SLOT {position}</span>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center relative" style={{ backgroundColor: skin.colorPrimary || '#FFFFFF' }}>
+                        <span className="text-[10px] font-black text-black tracking-tighter truncate px-1">{skin.name}</span>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
+                            className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/10 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+                        >
+                            <X className="w-2.5 h-2.5" />
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="w-full h-full flex items-center justify-center opacity-30">
+                    <span className="text-xl font-black">{position}</span>
+                </div>
+            )}
+        </div>
+    );
+};
 
 interface CollectionPuzzleProps {
     slots: CollectionSlot[];
@@ -22,6 +76,7 @@ interface CollectionPuzzleProps {
     onSlotChange: (position: number, skinId: number | null) => void;
     onUseHint: (hintId: string) => void;
     onComplete: () => void;
+    getSkinById: (id: number) => any;
     correctCount: number;
     isCompleted: boolean;
 }
@@ -33,6 +88,7 @@ export function CollectionPuzzle({
     onSlotChange,
     onUseHint,
     onComplete,
+    getSkinById,
     correctCount,
     isCompleted
 }: CollectionPuzzleProps) {
@@ -44,10 +100,6 @@ export function CollectionPuzzle({
         setDraggedSkin(skinId);
     };
 
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-    };
-
     const handleDrop = (position: number) => {
         if (draggedSkin !== null) {
             onSlotChange(position, draggedSkin);
@@ -57,7 +109,6 @@ export function CollectionPuzzle({
 
     const handleSlotClick = (position: number) => {
         if (selectedSlot === position) {
-            // Deselecionar
             setSelectedSlot(null);
         } else {
             setSelectedSlot(position);
@@ -66,206 +117,189 @@ export function CollectionPuzzle({
 
     const handleSkinClick = (skinId: number) => {
         if (selectedSlot !== null) {
+            // Se já estiver em algum slot, remover de lá primeiro? (Opcional, mas para puzzle é melhor permitir duplicatas visuais ou não?)
+            // A lógica do AppContext já lida com isso se necessário.
             onSlotChange(selectedSlot, skinId);
             setSelectedSlot(null);
         }
     };
 
-    const handleRemoveSkin = (position: number) => {
-        onSlotChange(position, null);
-    };
-
     const progress = (correctCount / 7) * 100;
-    const canReorder = ownedSkins.length >= 15;
+    const skinsAvailableForPuzzle = ownedSkins.filter(id => !slots.some(s => s.skinId === id));
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h3 className="text-lg font-black uppercase tracking-tight">
-                            Puzzle da Coleção
-                        </h3>
-                        <p className="text-[10px] text-muted-foreground">
-                            Organize 7 skins na ordem correta
-                        </p>
+            {/* PROGRESS SECTION */}
+            <Card className="border-border bg-card/50 overflow-hidden">
+                <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                            <h3 className="text-sm font-black uppercase italic tracking-tight">Status do Desafio</h3>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="h-5 text-[9px] font-black uppercase px-2 border-emerald-500/20 bg-emerald-500/5 text-emerald-500">
+                                    {correctCount} / 7 Corretas
+                                </Badge>
+                                {isCompleted && (
+                                    <Badge className="h-5 text-[9px] font-black uppercase px-2 bg-primary text-primary-foreground">
+                                        RECOMPENSA LIBERADA
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-lg font-black italic text-primary">{Math.round(progress)}%</span>
+                        </div>
                     </div>
-                    {isCompleted && (
-                        <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
-                            <Trophy className="w-3 h-3 mr-1" />
-                            COMPLETO
-                        </Badge>
+                    <Progress value={progress} className="h-1.5 bg-muted" />
+                </CardContent>
+            </Card>
+
+            {/* THE PLATE BOARD (7 SLOTS) */}
+            <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                    <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest italic">Tabuleiro de Posicionamento</h4>
+                    <span className="text-[10px] text-muted-foreground font-bold">Arraste ou clique para preencher</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    {slots.map((slot) => {
+                        const skin = slot.skinId ? getSkinById(slot.skinId) : null;
+                        return (
+                            <MiniPlateSlot
+                                key={slot.position}
+                                position={slot.position}
+                                skin={skin}
+                                isSelected={selectedSlot === slot.position}
+                                onClick={() => handleSlotClick(slot.position)}
+                                onRemove={() => onSlotChange(slot.position, null)}
+                                onDrop={() => handleDrop(slot.position)}
+                            />
+                        );
+                    })}
+                    {/* Empty placeholder for the 8th grid spot to keep alignment tidy */}
+                    <div className="w-full aspect-[3.2/1] rounded-lg border-2 border-dashed border-border/20 flex flex-col items-center justify-center p-2 opacity-30">
+                        <Sparkles className="w-4 h-4 mb-1" />
+                        <span className="text-[8px] font-black uppercase">Final Reward</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* HINTS SECTION */}
+            {availableHints.length > 0 && (
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between px-1">
+                        <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest italic">Dicas de Especialista</h4>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowHints(!showHints)}
+                            className="h-6 text-[10px] font-black text-primary hover:bg-primary/5 uppercase"
+                        >
+                            {showHints ? 'Recolher' : `Ver ${availableHints.length} Dicas`}
+                        </Button>
+                    </div>
+
+                    {showHints && (
+                        <div className="grid gap-2">
+                            {availableHints.map((hint) => (
+                                <div key={hint.id} className="p-3 bg-card border border-border rounded-2xl flex gap-3 items-start group">
+                                    <div className="w-8 h-8 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 shrink-0">
+                                        <Lightbulb className="w-4 h-4 fill-yellow-500" />
+                                    </div>
+                                    <div className="flex-1 space-y-1">
+                                        <p className="text-[11px] font-black uppercase tracking-tight italic leading-tight">{hint.message}</p>
+                                        <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">Origem: {hint.condition}</p>
+                                    </div>
+                                    {!hint.usedAt && (
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            onClick={() => onUseHint(hint.id)}
+                                            className="h-7 text-[9px] font-black uppercase rounded-lg shadow-sm"
+                                        >
+                                            USAR
+                                        </Button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
+            )}
 
-                {/* Progress */}
-                <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-muted-foreground">
-                            Progresso: {correctCount}/7 corretas
-                        </span>
-                        {!canReorder && (
-                            <span className="text-[10px] text-muted-foreground">
-                                <Lock className="w-3 h-3 inline mr-1" />
-                                Precisa 15+ skins para reordenar
-                            </span>
-                        )}
-                    </div>
-                    <Progress value={progress} className="h-2" />
+            {/* THE SKIN DRAWER (GAVETA DE SKINS) */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                    <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest italic">Suas Peças Disponíveis</h4>
+                    <span className="text-[10px] text-muted-foreground font-bold">{skinsAvailableForPuzzle.length} skins</span>
                 </div>
-            </div>
 
-            {/* Puzzle Slots (7 slots) */}
-            <div className="grid grid-cols-7 gap-2">
-                {slots.map((slot) => (
-                    <div
-                        key={slot.position}
-                        className={cn(
-                            "aspect-square rounded-xl border-2 border-dashed transition-all cursor-pointer",
-                            selectedSlot === slot.position
-                                ? "border-primary bg-primary/10 scale-105"
-                                : "border-border hover:border-primary/50",
-                            slot.skinId && "border-solid bg-card"
-                        )}
-                        onClick={() => handleSlotClick(slot.position)}
-                        onDragOver={handleDragOver}
-                        onDrop={() => handleDrop(slot.position)}
-                    >
-                        <div className="w-full h-full flex flex-col items-center justify-center p-1">
-                            {slot.skinId ? (
-                                <>
-                                    <div className="w-full h-full bg-primary/20 rounded-lg flex items-center justify-center">
-                                        <span className="text-xs font-black">#{slot.skinId}</span>
-                                    </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleRemoveSkin(slot.position);
-                                        }}
-                                        className="mt-1 text-[8px] text-destructive hover:underline"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
-                                </>
-                            ) : (
-                                <div className="text-center">
-                                    <span className="text-[10px] font-black text-muted-foreground">
-                                        {slot.position}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Available Skins */}
-            <div className="space-y-2">
-                <h4 className="text-xs font-black uppercase text-muted-foreground">
-                    Suas Skins Disponíveis
-                </h4>
-                <div className="grid grid-cols-5 gap-2">
-                    {ownedSkins.map((skinId) => (
-                        <div
-                            key={skinId}
-                            draggable
-                            onDragStart={() => handleDragStart(skinId)}
-                            onClick={() => handleSkinClick(skinId)}
-                            className={cn(
-                                "aspect-square rounded-lg border-2 bg-card cursor-move transition-all hover:scale-105",
-                                draggedSkin === skinId && "opacity-50",
-                                "border-border hover:border-primary"
-                            )}
-                        >
-                            <div className="w-full h-full flex items-center justify-center">
-                                <span className="text-xs font-black">#{skinId}</span>
+                <div className="bg-muted/30 p-4 rounded-3xl border border-border/50">
+                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                        {skinsAvailableForPuzzle.length === 0 ? (
+                            <div className="w-full py-8 text-center space-y-2 opacity-50">
+                                <Layers className="w-8 h-8 mx-auto text-muted-foreground" />
+                                <p className="text-[10px] font-black uppercase">Nenhuma skin disponível</p>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Hints Section */}
-            {availableHints.length > 0 && (
-                <Card className="border-yellow-500/20 bg-yellow-500/5">
-                    <CardContent className="p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Lightbulb className="w-4 h-4 text-yellow-500" />
-                                <span className="text-sm font-black uppercase">
-                                    Dicas Disponíveis ({availableHints.length})
-                                </span>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowHints(!showHints)}
-                                className="h-7 text-[10px]"
-                            >
-                                {showHints ? 'Ocultar' : 'Ver Dicas'}
-                            </Button>
-                        </div>
-
-                        {showHints && (
-                            <div className="space-y-2">
-                                {availableHints.map((hint) => (
+                        ) : (
+                            skinsAvailableForPuzzle.map((skinId) => {
+                                const skin = getSkinById(skinId);
+                                return (
                                     <div
-                                        key={hint.id}
-                                        className="flex items-start gap-2 p-2 bg-background rounded-lg"
-                                    >
-                                        <Info className="w-4 h-4 text-yellow-500 mt-0.5" />
-                                        <div className="flex-1 space-y-1">
-                                            <p className="text-[11px] font-medium">{hint.message}</p>
-                                            <p className="text-[9px] text-muted-foreground">
-                                                Conquistada: {hint.condition}
-                                            </p>
-                                        </div>
-                                        {!hint.usedAt && (
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => onUseHint(hint.id)}
-                                                className="h-6 text-[9px]"
-                                            >
-                                                Usar
-                                            </Button>
+                                        key={skinId}
+                                        draggable
+                                        onDragStart={() => handleDragStart(skinId)}
+                                        onClick={() => handleSkinClick(skinId)}
+                                        className={cn(
+                                            "min-w-[120px] max-w-[120px] aspect-[2.1/1] rounded-xl border-2 bg-card cursor-grab active:cursor-grabbing snap-center transition-all hover:-translate-y-1 shadow-sm flex flex-col overflow-hidden",
+                                            draggedSkin === skinId ? "opacity-30 scale-95 border-primary" : "border-border hover:border-primary",
+                                            selectedSlot !== null && "ring-2 ring-primary/40 animate-pulse"
                                         )}
+                                    >
+                                        <div className="h-1.5 w-full bg-[#003399]" />
+                                        <div className="flex-1 flex flex-col items-center justify-center p-1" style={{ backgroundColor: skin.colorPrimary || '#FFFFFF' }}>
+                                            <span className="text-[9px] font-black text-black leading-none text-center truncate w-full">{skin.name}</span>
+                                            <div className="mt-1 flex items-center gap-0.5">
+                                                <Grab className="w-2.5 h-2.5 text-black/30" />
+                                            </div>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
+                                );
+                            })
                         )}
-                    </CardContent>
-                </Card>
-            )}
+                    </div>
+                </div>
+            </div>
 
-            {/* Completion Reward */}
+            {/* COMPLETION AREA */}
             {isCompleted && (
-                <Card className="border-emerald-500/20 bg-emerald-500/5">
-                    <CardContent className="p-4 text-center space-y-2">
-                        <Sparkles className="w-8 h-8 mx-auto text-emerald-500" />
-                        <h4 className="text-sm font-black uppercase">
-                            🎉 Puzzle Completo!
-                        </h4>
-                        <p className="text-[11px] text-muted-foreground">
-                            Você ganhou +1000 XP e desbloqueou benefícios especiais!
-                        </p>
+                <Card className="border-primary bg-primary/5 overflow-hidden animate-in zoom-in duration-500">
+                    <CardContent className="p-6 text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                            <Trophy className="w-8 h-8 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                            <h4 className="text-lg font-black uppercase italic tracking-tighter">Colecionador Master!</h4>
+                            <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-widest italic">Você provou seu valor na rede.</p>
+                        </div>
+                        <div className="p-3 bg-card border border-border rounded-2xl space-y-1">
+                            <p className="text-[9px] font-black text-muted-foreground uppercase">Recompensas Concedidas</p>
+                            <p className="text-xs font-black text-emerald-500 uppercase">+1.000 XP • Reordenamento Livre</p>
+                        </div>
                     </CardContent>
                 </Card>
             )}
 
-            {/* Instructions */}
-            <div className="p-4 bg-muted/30 rounded-xl space-y-2">
-                <h4 className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
-                    <Info className="w-3 h-3" />
-                    Como Funciona
-                </h4>
-                <ul className="text-[10px] text-muted-foreground space-y-1">
-                    <li>• Arraste skins para os 7 slots</li>
-                    <li>• Feedback mostra quantas estão corretas (sem posição)</li>
-                    <li>• Ganhe dicas completando desafios</li>
-                    <li>• Recompensa: +1000 XP ao completar</li>
-                </ul>
+            {/* QUICK INFO */}
+            <div className="flex gap-4 px-2">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+                    <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">7 Slots Mercosul</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-muted" />
+                    <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Logic-Drag System</span>
+                </div>
             </div>
         </div>
     );
