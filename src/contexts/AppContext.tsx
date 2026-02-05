@@ -497,6 +497,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cautoo_vehicles_v1', JSON.stringify(vehicles));
     } catch (e) { }
   }, [vehicles]);
+
+  // Reconciliação: Garantir que veículos demo lendários existam no estado
+  useEffect(() => {
+    const demoPlates = ['ARA1234', 'BAT1234', 'FUT1234', 'POK1234', 'ROS1234'];
+    const missingPlates = mockVehicles.filter(mv =>
+      demoPlates.includes(mv.plate) &&
+      !vehicles.some(v => v.plate === mv.plate)
+    );
+
+    if (missingPlates.length > 0) {
+      setVehicles(prev => [...prev, ...missingPlates]);
+      console.log('Demo vehicles reconciled:', missingPlates.map(p => p.plate).join(', '));
+    }
+  }, [vehicles]);
   const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
   const [sentAlerts, setSentAlerts] = useState<SentAlert[]>(mockSentAlerts);
   const [sentCritiques, setSentCritiques] = useState<SentCritique[]>([
@@ -2556,7 +2570,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!skin) return 'comum';
 
     // Lógica simples baseada na categoria
-    if (skin.categoryId === 'rare_skins') return 'lendaria';
+    if (skin.categoryId === 'legendary_demo') return 'lendaria';
+    if (skin.categoryId === 'rare_skins') return 'rara';
     if (skin.categoryId === 'surprise_skins' || skin.categoryId === 'mining_skins') return 'epica';
     if (skin.categoryId === 'icc_skins' || skin.categoryId === 'score_skins') return 'rara';
 

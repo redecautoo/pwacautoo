@@ -560,6 +560,73 @@ export const mockVehicles: Vehicle[] = [
     isStolen: false,
     createdAt: '2024-03-20T14:30:00Z',
   },
+
+  // PLACAS LENDÁRIAS (DEMO)
+  {
+    id: 'vehicle-demo-spider',
+    plate: 'ARA1234',
+    model: 'Volkswagen Gol',
+    color: 'Personalizado',
+    ownerId: 'user-male-green-nonclient',
+    score: 980,
+    hasCompleteInfo: true,
+    hasActivePlan: true,
+    isStolen: false,
+    createdAt: '2024-01-01T10:00:00Z',
+    skinId: 1001
+  },
+  {
+    id: 'vehicle-demo-bat',
+    plate: 'BAT1234',
+    model: 'Chevrolet Camaro',
+    color: 'Preto Fosco',
+    ownerId: 'user-male-client',
+    score: 950,
+    hasCompleteInfo: true,
+    hasActivePlan: true,
+    isStolen: false,
+    createdAt: '2024-01-02T10:00:00Z',
+    skinId: 1002
+  },
+  {
+    id: 'vehicle-demo-future',
+    plate: 'FUT1234',
+    model: 'Tesla Model S',
+    color: 'Neon Blue',
+    ownerId: 'user-female-client',
+    score: 990,
+    hasCompleteInfo: true,
+    hasActivePlan: true,
+    isStolen: false,
+    createdAt: '2024-01-03T10:00:00Z',
+    skinId: 1003
+  },
+  {
+    id: 'vehicle-demo-poke',
+    plate: 'POK1234',
+    model: 'Mini Cooper',
+    color: 'Amarelo Elétrico',
+    ownerId: 'user-1',
+    score: 820,
+    hasCompleteInfo: true,
+    hasActivePlan: true,
+    isStolen: false,
+    createdAt: '2024-01-04T10:00:00Z',
+    skinId: 1004
+  },
+  {
+    id: 'vehicle-demo-rose',
+    plate: 'ROS1234',
+    model: 'Porsche Taycan',
+    color: 'Rosa Imperial',
+    ownerId: 'user-female-yellow-client',
+    score: 940,
+    hasCompleteInfo: true,
+    hasActivePlan: true,
+    isStolen: false,
+    createdAt: '2024-01-05T10:00:00Z',
+    skinId: 1005
+  },
 ];
 
 // Veículos da usuária de teste legada

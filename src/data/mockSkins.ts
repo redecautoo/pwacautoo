@@ -322,8 +322,26 @@ export const SKIN_CATEGORIES: SkinCategory[] = [
         allowSell: true,
         addToCollection: true,
         skins: [
-            { id: 120, name: 'Aurora Neon', categoryId: 'rare_skins', status: 'locked', layoutCost: 400, canSell: true, canBuyLayout: true, benefitType: 'none' },
             { id: 121, name: 'Cyberpunk 2077', categoryId: 'rare_skins', status: 'locked', layoutCost: 800, canSell: true, canBuyLayout: true, benefitType: 'none' },
+        ],
+    },
+
+    // 13. DEMO LENDÁRIAS (PARA PLACAS DE TESTE)
+    {
+        id: 'legendary_demo',
+        name: 'Coleção Lendária',
+        description: 'Designs únicos e ultra-raros da primeira geração Cautoo',
+        icon: '🔥',
+        unlockRules: 'Edição limitada de lançamento',
+        allowLayoutPurchase: true,
+        allowSell: true,
+        addToCollection: true,
+        skins: [
+            { id: 1001, name: 'Teia Escarlate', categoryId: 'legendary_demo', status: 'unlocked', layoutCost: 1000, canSell: true, canBuyLayout: true, benefitType: 'coverage', benefitValue: 100000, benefitDescription: 'Seguro Especial R$ 100k' },
+            { id: 1002, name: 'Cavaleiro das Trevas', categoryId: 'legendary_demo', status: 'unlocked', layoutCost: 1000, canSell: true, canBuyLayout: true, benefitType: 'priority', benefitDescription: 'Prioridade Total em Alertas' },
+            { id: 1003, name: 'Futuro Imersivo', categoryId: 'legendary_demo', status: 'unlocked', layoutCost: 1000, canSell: true, canBuyLayout: true, benefitType: 'coverage', benefitValue: 100000 },
+            { id: 1004, name: 'Mestre da Liga', categoryId: 'legendary_demo', status: 'unlocked', layoutCost: 1000, canSell: true, canBuyLayout: true, benefitType: 'none' },
+            { id: 1005, name: 'Rosa Imperial', categoryId: 'legendary_demo', status: 'unlocked', layoutCost: 1000, canSell: true, canBuyLayout: true, benefitType: 'none' },
         ],
     },
 ];
@@ -506,6 +524,9 @@ export const getSkinRarity = (skinId: number): import('@/types/skins').SkinRarit
 
     // Raras
     if (skin.categoryId === 'rare_skins') return 'rara';
+
+    // Demo Lendárias
+    if (skin.categoryId === 'legendary_demo') return 'lendaria';
 
     // Ghost Challenge
     if (skin.categoryId === 'ghost_challenge') return 'epica';

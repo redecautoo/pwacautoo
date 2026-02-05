@@ -17,7 +17,8 @@ export type SkinCategoryId =
     | 'mining_skins'          // 9. Mineração
     | 'value_skins'           // 10. Valor (10k-100k)
     | 'surprise_skins'        // 11. Surpresa global
-    | 'rare_skins';           // 12. Raras
+    | 'rare_skins'            // 12. Raras
+    | 'legendary_demo';       // 13. Demo Lendárias
 
 export type SkinStatus =
     | 'locked'                // Bloqueada
