@@ -292,6 +292,22 @@ export interface OwnedSkin extends Skin {
 }
 
 // ============================================
+// COLEÇÃO (7 slots puzzle)
+// ============================================
+export interface CollectionSlot {
+    position: number; // 1-7
+    skinId: number | null;
+}
+
+export interface Collection {
+    slots: CollectionSlot[];
+    ownedSkins: number[]; // IDs das skins que o usuário possui
+    correctCount: number; // Quantas estão corretas
+    canReorder: boolean; // Precisa >= 15 skins
+    hintsEarned?: any[]; // Dicas ganhas
+}
+
+// ============================================
 // COLEÇÃO ESTENDIDA (com dicas)
 // ============================================
 export interface CollectionExtended extends Collection {
@@ -299,6 +315,29 @@ export interface CollectionExtended extends Collection {
     hintsUsed: PuzzleHint[];
     completed: boolean;
     completedAt: string | null;
+}
+
+// ============================================
+// MARKETPLACE
+// ============================================
+export interface SkinListing {
+    id: string;
+    skinId: number;
+    sellerId: string;
+    sellerName: string;
+    price: number;
+    fee: number;           // Taxa aplicada (ex: 0.15 for 15%)
+    level: SkinLevel;      // Level da skin no momento do anúncio
+    rarity: SkinRarity;
+    dna?: DNA;             // DNA se for minerada
+    createdAt: string;
+    status: 'active' | 'sold' | 'cancelled';
+}
+
+export interface MarketStats {
+    totalVolume: number;   // Em CauCash (CC)
+    floorPrice: number;    // Menor preço ativo
+    totalActive: number;   // Total de anúncios ativos
 }
 
 // ============================================

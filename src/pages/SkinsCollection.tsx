@@ -144,13 +144,22 @@ export default function SkinsCollection() {
         updatePuzzleSlot,
         validatePuzzle,
         useHint,
-        completePuzzle
+        completePuzzle,
+        // Marketplace
+        marketListings,
+        createSkinListing,
+        purchaseSkin,
+        cancelSkinListing
     } = useApp();
 
     const [activeTab, setActiveTab] = useState('skins');
     const [selectedSkin, setSelectedSkin] = useState<any>(null);
     const [showRules, setShowRules] = useState<any>(null);
     const [miningInput, setMiningInput] = useState("");
+
+    // Marketplace state
+    const [sellModalSkin, setSellModalSkin] = useState<any>(null);
+    const [listingPrice, setListingPrice] = useState<number>(0);
 
     // Handlers
     const handleMiningSubmit = () => {
@@ -208,7 +217,7 @@ export default function SkinsCollection() {
                         </div>
                         <div className="flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
                             <Zap className="w-3.5 h-3.5 text-primary fill-primary" />
-                            <span className="text-xs font-black text-primary uppercase">1.250 CC</span>
+                            <span className="text-xs font-black text-primary uppercase">{cauCashBalance.toLocaleString()} CC</span>
                         </div>
                     </div>
                 </header>
@@ -230,7 +239,7 @@ export default function SkinsCollection() {
                                     <Pickaxe className="w-3.5 h-3.5" /> MINERAR
                                 </TabsTrigger>
                                 <TabsTrigger value="marketplace" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg text-[10px] gap-1 px-1">
-                                    <Store className="w-3.5 h-3.5" /> LOJA
+                                    <Store className="w-3.5 h-3.5" /> MERCADO
                                 </TabsTrigger>
                             </TabsList>
                         </div>
@@ -358,8 +367,8 @@ export default function SkinsCollection() {
                                             const ownedSkin = ownedSkins.find(s => s.id === skinId);
 
                                             return skin ? (
-                                                <div key={skin.id} className="space-y-2 group cursor-pointer" onClick={() => setSelectedSkin(skin)}>
-                                                    <div className="relative">
+                                                <div key={skin.id} className="space-y-2 group">
+                                                    <div className="relative group cursor-pointer" onClick={() => setSelectedSkin(skin)}>
                                                         <StandardPlate skin={skin} size="md" className="group-hover:scale-[1.02] transition-transform" />
                                                         {ownedSkin && ownedSkin.level > 1 && (
                                                             <div className="absolute top-2 right-2">
@@ -377,6 +386,16 @@ export default function SkinsCollection() {
                                                                 className="flex justify-center"
                                                             />
                                                         )}
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full h-7 text-[8px] font-black rounded-lg border-primary/20 hover:bg-primary/5 uppercase gap-1"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSellModalSkin(skin);
+                                                            }}
+                                                        >
+                                                            <Tag className="w-3 h-3" /> ANUNCIAR
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             ) : null;
@@ -397,7 +416,7 @@ export default function SkinsCollection() {
                             <CollectionPuzzle
                                 slots={collection.slots}
                                 ownedSkins={collection.ownedSkins}
-                                availableHints={[]} // TODO: Implementar sistema de dicas
+                                availableHints={collection.hintsEarned || []}
                                 onSlotChange={updatePuzzleSlot}
                                 onUseHint={useHint}
                                 onComplete={completePuzzle}
@@ -525,60 +544,117 @@ export default function SkinsCollection() {
 
                         {/* TAB CONTENT: MARKETPLACE */}
                         <TabsContent value="marketplace" className="mt-0 px-4 space-y-6 pb-8 focus-visible:outline-none">
-                            <div className="flex flex-col gap-4">
-                                <Tabs defaultValue="venda" className="w-full">
-                                    <TabsList className="w-full bg-card/50 h-10 p-1 border border-border rounded-xl">
-                                        <TabsTrigger value="venda" className="text-[10px] font-black flex-1 rounded-lg uppercase">À VENDA</TabsTrigger>
-                                        <TabsTrigger value="minhas-vendas" className="text-[10px] font-black flex-1 rounded-lg uppercase">MEUS ANÚNCIOS</TabsTrigger>
-                                        <TabsTrigger value="compras" className="text-[10px] font-black flex-1 rounded-lg uppercase">COMPRAS</TabsTrigger>
-                                    </TabsList>
-
-                                    <div className="mt-6 grid grid-cols-1 gap-4">
-                                        {[1, 2, 3].map((item) => (
-                                            <Card key={item} className="bg-card border-border overflow-hidden group hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5">
-                                                <CardContent className="p-0">
-                                                    <div className="flex">
-                                                        <div className="w-[35%] p-4 bg-secondary/10 flex items-center justify-center relative overflow-hidden">
-                                                            <div className="absolute inset-0 bg-blue-500/5 rotate-12 translate-x-10 translate-y-10" />
-                                                            <StandardPlate
-                                                                skin={{ id: 999, name: "Aurora Neon", categoryId: 'rare_skins' }}
-                                                                size="sm"
-                                                                className="scale-90"
-                                                            />
-                                                        </div>
-                                                        <div className="w-[65%] p-4">
-                                                            <div className="flex items-start justify-between mb-1">
-                                                                <div>
-                                                                    <h4 className="text-sm font-black leading-none mb-1 group-hover:text-primary transition-colors uppercase italic">Aurora Neon vX</h4>
-                                                                    <p className="text-[10px] text-muted-foreground uppercase tracking-tight font-black">Rara • #4421</p>
-                                                                </div>
-                                                                <div className="flex flex-col items-end">
-                                                                    <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none mb-1">Preço</span>
-                                                                    <Badge variant="outline" className="text-[10px] text-emerald-500 font-black border-emerald-500/20 bg-emerald-500/5 h-5 px-1.5 uppercase">1.450 CauCash</Badge>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-2 mt-4">
-                                                                <Button size="sm" className="h-8 flex-1 text-[10px] font-black rounded-lg group-hover:bg-primary/90 uppercase">VER DETALHES</Button>
-                                                                <Button size="icon" variant="outline" className="h-8 w-8 text-primary border-primary/20 hover:bg-primary/10 rounded-lg">
-                                                                    <Tag className="w-3.5 h-3.5" />
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        ))}
+                            <div className="space-y-4">
+                                <div className="flex items-end justify-between">
+                                    <div className="space-y-1">
+                                        <h3 className="text-sm font-black uppercase tracking-tight italic">Mercado de Skins</h3>
+                                        <p className="text-[10px] text-muted-foreground uppercase font-black">Trade seguro com saldo CauCash</p>
                                     </div>
-                                </Tabs>
+                                    <div className="flex gap-2">
+                                        <div className="text-right">
+                                            <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Ativos</p>
+                                            <p className="text-xs font-black">{marketListings.filter(l => l.status === 'active').length}</p>
+                                        </div>
+                                        <div className="text-right border-l border-border pl-2">
+                                            <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none">Suas Vendas</p>
+                                            <p className="text-xs font-black text-primary">{marketListings.filter(l => l.sellerId === 'user-male-green-nonclient' && l.status === 'active').length}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <Input placeholder="BUSCAR SKIN POR NOME OU ID..." className="h-10 pl-10 bg-card border-border rounded-xl text-[10px] font-black uppercase" />
+                                </div>
+
+                                <div className="grid gap-3">
+                                    {marketListings.filter(l => l.status === 'active').length === 0 ? (
+                                        <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 bg-muted/20 rounded-3xl border-2 border-dashed border-border">
+                                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                                                <ShoppingBag className="w-8 h-8 text-muted-foreground" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-xs font-black uppercase tracking-tight">Mercado Vazio</p>
+                                                <p className="text-[10px] text-muted-foreground uppercase font-bold max-w-[200px]">Nenhuma skin anunciada no momento. Seja o primeiro a vender!</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        marketListings.filter(l => l.status === 'active').map((listing) => {
+                                            const skinData = getSkinById(listing.skinId);
+                                            if (!skinData) return null;
+
+                                            return (
+                                                <Card key={listing.id} className="overflow-hidden border-border bg-card group hover:border-primary/50 transition-all duration-300">
+                                                    <CardContent className="p-0">
+                                                        <div className="flex h-28">
+                                                            <div className="w-[35%] p-4 bg-secondary/10 flex items-center justify-center relative overflow-hidden">
+                                                                <div className="absolute inset-0 bg-blue-500/5 rotate-12 translate-x-10 translate-y-10" />
+                                                                <StandardPlate
+                                                                    skin={skinData}
+                                                                    size="sm"
+                                                                    className="scale-90"
+                                                                />
+                                                            </div>
+                                                            <div className="w-[65%] p-4 flex flex-col justify-between">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div>
+                                                                        <h4 className="text-xs font-black mb-0.5 group-hover:text-primary transition-colors uppercase italic">{skinData.name}</h4>
+                                                                        <div className="flex items-center gap-1.5">
+                                                                            <Badge className="h-4 text-[7px] font-black uppercase px-1 px-1 bg-primary/10 text-primary border-0">Level {listing.level}</Badge>
+                                                                            <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-black">{listing.rarity}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex flex-col items-end">
+                                                                        <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none mb-1">Preço</span>
+                                                                        <span className="text-xs font-black text-emerald-500">{listing.price.toLocaleString()} CC</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    {listing.sellerId === 'user-male-green-nonclient' ? (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="h-8 flex-1 text-[10px] font-black rounded-lg border-red-500/20 text-red-500 hover:bg-red-500/5 uppercase"
+                                                                            onClick={() => cancelSkinListing(listing.id)}
+                                                                        >
+                                                                            CANCELAR VENDA
+                                                                        </Button>
+                                                                    ) : (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            className="h-8 flex-1 text-[10px] font-black rounded-lg group-hover:bg-primary/90 uppercase"
+                                                                            onClick={() => {
+                                                                                if (confirm(`Comprar ${skinData.name} por ${listing.price} CC?`)) {
+                                                                                    purchaseSkin(listing.id);
+                                                                                }
+                                                                            }}
+                                                                            disabled={cauCashBalance < listing.price}
+                                                                        >
+                                                                            COMPRAR AGORA
+                                                                        </Button>
+                                                                    )}
+                                                                    <Button size="icon" variant="outline" className="h-8 w-8 text-muted-foreground border-border rounded-lg">
+                                                                        <Info className="w-3.5 h-3.5" />
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            );
+                                        })
+                                    )}
+                                </div>
                             </div>
 
                             <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex gap-3">
                                 <Info className="w-5 h-5 text-amber-500 shrink-0" />
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase text-amber-500">Regras do Mercado</p>
+                                    <p className="text-[10px] font-black uppercase text-amber-500">Regras do Mercado de Skins</p>
                                     <p className="text-[9px] text-amber-500/80 leading-snug">
-                                        - Preço mínimo para skins de valor: R$ 1.000 (em equivalents CauCash).<br />
-                                        - Taxa de transação: 10% do valor final.
+                                        - Taxas Dinâmicas de Venda: 15% (L1) até 3% (L5).<br />
+                                        - O XP das skins é resetado para Level 1 ao mudar de dono.<br />
+                                        - Transações são instantâneas e irreversíveis.
                                     </p>
                                 </div>
                             </div>
@@ -717,6 +793,78 @@ export default function SkinsCollection() {
                                 <Button className="w-full h-12 rounded-2xl font-black uppercase" onClick={() => setShowRules(null)}>
                                     ENTENDIDO
                                 </Button>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+                    {/* SELL SKIN MODAL */}
+                    {sellModalSkin && (
+                        <Dialog open={!!sellModalSkin} onOpenChange={() => setSellModalSkin(null)}>
+                            <DialogContent className="max-w-[400px] w-[95vw] rounded-[32px] border-border bg-card overflow-hidden p-8 gap-6 shadow-2xl">
+                                <div className="text-center space-y-2">
+                                    <h3 className="text-xl font-black uppercase tracking-tighter italic">Anunciar Skin</h3>
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">Defina o preço em CauCash</p>
+                                </div>
+
+                                <div className="flex justify-center py-4">
+                                    <StandardPlate skin={sellModalSkin} size="md" />
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black uppercase text-muted-foreground ml-1 italic">Preço de Venda (CC)</label>
+                                        <div className="relative">
+                                            <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary fill-primary" />
+                                            <Input
+                                                type="number"
+                                                value={listingPrice || ""}
+                                                onChange={(e) => setListingPrice(Number(e.target.value))}
+                                                placeholder="Ex: 500"
+                                                className="h-14 pl-10 text-xl font-black rounded-2xl border-2 border-border focus:border-primary bg-background"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 bg-secondary/10 rounded-2xl border border-border/50 space-y-2">
+                                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tight">
+                                            <span className="text-muted-foreground">Taxa de Venda (L{ownedSkins.find(s => s.id === sellModalSkin.id)?.level || 1})</span>
+                                            <span className="text-red-500">
+                                                -{Math.round((ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 5 ? 0.03 :
+                                                    ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 4 ? 0.06 :
+                                                        ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 3 ? 0.09 :
+                                                            ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 2 ? 0.12 : 0.15) * 100)}%
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs font-black uppercase tracking-tight pt-2 border-t border-border/50">
+                                            <span>Você receberá</span>
+                                            <span className="text-emerald-500">
+                                                {Math.floor(listingPrice * (1 - (ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 5 ? 0.03 :
+                                                    ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 4 ? 0.06 :
+                                                        ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 3 ? 0.09 :
+                                                            ownedSkins.find(s => s.id === sellModalSkin.id)?.level === 2 ? 0.12 : 0.15))).toLocaleString()} CC
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <Button variant="outline" className="h-12 rounded-2xl font-black uppercase" onClick={() => setSellModalSkin(null)}>
+                                        CANCELAR
+                                    </Button>
+                                    <Button
+                                        className="h-12 rounded-2xl font-black uppercase"
+                                        disabled={listingPrice <= 0}
+                                        onClick={() => {
+                                            const res = createSkinListing(sellModalSkin.id, listingPrice);
+                                            if (res.success) {
+                                                setSellModalSkin(null);
+                                                setListingPrice(0);
+                                                setActiveTab('marketplace');
+                                            }
+                                        }}
+                                    >
+                                        CONFIRMAR
+                                    </Button>
+                                </div>
                             </DialogContent>
                         </Dialog>
                     )}

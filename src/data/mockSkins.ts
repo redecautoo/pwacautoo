@@ -344,6 +344,26 @@ export const INITIAL_COLLECTION: Collection = {
     ownedSkins: [], // Vazio inicialmente (PARA TESTES: pode adicionar [10, 11])
     correctCount: 0,
     canReorder: false, // Precisa >= 15 skins
+    hintsEarned: [
+        // Dica de teste 1
+        {
+            id: 'hint-test-1',
+            type: 'category',
+            message: 'Uma skin de Selo está no topo (posições 1-3)',
+            earnedAt: new Date().toISOString(),
+            usedAt: null,
+            condition: 'Teste inicial'
+        },
+        // Dica de teste 2
+        {
+            id: 'hint-test-2',
+            type: 'negation',
+            message: 'As posições 4, 5 e 6 NÃO contêm skins de ICC',
+            earnedAt: new Date().toISOString(),
+            usedAt: null,
+            condition: 'Teste inicial'
+        }
+    ] as any[], // TODO: Tipar corretamente
 };
 
 // ============================================

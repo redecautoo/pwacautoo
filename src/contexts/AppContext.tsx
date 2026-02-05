@@ -81,7 +81,7 @@ const mockUsersById: { [key: string]: User } = {
 import { CautooFleet, FleetChatMessage, FleetHelpRequest, FleetMember, FleetInvite, FleetAssistance } from '@/lib/fleetTypes';
 import { mockFleets } from '@/lib/fleetMockData';
 import { INITIAL_COLLECTION, INITIAL_MINING, getSkinById as getSkinByIdMock, getCategoryById as getCategoryByIdMock } from '@/data/mockSkins';
-import { Skin, SkinCategory, SkinCategoryId, Collection, MiningState, MiningPrize } from '@/types/skins';
+import { Skin, SkinCategory, SkinCategoryId, Collection, MiningState, MiningPrize, SkinListing, SkinRarity } from '@/types/skins';
 
 // ===== HELPER FUNCTIONS FOR SCORE/ICC SYSTEM =====
 
@@ -366,6 +366,12 @@ interface AppContextType {
   validatePuzzle: () => number;
   useHint: (hintId: string) => void;
   completePuzzle: () => { success: boolean; message: string };
+
+  // Marketplace de Skins (NOVA - Fase 5)
+  marketListings: SkinListing[];
+  createSkinListing: (skinId: number, price: number) => { success: boolean; message: string };
+  purchaseSkin: (listingId: string) => { success: boolean; message: string };
+  cancelSkinListing: (listingId: string) => { success: boolean; message: string };
 
   // Onboarding
   skinsOnboardingCompleted: boolean;
@@ -736,6 +742,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cautoo_owned_skins_v1', JSON.stringify(ownedSkins));
     } catch (e) { }
   }, [ownedSkins]);
+
+  const [marketListings, setMarketListings] = useState<SkinListing[]>(() => {
+    try {
+      const stored = localStorage.getItem('cautoo_market_listings_v1');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cautoo_market_listings_v1', JSON.stringify(marketListings));
+    } catch (e) { }
+  }, [marketListings]);
 
   // Onboarding de Skins
   const [skinsOnboardingCompleted, setSkinsOnboardingCompleted] = useState(() => {
@@ -2509,6 +2530,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return getSkinByIdMock(id);
   }, []);
 
+  const getSkinRarity = useCallback((id: number): SkinRarity => {
+    const skin = getSkinById(id);
+    if (!skin) return 'comum';
+
+    // Lógica simples baseada na categoria
+    if (skin.categoryId === 'rare_skins') return 'lendaria';
+    if (skin.categoryId === 'surprise_skins' || skin.categoryId === 'mining_skins') return 'epica';
+    if (skin.categoryId === 'icc_skins' || skin.categoryId === 'score_skins') return 'rara';
+
+    return 'comum';
+  }, [getSkinById]);
+
   const getSkinsByCategory = useCallback((categoryId: SkinCategoryId) => {
     const category = getCategoryByIdMock(categoryId);
     return category?.skins || [];
@@ -2530,7 +2563,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addTransaction({
       type: 'debit',
       amount: skin.layoutCost,
-      description: `Compra de Layout: ${skin.name}`,
+      description: `Compra de Layout: ${skin.name} `,
       category: 'Skins'
     });
 
@@ -2553,14 +2586,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Regras de venda
     if (skin.minSellPrice && price < skin.minSellPrice) {
-      return { success: false, message: `O preço mínimo de venda para esta skin é CC ${skin.minSellPrice}` };
+      return { success: false, message: `O preço mínimo de venda para esta skin é CC ${skin.minSellPrice} ` };
     }
 
     // Simulação de venda (venda imediata para o sistema no mock)
     addTransaction({
       type: 'credit',
       amount: price * 0.9, // 10% taxa
-      description: `Venda de Skin: ${skin.name}`,
+      description: `Venda de Skin: ${skin.name} `,
       category: 'Skins'
     });
 
@@ -2639,7 +2672,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       return {
         success: true,
-        message: `🎉 MINERADO! ${minedPrize.name}`,
+        message: `🎉 MINERADO! ${minedPrize.name} `,
         prize: minedPrize
       };
     }
@@ -2834,9 +2867,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [collection]);
 
   const useHint = useCallback((hintId: string) => {
-    // TODO: Implementar uso de dica
-    console.log(`[PUZZLE] Usando dica: ${hintId}`);
-  }, []);
+    setCollection(prev => {
+      const hints = prev.hintsEarned || [];
+      const updatedHints = hints.map(hint =>
+        hint.id === hintId
+          ? { ...hint, usedAt: new Date().toISOString() }
+          : hint
+      );
+
+      return {
+        ...prev,
+        hintsEarned: updatedHints
+      };
+    });
+
+    showAlert(
+      '💡 Dica Usada!',
+      'A dica foi revelada no puzzle.',
+      'info'
+    );
+  }, [showAlert]);
 
   const completePuzzle = useCallback(() => {
     const correctCount = validatePuzzle();
@@ -2860,6 +2910,116 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { success: false, message: `Ainda faltam ${7 - correctCount} skins corretas` };
   }, [validatePuzzle, collection, addXP, showAlert]);
 
+  // ===== MARKETPLACE DE SKINS (Decisões Claude) =====
+
+  const createSkinListing = useCallback((skinId: number, price: number) => {
+    if (!currentUser) return { success: false, message: 'Usuário não logado' };
+
+    const skin = getSkinById(skinId);
+    if (!skin) return { success: false, message: 'Skin não encontrada' };
+
+    // Verificar se usuário possui a skin em ownedSkins
+    const ownedSkin = ownedSkins.find(s => s.id === skinId);
+    if (!ownedSkin) return { success: false, message: 'Você não possui esta skin' };
+
+    // Calcular taxa baseada no level (Decisão Final)
+    // L1: 15%, L2: 12%, L3: 9%, L4: 6%, L5: 3%
+    const level = ownedSkin.level || 1;
+    const feeMap = [0, 0.15, 0.12, 0.09, 0.06, 0.03];
+    const fee = feeMap[level] || 0.15;
+
+    const newListing: SkinListing = {
+      id: `list-${Date.now()}`,
+      skinId,
+      sellerId: currentUser.id,
+      sellerName: currentUser.name,
+      price,
+      fee,
+      level,
+      rarity: getSkinRarity(skinId),
+      dna: ownedSkin.dna,
+      createdAt: new Date().toISOString(),
+      status: 'active'
+    };
+
+    setMarketListings(prev => [...prev, newListing]);
+
+    // Remover da coleção do usuário enquanto estiver à venda
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: prev.ownedSkins.filter(id => id !== skinId),
+      slots: prev.slots.map(s => s.skinId === skinId ? { ...s, skinId: null } : s)
+    }));
+
+    showAlert('💎 Skin Anunciada!', `Sua skin foi para o mercado por ${price.toLocaleString()} CC. Taxa de venda: ${fee * 100}%`, 'success');
+    return { success: true, message: 'Skin anunciada com sucesso!' };
+  }, [currentUser, ownedSkins, getSkinById, showAlert]);
+
+  const purchaseSkin = useCallback((listingId: string) => {
+    if (!currentUser) return { success: false, message: 'Usuário não logado' };
+
+    const listing = marketListings.find(l => l.id === listingId);
+    if (!listing || listing.status !== 'active') return { success: false, message: 'Anúncio indisponível' };
+
+    if (cauCashBalance < listing.price) {
+      return { success: false, message: 'Saldo CauCash insuficiente' };
+    }
+
+    if (listing.sellerId === currentUser.id) {
+      return { success: false, message: 'Você não pode comprar sua própria skin' };
+    }
+
+    // Processar transação
+    // 1. Marcar como vendido
+    setMarketListings(prev => prev.map(l => l.id === listingId ? { ...l, status: 'sold' } : l));
+
+    // 2. Descontar do comprador
+    addTransaction({
+      type: 'debit',
+      amount: listing.price,
+      description: `Compra da skin #${listing.skinId}`,
+      category: 'Marketplace'
+    });
+
+    // 3. Adicionar para o vendedor (menos taxa)
+    const proceeds = listing.price * (1 - listing.fee);
+    // Nota: Aqui precisaríamos de uma forma de adicionar saldo ao vendedor se ele for outro usuário logado
+    console.log(`[MARKET] Vendedor ${listing.sellerId} recebeu ${proceeds} CC`);
+
+    // 4. Adicionar skin ao comprador
+    setOwnedSkins(prev => [...prev.filter(s => s.id !== listing.skinId), {
+      id: listing.skinId,
+      xp: 0, // XP reseta ao mudar de dono
+      level: 1,
+      dna: listing.dna,
+      acquiredAt: new Date().toISOString(),
+      acquisitionMethod: 'purchase'
+    }]);
+
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: [...prev.ownedSkins, listing.skinId]
+    }));
+
+    showAlert('🎉 Compra Realizada!', `Parabéns! A skin #${listing.skinId} agora é sua.`, 'success');
+    return { success: true, message: 'Skin comprada com sucesso!' };
+  }, [currentUser, marketListings, cauCashBalance, addTransaction, showAlert]);
+
+  const cancelSkinListing = useCallback((listingId: string) => {
+    const listing = marketListings.find(l => l.id === listingId);
+    if (!listing || listing.status !== 'active') return { success: false, message: 'Anúncio inválido' };
+
+    setMarketListings(prev => prev.filter(l => l.id !== listingId));
+
+    // Devolver para a coleção
+    setCollection(prev => ({
+      ...prev,
+      ownedSkins: [...prev.ownedSkins, listing.skinId]
+    }));
+
+    showAlert('Info', 'Anúncio cancelado e skin devolvida à coleção.', 'info');
+    return { success: true, message: 'Anúncio cancelado' };
+  }, [marketListings, showAlert]);
 
   const value: AppContextType = {
     isLoggedIn,
@@ -2994,7 +3154,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     useHint,
     completePuzzle,
     skinsOnboardingCompleted,
-    completeSkinsOnboarding
+    completeSkinsOnboarding,
+    // Marketplace
+    marketListings,
+    createSkinListing,
+    purchaseSkin,
+    cancelSkinListing
   };
 
   return (
