@@ -40,6 +40,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { PageTransition } from '@/components/PageTransition';
 import { cn } from "@/lib/utils";
 import { SKIN_CATEGORIES, INITIAL_COLLECTION, INITIAL_MINING, getSkinById } from '@/data/mockSkins';
+import { SkinLevelBadge, SkinLevelIcon } from '@/components/SkinLevelBadge';
 
 // Helper component for Standard Plate
 const StandardPlate = ({
@@ -128,6 +129,7 @@ export default function SkinsCollection() {
     const {
         collection,
         miningState,
+        ownedSkins, // NOVO: Skins com XP e level
         mineSkin,
         buySkinLayout,
         sellSkin,
@@ -344,10 +346,29 @@ export default function SkinsCollection() {
                                     {collection.ownedSkins.length > 0 ? (
                                         collection.ownedSkins.map(skinId => {
                                             const skin = getSkinById(skinId);
+                                            const ownedSkin = ownedSkins.find(s => s.id === skinId);
+
                                             return skin ? (
                                                 <div key={skin.id} className="space-y-2 group cursor-pointer" onClick={() => setSelectedSkin(skin)}>
-                                                    <StandardPlate skin={skin} size="md" className="group-hover:scale-[1.02] transition-transform" />
-                                                    <p className="text-[10px] font-black uppercase text-center">{skin.name}</p>
+                                                    <div className="relative">
+                                                        <StandardPlate skin={skin} size="md" className="group-hover:scale-[1.02] transition-transform" />
+                                                        {ownedSkin && ownedSkin.level > 1 && (
+                                                            <div className="absolute top-2 right-2">
+                                                                <SkinLevelIcon level={ownedSkin.level} />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[10px] font-black uppercase text-center">{skin.name}</p>
+                                                        {ownedSkin && (
+                                                            <SkinLevelBadge
+                                                                level={ownedSkin.level || 1}
+                                                                xp={ownedSkin.xp || 0}
+                                                                showProgress={true}
+                                                                className="flex justify-center"
+                                                            />
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ) : null;
                                         })

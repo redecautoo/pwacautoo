@@ -340,6 +340,7 @@ interface AppContextType {
   setSelectedColor: (color: string) => void;
   collection: Collection;
   miningState: MiningState;
+  ownedSkins: any[]; // Skins do usuário com XP e level
 
   // Helpers
   getSkinById: (id: number) => Skin | undefined;
@@ -666,6 +667,86 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('cautoo_solidary_v1', JSON.stringify(solidaryAlerts));
     } catch (e) { }
   }, [solidaryAlerts]);
+
+  // ===== SKINS & COLEÇÃO - Estados Persistentes =====
+  const [selectedColor, setSelectedColor] = useState<string>(() => {
+    try {
+      const stored = localStorage.getItem('cautoo_selected_color_v1');
+      return stored || '#2563EB'; // Azul padrão
+    } catch (e) {
+      return '#2563EB';
+    }
+  });
+
+  const [collection, setCollection] = useState<Collection>(() => {
+    try {
+      const stored = localStorage.getItem('cautoo_collection_v1');
+      return stored ? JSON.parse(stored) : INITIAL_COLLECTION;
+    } catch (e) {
+      return INITIAL_COLLECTION;
+    }
+  });
+
+  const [miningState, setMiningState] = useState<MiningState>(() => {
+    try {
+      const stored = localStorage.getItem('cautoo_mining_v1');
+      return stored ? JSON.parse(stored) : INITIAL_MINING;
+    } catch (e) {
+      return INITIAL_MINING;
+    }
+  });
+
+  // OwnedSkins com XP e Level (NOVO)
+  const [ownedSkins, setOwnedSkins] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('cautoo_owned_skins_v1');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // Persistir estados
+  useEffect(() => {
+    try {
+      localStorage.setItem('cautoo_selected_color_v1', selectedColor);
+    } catch (e) { }
+  }, [selectedColor]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cautoo_collection_v1', JSON.stringify(collection));
+    } catch (e) { }
+  }, [collection]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cautoo_mining_v1', JSON.stringify(miningState));
+    } catch (e) { }
+  }, [miningState]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cautoo_owned_skins_v1', JSON.stringify(ownedSkins));
+    } catch (e) { }
+  }, [ownedSkins]);
+
+  // Onboarding de Skins
+  const [skinsOnboardingCompleted, setSkinsOnboardingCompleted] = useState(() => {
+    try {
+      return localStorage.getItem('cautoo_skins_onboarding_v1') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const completeSkinsOnboarding = useCallback(() => {
+    setSkinsOnboardingCompleted(true);
+    try {
+      localStorage.setItem('cautoo_skins_onboarding_v1', 'true');
+    } catch (e) { }
+  }, []);
+
 
 
 
@@ -2416,41 +2497,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [vehicles, sentAlerts, alerts, sentCritiques, praisesSent, praisesReceived, solidaryAlerts, isPlateRegistered]);
 
-  // ===== SKINS & COLEÇÃO (NOVA IMPLEMENTAÇÃO) =====
-  const [selectedColor, setSelectedColor] = useState<string>('#2563EB');
-  const [collection, setCollection] = useState<Collection>(() => {
-    try {
-      const stored = localStorage.getItem('cautoo_skins_collection_v1');
-      if (stored) return JSON.parse(stored);
-    } catch (e) { }
-    return INITIAL_COLLECTION;
-  });
-  const [miningState, setMiningState] = useState<MiningState>(() => {
-    try {
-      const stored = localStorage.getItem('cautoo_mining_state_v1');
-      if (stored) return JSON.parse(stored);
-    } catch (e) { }
-    return INITIAL_MINING;
-  });
-  const [skinsOnboardingCompleted, setSkinsOnboardingCompleted] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('cautoo_skins_onboarding_v1') === 'true';
-    } catch (e) { return false; }
-  });
 
-  // Persistência
-  useEffect(() => {
-    localStorage.setItem('cautoo_skins_collection_v1', JSON.stringify(collection));
-  }, [collection]);
-
-  useEffect(() => {
-    localStorage.setItem('cautoo_mining_state_v1', JSON.stringify(miningState));
-  }, [miningState]);
-
-  useEffect(() => {
-    localStorage.setItem('cautoo_skins_onboarding_v1', skinsOnboardingCompleted.toString());
-  }, [skinsOnboardingCompleted]);
-
+  // ===== SKINS & COLEÇÃO - Helpers =====
   const getSkinById = useCallback((id: number) => {
     return getSkinByIdMock(id);
   }, []);
@@ -2458,10 +2506,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const getSkinsByCategory = useCallback((categoryId: SkinCategoryId) => {
     const category = getCategoryByIdMock(categoryId);
     return category?.skins || [];
-  }, []);
-
-  const completeSkinsOnboarding = useCallback(() => {
-    setSkinsOnboardingCompleted(true);
   }, []);
 
   const buySkinLayout = useCallback((skinId: number) => {
@@ -2569,8 +2613,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       prizes: updatedPrizes
     }));
 
+    // ===== GANHAR XP (Decisão Final) =====
+    // Dar XP para skin vinculada (se houver)
+    const linkedSkin = collection.slots.find(slot => slot.skinId !== null);
+    if (linkedSkin && linkedSkin.skinId) {
+      // +5 XP por tentativa
+      addXP(linkedSkin.skinId, 5);
+    }
+
     // Se minerou, gerar DNA e adicionar à coleção
     if (minedPrize) {
+      // +500 XP BÔNUS por minerar com sucesso!
+      if (linkedSkin && linkedSkin.skinId) {
+        addXP(linkedSkin.skinId, 500);
+      }
+
       // TODO: Gerar DNA e adicionar skin à coleção
       // const dna = generateMockDNA(minedPrize.skinId, currentUser.id);
 
@@ -2613,23 +2670,88 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addXP = useCallback((skinId: number, amount: number) => {
-    setCollection(prev => {
-      const skinIndex = prev.ownedSkins.indexOf(skinId);
-      if (skinIndex === -1) return prev; // Skin não encontrada
+    // Verificar se skin está vinculada
+    const isLinked = collection.slots.some(slot => slot.skinId === skinId);
+    if (!isLinked) {
+      console.log(`[XP] Skin ${skinId} não vinculada. XP não adicionado.`);
+      return;
+    }
 
-      // ⚠️ CRÍTICO: XP apenas se skin estiver VINCULADA
-      const isLinked = prev.slots.some(slot => slot.skinId === skinId);
-      if (!isLinked) {
-        console.log(`[XP] Skin ${skinId} não vinculada. XP não adicionado.`);
-        return prev;
+    setOwnedSkins(prev => {
+      const skinIndex = prev.findIndex(s => s.id === skinId);
+
+      // Se skin não existe em ownedSkins, criar
+      if (skinIndex === -1) {
+        const newSkin = {
+          id: skinId,
+          xp: amount,
+          level: calculateLevel(amount),
+          linkedAt: new Date().toISOString()
+        };
+        console.log(`[XP] +${amount} XP para skin ${skinId} (nova)`);
+        return [...prev, newSkin];
       }
 
-      // Adicionar XP (mock - na implementação real, atualizar OwnedSkin)
-      console.log(`[XP] +${amount} XP para skin ${skinId}`);
+      // Atualizar XP existente
+      const updatedSkins = [...prev];
+      const oldXP = updatedSkins[skinIndex].xp || 0;
+      const newXP = oldXP + amount;
+      const oldLevel = calculateLevel(oldXP);
+      const newLevel = calculateLevel(newXP);
 
-      return prev;
+      updatedSkins[skinIndex] = {
+        ...updatedSkins[skinIndex],
+        xp: newXP,
+        level: newLevel
+      };
+
+      // Detectar level up!
+      if (newLevel > oldLevel) {
+        console.log(`[XP] 🎉 LEVEL UP! Skin ${skinId}: Level ${oldLevel} → ${newLevel}`);
+
+        // Mostrar notificação de level up
+        showAlert(
+          `🎉 LEVEL UP!`,
+          `Sua skin evoluiu para Level ${newLevel}!`,
+          'success'
+        );
+      } else {
+        console.log(`[XP] +${amount} XP para skin ${skinId} (${newXP} total)`);
+      }
+
+      return updatedSkins;
     });
-  }, []);
+  }, [collection, calculateLevel, showAlert]);
+
+  // Helper para dar XP à skin vinculada (se houver)
+  const giveXPToLinkedSkin = useCallback((amount: number, action: string) => {
+    const linkedSkin = collection.slots.find(slot => slot.skinId !== null);
+    if (linkedSkin && linkedSkin.skinId) {
+      console.log(`[XP] +${amount} XP por: ${action}`);
+      addXP(linkedSkin.skinId, amount);
+    }
+  }, [collection, addXP]);
+
+  // ===== XP DIÁRIO (Abrir app 1x/dia = +10 XP) =====
+  useEffect(() => {
+    if (!isLoggedIn || !currentUser) return;
+
+    const today = new Date().toDateString();
+    const lastDailyXP = localStorage.getItem('cautoo_last_daily_xp_v1');
+
+    // Se já ganhou XP hoje, não dar novamente
+    if (lastDailyXP === today) return;
+
+    // Dar XP diário
+    const linkedSkin = collection.slots.find(slot => slot.skinId !== null);
+    if (linkedSkin && linkedSkin.skinId) {
+      setTimeout(() => {
+        addXP(linkedSkin.skinId!, 10);
+        localStorage.setItem('cautoo_last_daily_xp_v1', today);
+        console.log('[XP] +10 XP diário por abrir o app!');
+      }, 2000); // Delay de 2s
+    }
+  }, [isLoggedIn, currentUser, collection, addXP]);
 
   // ===== TROCA DE SKIN (Cooldown 12h) =====
   const canSwitchSkin = useCallback((skinId: number): boolean => {
@@ -2796,6 +2918,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSelectedColor,
     collection,
     miningState,
+    ownedSkins, // NOVO: Skins do usuário com XP
     getSkinById,
     getSkinsByCategory,
     buySkinLayout,
