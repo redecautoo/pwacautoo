@@ -35,6 +35,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useApp, getScoreCategoryInfo } from "@/contexts/AppContext";
 import { PageTransition, staggerContainer, staggerItemVariants, cardVariants } from "@/components/PageTransition";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -433,6 +435,10 @@ const Dashboard = () => {
                         cor: "Prata",
                         ano: "2019/2020"
                       };
+
+                      const { getPlateSkinInfo } = useApp();
+                      const skinInfo = getPlateSkinInfo(plateValue);
+
                       return (
                         <div className="relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300">
                           <div className="absolute inset-0 opacity-10">
@@ -480,6 +486,55 @@ const Dashboard = () => {
                                 </div>
                               </div>
                             </div>
+
+                            {/* DADOS DA SKIN (SE HOUVER) */}
+                            {skinInfo && (
+                              <div className="mx-4 mb-4 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 space-y-3">
+                                <div className="flex items-center justify-between border-b border-primary/10 pb-2 mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <Palette className="w-4 h-4 text-primary" />
+                                    <span className="text-xs font-black uppercase tracking-wider text-primary">Dados da Skin</span>
+                                  </div>
+                                  <Badge className={cn(
+                                    "text-[8px] font-black uppercase px-2 h-4",
+                                    skinInfo.rarity === 'lendaria' ? "bg-amber-500 text-black" :
+                                      skinInfo.rarity === 'epica' ? "bg-purple-500 text-white" : "bg-primary text-white"
+                                  )}>
+                                    {skinInfo.rarity}
+                                  </Badge>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-0.5">
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">Design</p>
+                                    <p className="text-sm font-black text-foreground italic uppercase tracking-tighter truncate">{skinInfo.skin.name}</p>
+                                  </div>
+                                  <div className="space-y-0.5 text-right">
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">Coleção</p>
+                                    <p className="text-xs font-black text-primary uppercase">{skinInfo.categoryName}</p>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2 pt-1">
+                                  <div className="flex justify-between items-end">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] font-black text-primary px-1.5 py-0.5 bg-primary/20 rounded-md">LVL {skinInfo.level}</span>
+                                      <span className="text-[8px] font-black text-muted-foreground uppercase">Evolução da Placa</span>
+                                    </div>
+                                    <span className="text-[9px] font-black text-muted-foreground">{skinInfo.xp} / 1000 XP</span>
+                                  </div>
+                                  <div className="h-1.5 w-full bg-secondary/50 rounded-full overflow-hidden">
+                                    <motion.div
+                                      className="h-full bg-primary"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${(skinInfo.xp / 1000) * 100}%` }}
+                                      transition={{ duration: 1, ease: "easeOut" }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
                             <div className="px-4 pb-4">
                               <p className="text-[10px] text-center text-muted-foreground/70">
                                 Confirme se as informações correspondem ao veículo

@@ -142,6 +142,7 @@ export default function SkinsCollection() {
         setSelectedColor,
         vehicles,
         applySkinToVehicle,
+        currentUser,
         // Puzzle
         updatePuzzleSlot,
         validatePuzzle,
@@ -524,84 +525,111 @@ export default function SkinsCollection() {
                                     <Input placeholder="BUSCAR SKIN POR NOME OU ID..." className="h-10 pl-10 bg-card border-border rounded-xl text-[10px] font-black uppercase" />
                                 </div>
 
-                                <div className="grid gap-3">
-                                    {marketListings.filter(l => l.status === 'active').length === 0 ? (
-                                        <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 bg-muted/20 rounded-3xl border-2 border-dashed border-border">
-                                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                                                <ShoppingBag className="w-8 h-8 text-muted-foreground" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-xs font-black uppercase tracking-tight">Mercado Vazio</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase font-bold max-w-[200px]">Nenhuma skin anunciada no momento. Seja o primeiro a vender!</p>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        marketListings.filter(l => l.status === 'active').map((listing) => {
-                                            const skinData = getSkinById(listing.skinId);
-                                            if (!skinData) return null;
+                                {(() => {
+                                    const now = new Date();
+                                    const visibleListings = marketListings.filter(l =>
+                                        l.status === 'active' &&
+                                        (l.sellerId === currentUser?.id || now >= new Date(l.availableAt))
+                                    );
 
-                                            return (
-                                                <Card key={listing.id} className="overflow-hidden border-border bg-card group hover:border-primary/50 transition-all duration-300">
-                                                    <CardContent className="p-0">
-                                                        <div className="flex h-28">
-                                                            <div className="w-[35%] p-4 bg-secondary/10 flex items-center justify-center relative overflow-hidden">
-                                                                <div className="absolute inset-0 bg-blue-500/5 rotate-12 translate-x-10 translate-y-10" />
-                                                                <StandardPlate
-                                                                    skin={skinData}
-                                                                    size="sm"
-                                                                    className="scale-90"
-                                                                />
-                                                            </div>
-                                                            <div className="w-[65%] p-4 flex flex-col justify-between">
-                                                                <div className="flex items-start justify-between">
-                                                                    <div>
-                                                                        <h4 className="text-xs font-black mb-0.5 group-hover:text-primary transition-colors uppercase italic">{skinData.name}</h4>
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            <Badge className="h-4 text-[7px] font-black uppercase px-1 px-1 bg-primary/10 text-primary border-0">Level {listing.level}</Badge>
-                                                                            <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-black">{listing.rarity}</span>
+                                    return (
+                                        <div className="grid gap-3">
+                                            {visibleListings.length === 0 ? (
+                                                <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 bg-muted/20 rounded-3xl border-2 border-dashed border-border">
+                                                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                                                        <ShoppingBag className="w-8 h-8 text-muted-foreground" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-black uppercase tracking-tight">Mercado Vazio</p>
+                                                        <p className="text-[10px] text-muted-foreground uppercase font-bold max-w-[200px]">Nenhuma skin anunciada no momento. Seja o primeiro a vender!</p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                visibleListings.map((listing) => {
+                                                    const skinData = getSkinById(listing.skinId);
+                                                    if (!skinData) return null;
+                                                    const isOwner = listing.sellerId === currentUser?.id;
+                                                    const isPending = now < new Date(listing.availableAt);
+
+                                                    return (
+                                                        <Card key={listing.id} className={cn(
+                                                            "overflow-hidden border-border bg-card group hover:border-primary/50 transition-all duration-300",
+                                                            isPending && "opacity-80 border-amber-500/20"
+                                                        )}>
+                                                            <CardContent className="p-0">
+                                                                <div className="flex h-28">
+                                                                    <div className="w-[35%] p-4 bg-secondary/10 flex items-center justify-center relative overflow-hidden">
+                                                                        <div className="absolute inset-0 bg-blue-500/5 rotate-12 translate-x-10 translate-y-10" />
+                                                                        <StandardPlate
+                                                                            skin={skinData}
+                                                                            size="sm"
+                                                                            className="scale-90"
+                                                                        />
+                                                                        {isPending && isOwner && (
+                                                                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-2 text-center">
+                                                                                <span className="text-[8px] font-black text-amber-500 uppercase leading-tight animate-pulse">Entrando na Fila...</span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="w-[65%] p-4 flex flex-col justify-between">
+                                                                        <div className="flex items-start justify-between">
+                                                                            <div>
+                                                                                <div className="flex items-center gap-2 mb-0.5">
+                                                                                    <h4 className="text-xs font-black group-hover:text-primary transition-colors uppercase italic">{skinData.name}</h4>
+                                                                                    {isPending && (
+                                                                                        <Badge variant="outline" className="h-3.5 text-[6px] font-black uppercase px-1 border-amber-500/30 bg-amber-500/5 text-amber-500">
+                                                                                            Processando
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="flex items-center gap-1.5">
+                                                                                    <Badge className="h-4 text-[7px] font-black uppercase px-1 px-1 bg-primary/10 text-primary border-0">Level {listing.level}</Badge>
+                                                                                    <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-black">{listing.rarity}</span>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="flex flex-col items-end">
+                                                                                <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none mb-1">Preço</span>
+                                                                                <span className="text-xs font-black text-emerald-500">{listing.price.toLocaleString()} CC</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {isOwner ? (
+                                                                                <Button
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    className="h-8 flex-1 text-[10px] font-black rounded-lg border-red-500/20 text-red-500 hover:bg-red-500/5 uppercase"
+                                                                                    onClick={() => cancelSkinListing(listing.id)}
+                                                                                >
+                                                                                    CANCELAR VENDA
+                                                                                </Button>
+                                                                            ) : (
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    className="h-8 flex-1 text-[10px] font-black rounded-lg group-hover:bg-primary/90 uppercase"
+                                                                                    onClick={() => {
+                                                                                        if (confirm(`Comprar ${skinData.name} por ${listing.price} CC?`)) {
+                                                                                            purchaseSkin(listing.id);
+                                                                                        }
+                                                                                    }}
+                                                                                    disabled={cauCashBalance < listing.price || isPending}
+                                                                                >
+                                                                                    {isPending ? "EM PROCESSAMENTO" : "COMPRAR AGORA"}
+                                                                                </Button>
+                                                                            )}
+                                                                            <Button size="icon" variant="outline" className="h-8 w-8 text-muted-foreground border-border rounded-lg">
+                                                                                <Info className="w-3.5 h-3.5" />
+                                                                            </Button>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="flex flex-col items-end">
-                                                                        <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest leading-none mb-1">Preço</span>
-                                                                        <span className="text-xs font-black text-emerald-500">{listing.price.toLocaleString()} CC</span>
-                                                                    </div>
                                                                 </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    {listing.sellerId === 'user-male-green-nonclient' ? (
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            className="h-8 flex-1 text-[10px] font-black rounded-lg border-red-500/20 text-red-500 hover:bg-red-500/5 uppercase"
-                                                                            onClick={() => cancelSkinListing(listing.id)}
-                                                                        >
-                                                                            CANCELAR VENDA
-                                                                        </Button>
-                                                                    ) : (
-                                                                        <Button
-                                                                            size="sm"
-                                                                            className="h-8 flex-1 text-[10px] font-black rounded-lg group-hover:bg-primary/90 uppercase"
-                                                                            onClick={() => {
-                                                                                if (confirm(`Comprar ${skinData.name} por ${listing.price} CC?`)) {
-                                                                                    purchaseSkin(listing.id);
-                                                                                }
-                                                                            }}
-                                                                            disabled={cauCashBalance < listing.price}
-                                                                        >
-                                                                            COMPRAR AGORA
-                                                                        </Button>
-                                                                    )}
-                                                                    <Button size="icon" variant="outline" className="h-8 w-8 text-muted-foreground border-border rounded-lg">
-                                                                        <Info className="w-3.5 h-3.5" />
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            );
-                                        })
-                                    )}
-                                </div>
+                                                            </CardContent>
+                                                        </Card>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
 
                             <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex gap-3">

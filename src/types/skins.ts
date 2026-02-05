@@ -331,6 +331,7 @@ export interface SkinListing {
     rarity: SkinRarity;
     dna?: DNA;             // DNA se for minerada
     createdAt: string;
+    availableAt: string;   // Data/hora em que a skin aparecerá no mercado público
     status: 'active' | 'sold' | 'cancelled';
 }
 

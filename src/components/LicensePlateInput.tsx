@@ -13,6 +13,7 @@ import skinBunnyReal from "@assets/skins/bunny_skin_real.png";
 interface SkinConfig {
   image?: string;
   component?: React.ComponentType<{ plateText?: string; showText?: boolean }>;
+  backgroundColor?: string;
   textPosition: {
     top: string;
     left: string;
@@ -85,6 +86,8 @@ interface LicensePlateInputProps {
 const PLATE_REGEX_OLD = /^[A-Z]{3}[0-9]{4}$/; // Antiga: ABC1234
 const PLATE_REGEX_MERCOSUL = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/; // Mercosul: ABC1D23
 
+import { useApp } from "@/contexts/AppContext";
+
 export const isValidPlate = (plate: string): boolean => {
   return PLATE_REGEX_OLD.test(plate) || PLATE_REGEX_MERCOSUL.test(plate);
 };
@@ -94,8 +97,9 @@ const LicensePlateInput = ({
   onChange,
   isStolen = false
 }: LicensePlateInputProps) => {
+  const { getVehicleByPlate, getSkinById } = useApp();
   const [isShaking, setIsShaking] = useState(false);
-  const [activeSkin, setActiveSkin] = useState<string | null>(null);
+  const [activeSkin, setActiveSkin] = useState<string | number | null>(null);
   const lastCompletePlate = useRef<string>("");
 
   // Trigger shake animation
@@ -188,20 +192,45 @@ const LicensePlateInput = ({
     // Se uma placa completa e válida foi digitada
     if (isComplete && isValid && value !== lastCompletePlate.current) {
       lastCompletePlate.current = value;
-      // Se a placa tem skin (imagem ou componente), ativa o identificador
+
+      // 1. Prioridade: Skins com configuração de imagem (hardcoded)
       if (hasSkin(value)) {
-        setActiveSkin(value); // Agora armazena a placa, não a imagem
-      } else {
-        setActiveSkin(null);
+        setActiveSkin(value);
+      }
+      // 2. Segunda opção: Skins dinâmicas do banco de dados
+      else {
+        const vehicle = getVehicleByPlate(value);
+        if (vehicle?.skinId) {
+          setActiveSkin(vehicle.skinId);
+        } else {
+          setActiveSkin(null);
+        }
       }
     }
-  }, [value, isComplete, isValid]);
+  }, [value, isComplete, isValid, getVehicleByPlate]);
 
   // Obtém a configuração da skin ativa
   const activeSkinConfig = useMemo(() => {
     if (!activeSkin) return null;
-    return plateSkinConfigs[activeSkin] || null;
-  }, [activeSkin]);
+
+    // Se for uma string (placa com config fixa)
+    if (typeof activeSkin === 'string') {
+      return plateSkinConfigs[activeSkin] || null;
+    }
+
+    // Se for um ID numérico (skin do sistema)
+    const skin = getSkinById(activeSkin as number);
+    if (skin) {
+      return {
+        image: undefined,
+        backgroundColor: skin.colorPrimary || '#FFFFFF',
+        textColor: '#1a1a1a',
+        textPosition: defaultTextPosition
+      } as SkinConfig;
+    }
+
+    return null;
+  }, [activeSkin, getSkinById]);
 
   return (
     <div className="w-full">
@@ -262,7 +291,7 @@ const LicensePlateInput = ({
                   />
                 </div>
               </div>
-            ) : (
+            ) : activeSkinConfig.image ? (
               /* Image-based skin */
               <div className="relative w-full">
                 <img
@@ -291,6 +320,41 @@ const LicensePlateInput = ({
                     inputMode="text"
                   />
                 </div>
+              </div>
+            ) : (
+              /* Dynamic background skin (from AppContext) */
+              <div
+                className="relative w-full rounded-xl overflow-hidden border-2 border-primary shadow-lg"
+              >
+                {/* Blue header with BRASIL (replicando visual mercosul mas com cor custom) */}
+                <div className="bg-[#003399] px-4 py-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                      <span className="text-xs">🇧🇷</span>
+                    </div>
+                    <span className="text-xs font-bold text-white tracking-widest">BRASIL</span>
+                  </div>
+                </div>
+
+                <div
+                  className="px-4 py-8 relative flex items-center justify-center"
+                  style={{ backgroundColor: (activeSkinConfig as any).backgroundColor }}
+                >
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full text-center text-3xl sm:text-5xl font-black tracking-[0.12em] sm:tracking-[0.15em] bg-transparent border-none outline-none uppercase text-gray-900"
+                    style={{
+                      fontFamily: "'FE-Schrift', 'Oswald', sans-serif",
+                      textShadow: '1px 1px 0 rgba(0,0,0,0.1)'
+                    }}
+                    maxLength={7}
+                    autoCapitalize="characters"
+                    inputMode="text"
+                  />
+                </div>
+                <div className="h-1 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500"></div>
               </div>
             )}
 

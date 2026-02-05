@@ -377,6 +377,15 @@ interface AppContextType {
   // Onboarding
   skinsOnboardingCompleted: boolean;
   completeSkinsOnboarding: () => void;
+
+  // Busca de Info de Skin por Placa (NOVA - Para Dashboard)
+  getPlateSkinInfo: (plate: string) => {
+    skin: Skin;
+    level: number;
+    xp: number;
+    rarity: SkinRarity;
+    categoryName: string;
+  } | null;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -2934,8 +2943,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const ownedSkin = ownedSkins.find(s => s.id === skinId);
     if (!ownedSkin) return { success: false, message: 'Você não possui esta skin' };
 
-    // Calcular taxa baseada no level (Decisão Final)
-    // L1: 15%, L2: 12%, L3: 9%, L4: 6%, L5: 3%
+    const now = new Date();
+    // Delay aleatório entre 30 e 60 minutos (para evitar combinação por fora)
+    const delayMinutes = Math.floor(Math.random() * 31) + 30;
+    const availableAt = new Date(now.getTime() + delayMinutes * 60000).toISOString();
+
+    // Calcular taxa baseada no level
     const level = ownedSkin.level || 1;
     const feeMap = [0, 0.15, 0.12, 0.09, 0.06, 0.03];
     const fee = feeMap[level] || 0.15;
@@ -2950,7 +2963,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       level,
       rarity: getSkinRarity(skinId),
       dna: ownedSkin.dna,
-      createdAt: new Date().toISOString(),
+      createdAt: now.toISOString(),
+      availableAt: availableAt,
       status: 'active'
     };
 
@@ -3032,6 +3046,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showAlert('Info', 'Anúncio cancelado e skin devolvida à coleção.', 'info');
     return { success: true, message: 'Anúncio cancelado' };
   }, [marketListings, showAlert]);
+
+  const getPlateSkinInfo = useCallback((plate: string) => {
+    const normalizedPlate = plate.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const vehicle = vehicles.find(v => v.plate.toUpperCase().replace(/[^A-Z0-9]/g, '') === normalizedPlate);
+
+    if (!vehicle || !vehicle.skinId) return null;
+
+    const skin = getSkinById(vehicle.skinId);
+    if (!skin) return null;
+
+    // Se a placa for do usuário atual, pegamos o XP real
+    const ownedSkin = ownedSkins.find(s => s.id === vehicle.skinId);
+
+    return {
+      skin,
+      level: ownedSkin?.level || 1,
+      xp: ownedSkin?.xp || 0,
+      rarity: getSkinRarity(vehicle.skinId),
+      categoryName: getCategoryByIdMock(skin.categoryId)?.name || 'Coleção'
+    };
+  }, [vehicles, ownedSkins, getSkinById, getSkinRarity]);
 
   const value: AppContextType = {
     isLoggedIn,
@@ -3172,7 +3207,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     marketListings,
     createSkinListing,
     purchaseSkin,
-    cancelSkinListing
+    cancelSkinListing,
+    // Skin Info
+    getPlateSkinInfo
   };
 
   return (
