@@ -74,6 +74,17 @@ const Dashboard = () => {
     sessionStorage.setItem("cautoo_show_legacy_actions", showLegacyActions.toString());
   }, [showLegacyActions]);
 
+  const { getPlateSkinInfo } = useApp();
+  const skinInfo = getPlateSkinInfo(plateValue);
+
+  // Mock fixo para o veículo pesquisado (será dinâmico futuramente)
+  const vehicleInfo = {
+    marca: "Volkswagen",
+    modelo: "Gol 1.0",
+    cor: "Prata",
+    ano: "2019/2020"
+  };
+
   // Scroll to dashboard grid when returning from a functionality
   useEffect(() => {
     if (showLegacyActions && legacyActionsRef.current) {
@@ -421,129 +432,144 @@ const Dashboard = () => {
               </div>
 
               {/* Vehicle Info Card - appears when plate is valid */}
+              {/* Vehicle Info Card - appears when plate is valid */}
               <AnimatePresence>
                 {isValidPlate(plateValue) && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
+                    className="relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300"
                   >
-                    {((): React.ReactNode => {
-                      const vehicleInfo = {
-                        marca: "Volkswagen",
-                        modelo: "Gol 1.0",
-                        cor: "Prata",
-                        ano: "2019/2020"
-                      };
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
+                    </div>
 
-                      const { getPlateSkinInfo } = useApp();
-                      const skinInfo = getPlateSkinInfo(plateValue);
+                    <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-2">
+                        <Disc className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dados do Veículo</span>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 font-medium">
+                        Verificado
+                      </span>
+                    </div>
 
-                      return (
-                        <div className="relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300">
-                          <div className="absolute inset-0 opacity-10">
-                            <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
+                    <div className="relative z-10">
+                      <div className="p-4 space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-secondary/30 rounded-xl p-3">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Marca</p>
+                            <p className="text-sm font-bold text-foreground">{vehicleInfo.marca}</p>
                           </div>
-                          <div className="px-4 py-8 flex flex-col items-center justify-center bg-muted/20 border-b border-border/50">
-                            <LicensePlateDisplay
-                              plate={plateValue}
-                              size="lg"
-                              skinId={getVehicleByPlate(plateValue)?.skinId}
-                            />
+                          <div className="bg-secondary/30 rounded-xl p-3">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Modelo</p>
+                            <p className="text-sm font-bold text-foreground">{vehicleInfo.modelo}</p>
                           </div>
-                          <div className="relative">
-                            <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Disc className="w-4 h-4 text-primary" />
-                                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Dados do Veículo</span>
-                              </div>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 font-medium">
-                                Verificado
-                              </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-secondary/30 rounded-xl p-3">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Cor</p>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-gray-400 border border-white/20" />
+                              <p className="text-sm font-bold text-foreground">{vehicleInfo.cor}</p>
                             </div>
-                            <div className="p-4 space-y-3">
-                              <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-secondary/30 rounded-xl p-3">
-                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Marca</p>
-                                  <p className="text-sm font-bold text-foreground">{vehicleInfo.marca}</p>
-                                </div>
-                                <div className="bg-secondary/30 rounded-xl p-3">
-                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Modelo</p>
-                                  <p className="text-sm font-bold text-foreground">{vehicleInfo.modelo}</p>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-secondary/30 rounded-xl p-3">
-                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Cor</p>
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-gray-400 border border-white/20" />
-                                    <p className="text-sm font-bold text-foreground">{vehicleInfo.cor}</p>
-                                  </div>
-                                </div>
-                                <div className="bg-secondary/30 rounded-xl p-3">
-                                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ano</p>
-                                  <p className="text-sm font-bold text-foreground">{vehicleInfo.ano}</p>
-                                </div>
-                              </div>
+                          </div>
+                          <div className="bg-secondary/30 rounded-xl p-3">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ano</p>
+                            <p className="text-sm font-bold text-foreground">{vehicleInfo.ano}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* DADOS DA SKIN (SE HOUVER) */}
+                      {skinInfo && (
+                        <div className="mx-4 mb-4 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 space-y-4">
+                          <div className="flex items-center justify-between border-b border-primary/10 pb-2 mb-1">
+                            <div className="flex items-center gap-2">
+                              <Palette className="w-4 h-4 text-primary" />
+                              <span className="text-xs font-bold uppercase tracking-wider text-primary">Dados da Skin</span>
                             </div>
+                            <Badge className={cn(
+                              "text-[8px] font-bold uppercase px-2 h-4 border-none shrink-0",
+                              skinInfo.rarity === 'lendaria' ? "bg-amber-500 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]" :
+                                skinInfo.rarity === 'epica' ? "bg-purple-500 text-white" : "bg-primary text-white"
+                            )}>
+                              {skinInfo.rarity}
+                            </Badge>
+                          </div>
 
-                            {/* DADOS DA SKIN (SE HOUVER) */}
-                            {skinInfo && (
-                              <div className="mx-4 mb-4 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 space-y-3">
-                                <div className="flex items-center justify-between border-b border-primary/10 pb-2 mb-1">
-                                  <div className="flex items-center gap-2">
-                                    <Palette className="w-4 h-4 text-primary" />
-                                    <span className="text-xs font-black uppercase tracking-wider text-primary">Dados da Skin</span>
-                                  </div>
-                                  <Badge className={cn(
-                                    "text-[8px] font-black uppercase px-2 h-4",
-                                    skinInfo.rarity === 'lendaria' ? "bg-amber-500 text-black" :
-                                      skinInfo.rarity === 'epica' ? "bg-purple-500 text-white" : "bg-primary text-white"
-                                  )}>
-                                    {skinInfo.rarity}
-                                  </Badge>
-                                </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-0.5">
+                              <p className="text-[9px] text-muted-foreground uppercase font-medium tracking-widest leading-none opacity-70">Design da Placa</p>
+                              <p className="text-sm font-bold text-foreground uppercase tracking-tighter truncate">{skinInfo.skin.name}</p>
+                            </div>
+                            <div className="space-y-0.5 text-right">
+                              <p className="text-[9px] text-muted-foreground uppercase font-medium tracking-widest leading-none opacity-70">Coleção Oficial</p>
+                              <p className="text-xs font-bold text-primary uppercase">{skinInfo.categoryName}</p>
+                            </div>
+                          </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="space-y-0.5">
-                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">Design</p>
-                                    <p className="text-sm font-black text-foreground italic uppercase tracking-tighter truncate">{skinInfo.skin.name}</p>
-                                  </div>
-                                  <div className="space-y-0.5 text-right">
-                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">Coleção</p>
-                                    <p className="text-xs font-black text-primary uppercase">{skinInfo.categoryName}</p>
-                                  </div>
-                                </div>
-
-                                <div className="space-y-2 pt-1">
-                                  <div className="flex justify-between items-end">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] font-black text-primary px-1.5 py-0.5 bg-primary/20 rounded-md">LVL {skinInfo.level}</span>
-                                      <span className="text-[8px] font-black text-muted-foreground uppercase">Evolução da Placa</span>
-                                    </div>
-                                    <span className="text-[9px] font-black text-muted-foreground">{skinInfo.xp} / 1000 XP</span>
-                                  </div>
-                                  <div className="h-1.5 w-full bg-secondary/50 rounded-full overflow-hidden">
-                                    <motion.div
-                                      className="h-full bg-primary"
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${(skinInfo.xp / 1000) * 100}%` }}
-                                      transition={{ duration: 1, ease: "easeOut" }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="px-4 pb-4">
-                              <p className="text-[10px] text-center text-muted-foreground/70">
-                                Confirme se as informações correspondem ao veículo
+                          {/* Benefícios */}
+                          {skinInfo.skin.benefitType !== 'none' && (
+                            <div className="bg-black/20 rounded-xl p-3 border border-white/5">
+                              <p className="text-[9px] text-primary/80 uppercase font-bold tracking-widest mb-1.5 flex items-center gap-1.5">
+                                <Shield className="w-3 h-3" /> Benefício Ativo
                               </p>
+                              <p className="text-xs font-bold text-foreground/90">
+                                {skinInfo.skin.benefitDescription || (skinInfo.skin.benefitType === 'coverage' ? `Cobertura Assistencial R$ ${skinInfo.skin.benefitValue?.toLocaleString()}` : 'Vantagem Exclusiva')}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* DNA para Lendárias */}
+                          {skinInfo.rarity === 'lendaria' && (
+                            <div className="grid grid-cols-3 gap-2 py-1 border-t border-primary/10 pt-3">
+                              <div className="text-center p-2 bg-black/30 rounded-lg border border-white/5">
+                                <p className="text-[7px] text-muted-foreground uppercase font-medium mb-1">Gênesis</p>
+                                <p className="text-[10px] font-mono font-bold text-amber-500 tracking-tight">#1234</p>
+                              </div>
+                              <div className="text-center p-2 bg-black/30 rounded-lg border border-white/5">
+                                <p className="text-[7px] text-muted-foreground uppercase font-medium mb-1">Serial</p>
+                                <p className="text-[10px] font-mono font-bold text-amber-500 tracking-tight">LEG-26</p>
+                              </div>
+                              <div className="text-center p-2 bg-black/30 rounded-lg border border-white/5">
+                                <p className="text-[7px] text-muted-foreground uppercase font-medium mb-1">Genes</p>
+                                <div className="flex justify-center gap-0.5 mt-0.5">
+                                  <div className="w-1 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                                  <div className="w-1 h-2.5 bg-blue-500 rounded-full" />
+                                  <div className="w-1 h-2.5 bg-amber-500 rounded-full animate-pulse" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="space-y-2 pt-2 border-t border-primary/10">
+                            <div className="flex justify-between items-end">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/20 rounded-md border border-primary/20 tracking-tighter">LVL {skinInfo.level}</span>
+                                <span className="text-[8px] font-medium text-muted-foreground uppercase tracking-widest">Evolução</span>
+                              </div>
+                              <span className="text-[9px] font-medium text-muted-foreground tabular-nums opacity-80">{skinInfo.xp} / 1000 XP</span>
+                            </div>
+                            <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner p-[1px]">
+                              <motion.div
+                                className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full shadow-[0_0_8px_rgba(59,130,246,0.3)]"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${Math.min(100, (skinInfo.xp / 1000) * 100)}%` }}
+                                transition={{ duration: 1.5, ease: "circOut" }}
+                              />
                             </div>
                           </div>
                         </div>
-                      );
-                    })()}
+                      )}
+
+                      <div className="px-4 pb-4">
+                        <p className="text-[10px] text-center text-muted-foreground/60">
+                          Confirme se as informações correspondem ao veículo visualizado
+                        </p>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -690,8 +716,8 @@ const Dashboard = () => {
 
           </div>
         </main>
-      </div>
-    </PageTransition>
+      </div >
+    </PageTransition >
   );
 };
 
