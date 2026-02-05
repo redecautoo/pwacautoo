@@ -178,6 +178,7 @@ interface AppContextType {
   payForStolenAlert: (plate: string) => boolean; // Pagar por alerta de roubo
   reactivateStolenAlert: (id: string) => void; // Reativar alerta pago
   isPlateRegistered: (plate: string) => boolean;
+  applySkinToVehicle: (vehicleId: string, skinId: number) => void;
 
   // Alerts
   alerts: Alert[];
@@ -1590,6 +1591,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   }, [addTransaction]);
 
+  const applySkinToVehicle = useCallback((vehicleId: string, skinId: number) => {
+    setVehicles(prev => {
+      const updated = prev.map(v => v.id === vehicleId ? { ...v, skinId } : v);
+      localStorage.setItem('cautoo_vehicles_v1', JSON.stringify(updated));
+      return updated;
+    });
+
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    showAlert('🎨 Design Atualizado!', `A placa ${vehicle?.plate} agora exibe seu novo visual.`, 'success');
+  }, [vehicles, showAlert]);
+
   const reactivateStolenAlert = useCallback((id: string) => {
     if (cauCashBalanceRef.current < 10) return;
     addTransaction({
@@ -2182,7 +2194,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Solicitações de Contato
   const getVehicleByPlate = useCallback((plate: string): Vehicle | undefined => {
     const allVehicles = [...vehicles, ...stolenVehicles];
-    return allVehicles.find(v => v.plate === plate);
+    return allVehicles.find(v => v.plate.toUpperCase() === plate.toUpperCase());
   }, [vehicles, stolenVehicles]);
 
   const sendContactRequest = useCallback((toPlate: string, reason: string): boolean => {
@@ -3148,6 +3160,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     switchLinkedSkin,
     unlinkSkin,
     canSwitchSkin,
+    applySkinToVehicle,
     // Puzzle de Coleção
     updatePuzzleSlot,
     validatePuzzle,

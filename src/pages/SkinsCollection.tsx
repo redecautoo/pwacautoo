@@ -140,6 +140,8 @@ export default function SkinsCollection() {
         showAlert,
         selectedColor,
         setSelectedColor,
+        vehicles,
+        applySkinToVehicle,
         // Puzzle
         updatePuzzleSlot,
         validatePuzzle,
@@ -160,6 +162,7 @@ export default function SkinsCollection() {
     // Marketplace state
     const [sellModalSkin, setSellModalSkin] = useState<any>(null);
     const [listingPrice, setListingPrice] = useState<number>(0);
+    const [applyModalSkin, setApplyModalSkin] = useState<any>(null);
 
     // Handlers
     const handleMiningSubmit = () => {
@@ -275,9 +278,10 @@ export default function SkinsCollection() {
                                                     key={skin.id}
                                                     className="inline-block"
                                                     onClick={() => {
-                                                        if (skin.categoryId === 'base_colors' && skin.colorPrimary) {
-                                                            setSelectedColor(skin.colorPrimary);
-                                                            showAlert("SUCESSO", `Cor alterada para ${skin.name}`, "success");
+                                                        if (skin.categoryId === 'base_colors') {
+                                                            setApplyModalSkin(skin);
+                                                        } else if (collection.ownedSkins.includes(skin.id)) {
+                                                            setApplyModalSkin(skin);
                                                         } else {
                                                             setSelectedSkin(skin);
                                                         }
@@ -816,6 +820,75 @@ export default function SkinsCollection() {
                                         }}
                                     >
                                         CONFIRMAR
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+
+                    {/* APPLY SKIN TO VEHICLE MODAL */}
+                    {applyModalSkin && (
+                        <Dialog open={!!applyModalSkin} onOpenChange={() => setApplyModalSkin(null)}>
+                            <DialogContent className="max-w-[400px] w-[95vw] rounded-[32px] border-border bg-card overflow-hidden p-8 gap-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+                                <div className="text-center space-y-2">
+                                    <h3 className="text-xl font-black uppercase tracking-tighter italic text-primary">Personalizar Placa</h3>
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">Escolha qual veículo receberá este design</p>
+                                </div>
+
+                                <div className="flex justify-center py-4 scale-90">
+                                    <StandardPlate skin={applyModalSkin} size="md" />
+                                </div>
+
+                                <div className="space-y-3">
+                                    {vehicles.length === 0 ? (
+                                        <div className="text-center py-8 opacity-50 bg-secondary/10 rounded-2xl border border-dashed border-border flex flex-col items-center gap-2">
+                                            <Search className="w-8 h-8 opacity-20" />
+                                            <p className="text-[10px] font-black uppercase tracking-widest">Nenhum veículo cadastrado</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {vehicles.map((v) => (
+                                                <div
+                                                    key={v.id}
+                                                    onClick={() => {
+                                                        applySkinToVehicle(v.id, applyModalSkin.id);
+                                                        setApplyModalSkin(null);
+                                                    }}
+                                                    className={cn(
+                                                        "p-4 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group flex items-center justify-between",
+                                                        v.skinId === applyModalSkin.id
+                                                            ? "bg-primary/10 border-primary/50"
+                                                            : "bg-secondary/10 hover:bg-primary/5 border-border/50"
+                                                    )}
+                                                >
+                                                    <div className="space-y-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-black uppercase italic tracking-tighter">{v.plate}</span>
+                                                            {v.skinId === applyModalSkin.id && (
+                                                                <Badge className="h-4 text-[7px] font-black bg-emerald-500 text-white rounded-md">ATUAL</Badge>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-[9px] text-muted-foreground font-black uppercase">{v.model} • {v.color}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {v.skinId && v.skinId !== applyModalSkin.id && (
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                                                        )}
+                                                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] text-muted-foreground hover:text-foreground"
+                                        onClick={() => setApplyModalSkin(null)}
+                                    >
+                                        CANCELAR
                                     </Button>
                                 </div>
                             </DialogContent>

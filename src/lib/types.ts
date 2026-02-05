@@ -92,6 +92,9 @@ export interface Vehicle {
   scoreHistory?: ScoreHistoryEntry[]; // Histórico de scores arquivados
   lastClaimDate?: string; // Última reivindicação (proteção 6 meses)
   lastScoreUpdate?: string; // Para controle de decaimento mensal
+
+  // Personalização
+  skinId?: number; // ID da skin (cor livre ou especial) aplicada
 }
 
 // Helper para verificar se veículo está bloqueado (reivindicação pendente)

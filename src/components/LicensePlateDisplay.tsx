@@ -5,6 +5,7 @@ import skinPOK1234 from "@assets/POK1234_1769674661003.png";
 import skinARA1234 from "@assets/ARA1234_1769674661003.png";
 import skinROS1234 from "@assets/ROS1234_1769835958080.png";
 import skinBunnyReal from "@assets/skins/bunny_skin_real.png";
+import { getSkinById } from "@/data/mockSkins";
 
 interface SkinConfig {
   image?: string;
@@ -46,13 +47,16 @@ interface LicensePlateDisplayProps {
   plate: string;
   size?: "sm" | "md" | "lg";
   isStolen?: boolean;
+  skinId?: number;
 }
 
 export const LicensePlateDisplay = ({
   plate,
   size = "md",
-  isStolen = false
+  isStolen = false,
+  skinId
 }: LicensePlateDisplayProps) => {
+  const skin = skinId ? getSkinById(skinId) : null;
   const skinConfig = plateSkinConfigs[plate] || null;
 
   const sizeClasses = {
@@ -144,7 +148,10 @@ export const LicensePlateDisplay = ({
             <div className="w-1 h-1 rounded-full bg-yellow-400"></div>
           </div>
         </div>
-        <div className={`bg-[#f5f5f5] px-3 ${textPaddingClasses[size]} flex-1 flex items-center justify-center`}>
+        <div
+          className={`px-3 ${textPaddingClasses[size]} flex-1 flex items-center justify-center`}
+          style={{ backgroundColor: skin?.colorPrimary || '#f5f5f5' }}
+        >
           <span
             className={`${sizeClasses[size]} font-black tracking-[0.08em] text-gray-900 block text-center`}
             style={{

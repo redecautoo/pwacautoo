@@ -260,6 +260,7 @@ const VehicleDetails = () => {
                   plate={vehicle.plate}
                   size="md"
                   isStolen={vehicle.isStolen}
+                  skinId={vehicle.skinId}
                 />
                 <div className="flex flex-col gap-1 flex-1">
                   {isBlocked && (

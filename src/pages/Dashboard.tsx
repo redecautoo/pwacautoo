@@ -53,7 +53,7 @@ type InteractionMode = "rate" | "solidary" | "report" | null;
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { currentUser, vehicles, alerts, logout, showAlert } = useApp();
+  const { currentUser, vehicles, alerts, logout, showAlert, getVehicleByPlate } = useApp();
   const [vehiclesExpanded, setVehiclesExpanded] = useState(false);
   const [plateSearch, setPlateSearch] = useState("");
 
@@ -186,6 +186,7 @@ const Dashboard = () => {
                 plate={vehicle.plate}
                 size="sm"
                 isStolen={vehicle.isStolen}
+                skinId={vehicle.skinId}
               />
             )}
             <div className="flex flex-col gap-1">
@@ -436,6 +437,13 @@ const Dashboard = () => {
                         <div className="relative overflow-hidden rounded-2xl bg-card border border-border transition-all duration-300">
                           <div className="absolute inset-0 opacity-10">
                             <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary blur-3xl" />
+                          </div>
+                          <div className="px-4 py-8 flex flex-col items-center justify-center bg-muted/20 border-b border-border/50">
+                            <LicensePlateDisplay
+                              plate={plateValue}
+                              size="lg"
+                              skinId={getVehicleByPlate(plateValue)?.skinId}
+                            />
                           </div>
                           <div className="relative">
                             <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
