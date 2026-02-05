@@ -361,6 +361,12 @@ interface AppContextType {
   unlinkSkin: (skinId: number) => { success: boolean; message: string };
   canSwitchSkin: (skinId: number) => boolean;
 
+  // Puzzle de Coleção (NOVA - Fase 4)
+  updatePuzzleSlot: (position: number, skinId: number | null) => void;
+  validatePuzzle: () => number;
+  useHint: (hintId: string) => void;
+  completePuzzle: () => { success: boolean; message: string };
+
   // Onboarding
   skinsOnboardingCompleted: boolean;
   completeSkinsOnboarding: () => void;
@@ -2804,6 +2810,56 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { success: true, message: 'Skin desvinculada' };
   }, []);
 
+  // ===== PUZZLE DE COLEÇÃO =====
+  const updatePuzzleSlot = useCallback((position: number, skinId: number | null) => {
+    setCollection(prev => ({
+      ...prev,
+      slots: prev.slots.map(slot =>
+        slot.position === position ? { ...slot, skinId } : slot
+      )
+    }));
+  }, []);
+
+  const validatePuzzle = useCallback((): number => {
+    // TODO: Implementar validação real com ordem correta
+    // Por enquanto, conta quantas skins estão preenchidas
+    const filledSlots = collection.slots.filter(s => s.skinId !== null).length;
+
+    setCollection(prev => ({
+      ...prev,
+      correctCount: filledSlots
+    }));
+
+    return filledSlots;
+  }, [collection]);
+
+  const useHint = useCallback((hintId: string) => {
+    // TODO: Implementar uso de dica
+    console.log(`[PUZZLE] Usando dica: ${hintId}`);
+  }, []);
+
+  const completePuzzle = useCallback(() => {
+    const correctCount = validatePuzzle();
+
+    if (correctCount === 7) {
+      // Dar +1000 XP de recompensa!
+      const linkedSkin = collection.slots.find(slot => slot.skinId !== null);
+      if (linkedSkin && linkedSkin.skinId) {
+        addXP(linkedSkin.skinId, 1000);
+      }
+
+      showAlert(
+        '🎉 PUZZLE COMPLETO!',
+        'Você organizou todas as skins corretamente e ganhou +1000 XP!',
+        'success'
+      );
+
+      return { success: true, message: 'Puzzle completo!' };
+    }
+
+    return { success: false, message: `Ainda faltam ${7 - correctCount} skins corretas` };
+  }, [validatePuzzle, collection, addXP, showAlert]);
+
 
   const value: AppContextType = {
     isLoggedIn,
@@ -2932,6 +2988,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     switchLinkedSkin,
     unlinkSkin,
     canSwitchSkin,
+    // Puzzle de Coleção
+    updatePuzzleSlot,
+    validatePuzzle,
+    useHint,
+    completePuzzle,
     skinsOnboardingCompleted,
     completeSkinsOnboarding
   };

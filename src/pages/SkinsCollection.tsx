@@ -41,6 +41,7 @@ import { PageTransition } from '@/components/PageTransition';
 import { cn } from "@/lib/utils";
 import { SKIN_CATEGORIES, INITIAL_COLLECTION, INITIAL_MINING, getSkinById } from '@/data/mockSkins';
 import { SkinLevelBadge, SkinLevelIcon } from '@/components/SkinLevelBadge';
+import { CollectionPuzzle } from '@/components/CollectionPuzzle';
 
 // Helper component for Standard Plate
 const StandardPlate = ({
@@ -138,7 +139,12 @@ export default function SkinsCollection() {
         cauCashBalance,
         showAlert,
         selectedColor,
-        setSelectedColor
+        setSelectedColor,
+        // Puzzle
+        updatePuzzleSlot,
+        validatePuzzle,
+        useHint,
+        completePuzzle
     } = useApp();
 
     const [activeTab, setActiveTab] = useState('skins');
@@ -210,12 +216,15 @@ export default function SkinsCollection() {
                 <main className="max-w-lg mx-auto">
                     <Tabs defaultValue="skins" value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <div className="px-4 py-4 bg-background sticky top-[69px] z-40">
-                            <TabsList className="grid w-full grid-cols-4 h-12 bg-card border border-border rounded-xl p-1">
+                            <TabsList className="grid w-full grid-cols-5 h-12 bg-card border border-border rounded-xl p-1">
                                 <TabsTrigger value="skins" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg text-[10px] gap-1 px-1">
                                     <Palette className="w-3.5 h-3.5" /> SKINS
                                 </TabsTrigger>
                                 <TabsTrigger value="colecao" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg text-[10px] gap-1 px-1">
                                     <Layers className="w-3.5 h-3.5" /> COLEÇÃO
+                                </TabsTrigger>
+                                <TabsTrigger value="puzzle" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg text-[10px] gap-1 px-1">
+                                    <Target className="w-3.5 h-3.5" /> PUZZLE
                                 </TabsTrigger>
                                 <TabsTrigger value="mineracao" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg text-[10px] gap-1 px-1">
                                     <Pickaxe className="w-3.5 h-3.5" /> MINERAR
@@ -381,6 +390,20 @@ export default function SkinsCollection() {
                                     )}
                                 </div>
                             </div>
+                        </TabsContent>
+
+                        {/* TAB CONTENT: PUZZLE */}
+                        <TabsContent value="puzzle" className="mt-0 px-4 space-y-6 pb-8 focus-visible:outline-none">
+                            <CollectionPuzzle
+                                slots={collection.slots}
+                                ownedSkins={collection.ownedSkins}
+                                availableHints={[]} // TODO: Implementar sistema de dicas
+                                onSlotChange={updatePuzzleSlot}
+                                onUseHint={useHint}
+                                onComplete={completePuzzle}
+                                correctCount={collection.correctCount}
+                                isCompleted={collection.correctCount === 7}
+                            />
                         </TabsContent>
 
                         {/* TAB CONTENT: MINERAÇÃO */}
