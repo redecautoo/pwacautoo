@@ -736,7 +736,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [ownedSkins, setOwnedSkins] = useState<any[]>(() => {
     try {
       const stored = localStorage.getItem('cautoo_owned_skins_v1');
-      return stored ? JSON.parse(stored) : [];
+      if (stored) return JSON.parse(stored);
+
+      // Adicionando evolução de teste para a placa BAT1234 (Skin 1002)
+      return [
+        { id: 1002, xp: 731, level: 1, acquiredAt: new Date().toISOString() }
+      ];
     } catch (e) {
       return [];
     }
