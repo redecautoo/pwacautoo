@@ -547,19 +547,32 @@ const Dashboard = () => {
                           <div className="space-y-2 pt-2 border-t border-primary/10">
                             <div className="flex justify-between items-end">
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/20 rounded-md border border-primary/20 tracking-tighter">LVL {skinInfo.level}</span>
-                                <span className="text-[8px] font-medium text-muted-foreground uppercase tracking-widest">Evolução</span>
+                                {skinInfo.rarity === 'comum' ? (
+                                  <span className="text-[10px] font-bold text-muted-foreground px-2 py-0.5 bg-secondary/50 rounded-md border border-border tracking-tighter uppercase">Skin Sem Evolução</span>
+                                ) : (
+                                  <>
+                                    <span className="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/20 rounded-md border border-primary/20 tracking-tighter">LVL {skinInfo.level}</span>
+                                    <span className="text-[8px] font-medium text-muted-foreground uppercase tracking-widest">Evolução</span>
+                                  </>
+                                )}
                               </div>
-                              <span className="text-[9px] font-medium text-muted-foreground tabular-nums opacity-80">{skinInfo.xp} / 1000 XP</span>
+                              {skinInfo.rarity !== 'comum' && (
+                                <span className="text-[9px] font-medium text-muted-foreground tabular-nums opacity-80">{skinInfo.xp} / 1000 XP</span>
+                              )}
                             </div>
-                            <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner p-[1px]">
-                              <motion.div
-                                className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full shadow-[0_0_8px_rgba(59,130,246,0.3)]"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${Math.min(100, (skinInfo.xp / 1000) * 100)}%` }}
-                                transition={{ duration: 1.5, ease: "circOut" }}
-                              />
-                            </div>
+
+                            {skinInfo.rarity !== 'comum' ? (
+                              <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner p-[1px]">
+                                <motion.div
+                                  className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full shadow-[0_0_8px_rgba(59,130,246,0.3)]"
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${Math.min(100, (skinInfo.xp / 1000) * 100)}%` }}
+                                  transition={{ duration: 1.5, ease: "circOut" }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="h-1.5 w-full bg-secondary/20 rounded-full border border-border/10 opacity-30" />
+                            )}
                           </div>
                         </div>
                       )}
