@@ -736,12 +736,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [ownedSkins, setOwnedSkins] = useState<any[]>(() => {
     try {
       const stored = localStorage.getItem('cautoo_owned_skins_v1');
-      if (stored) return JSON.parse(stored);
+      let skins = stored ? JSON.parse(stored) : [];
 
-      // Adicionando evolução de teste para a placa BAT1234 (Skin 1002)
-      return [
-        { id: 1002, xp: 731, level: 1, acquiredAt: new Date().toISOString() }
-      ];
+      // Forçar XP de teste para BAT1234 (Skin 1002) se não existir ou estiver zerado
+      const batSkin = skins.find((s: any) => s.id === 1002);
+      if (!batSkin) {
+        skins.push({ id: 1002, xp: 731, level: 1, acquiredAt: new Date().toISOString() });
+      } else if (batSkin.xp === 0) {
+        batSkin.xp = 731;
+      }
+
+      return skins;
     } catch (e) {
       return [];
     }

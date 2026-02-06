@@ -602,6 +602,19 @@ export const mockVehicles: Vehicle[] = [
     skinId: 1003
   },
   {
+    id: 'vehicle-demo-common',
+    plate: 'COM1234',
+    model: 'Renault Kwid',
+    color: 'Branco',
+    ownerId: 'user-female-nonclient',
+    score: 450,
+    hasCompleteInfo: false,
+    hasActivePlan: false,
+    isStolen: false,
+    createdAt: '2024-01-10T10:00:00Z',
+    skinId: 4 // Skin Comum (Roxa) de uma categoria que não tem nível
+  },
+  {
     id: 'vehicle-demo-poke',
     plate: 'POK1234',
     model: 'Mini Cooper',
